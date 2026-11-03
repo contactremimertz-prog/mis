@@ -1,4 +1,4 @@
-# MIS Hélicoptères : démonstration EASA (V2.6.1)
+# MIS Hélicoptères : démonstration EASA (V2.7)
 
 Site statique de démonstration d'un MIS (Management Information System) pour une flotte d'hélicoptères fictive, couvrant Part-M / Part-CAMO, Part-145, Part-21, la logistique et la qualité.
 
@@ -14,12 +14,13 @@ Sur un serveur web (GitHub Pages ou `python3 -m http.server`), la base utilise W
 |---|---|
 | `index.html` | Page unique : politique de sécurité du contenu (CSP) et chargeur des scripts intégré, autorisé par son empreinte sha256 ; contrôle SRI (sha384) de chaque script en http(s) |
 | `js/core/` | Socle : état partagé, langues, droits, base SQLite, journal d'audit, règles de navigabilité, session |
-| `js/ui/` | Interface : composants, écrans, fiches, signature simulée, connexion |
+| `js/ui/` | Interface : composants, écrans, fiches, signature simulée, connexion, panneau de l'assistant |
+| `js/chat/` | Assistant MIS : base des 20 questions validées en 4 langues (`kb.js`) et recherche par mot-clé (`engine.js`) |
 | `js/actions/` | Actions métier : OT et CRS, stock et Form 1, qualité, administration |
 | `js/export/` | Exports CSV et PDF |
 | `js/main.js` | Point d'entrée : affichage, navigation, événements, démarrage |
 | `js/seed.js` | Schéma SQLite et données de démonstration fictives |
-| `js/i18n/fr.js`, `en.js`, `es.js`, `de.js` | Un fichier de traduction par langue (578 textes chacun) |
+| `js/i18n/fr.js`, `en.js`, `es.js`, `de.js` | Un fichier de traduction par langue (600 textes chacun) |
 | `css/app.css` | Styles, thèmes clair et sombre, responsive |
 | `tools/update-sri.py` | Recalcule les empreintes SRI et CSP : à lancer après toute modification d'un fichier JS ou du chargeur |
 | `docs/ARCHITECTURE.md` | Architecture interne (en anglais) : modules, flux de données, fonctions publiques |
@@ -43,6 +44,19 @@ Chaque échec (connexion ou signature) est inscrit au journal d'audit. Le verrou
 | Inès Roche | Magasinier |
 | Rémi Quentel | Responsable qualité |
 | Alex Martin | Administrateur |
+
+## Assistant MIS (chatbot)
+
+Le bouton rond « ? » en bas à droite ouvre l'assistant, pour tous les profils connectés. Le site restant statique (décision du POC), l'assistant ne génère aucun texte et n'appelle aucun service externe : il affiche uniquement les **20 réponses validées** (questions fréquentes, contrôle EASA au texte), dans la langue du site (FR, EN, ES, DE).
+
+- **Questions fréquentes** : 4 questions proposées selon le rôle du profil.
+- **Mot-clé ou question libre** : la recherche compare les mots saisis aux mots-clés des 20 réponses, dans les 4 langues. Si plusieurs réponses sont aussi proches, l'assistant propose de préciser ; sans réponse validée, il le dit et oriente vers le responsable qualité.
+- **Chaque réponse** cite ses sources et propose, si le rôle y a accès, un lien vers l'écran concerné, ainsi que les boutons « Oui, réponse utile » / « Non, réponse non utile ».
+- **Hors périmètre** : l'assistant n'agit jamais sur les données et ne donne pas d'avis de conformité sur un cas réel.
+- **Confidentialité** : l'historique et les avis restent en mémoire pour la session ; rien n'est journalisé, stocké ni envoyé. Ils sont effacés à la déconnexion, au changement de profil et à la fermeture de la page.
+- **Clavier** : Entrée pour envoyer, Maj+Entrée pour aller à la ligne, Échap pour fermer.
+
+Limite : les réponses sont figées dans `js/chat/kb.js`. Toute nouvelle question doit être rédigée, validée (y compris par le contrôle EASA pour les références) puis ajoutée au fichier dans les 4 langues.
 
 ## Scénario de démo conseillé (critères d'acceptation)
 
@@ -77,6 +91,7 @@ Le cahier de tests complet est dans [docs/TESTS-FONCTIONNELS.md](docs/TESTS-FONC
 
 ## Historique
 
+- **V2.7** : assistant MIS (chatbot) à réponses validées, sans serveur : 20 questions en 4 langues, recherche par mot-clé, demande de précision, refus hors périmètre, sources, liens vers les écrans autorisés, avis utile / non utile en mémoire seulement.
 - **V2.6.1** : documentation mise à jour et cahier de tests fonctionnels (`docs/TESTS-FONCTIONNELS.md`). Correction : certaines données d'exemple n'étaient pas chargées (catégorie B1/B2 des certificateurs, révisions de documents en attente, liens OT vers AD et modification, date de clôture d'une NC).
 - **V2.6** : revalidation du test d'intrusion. Verrouillage persistant calculé depuis le journal (5 échecs en 10 min par profil, 20 au total), appliqué aussi à la signature ; numéros d'habilitation courts remplacés par des codes personnels aléatoires de 12 caractères, non publiés ; limites du statique documentées.
 - **V2.5** : corrections du test d'intrusion. P1 : connexion obligatoire et changement de profil par numéro d'habilitation, échecs journalisés, blocage après 5 échecs. P2 : numéros stockés uniquement sous forme d'empreinte PBKDF2 salée, CRS sans numéro. P4 : chargeur intégré et autorisé par empreinte CSP. P6 : échappement par défaut des fiches. P3 et P5 (journal recalculable sur le poste) : limite d'un site sans serveur, documentée.

@@ -93,6 +93,7 @@
     $("#nav").innerHTML = "";
     $("#main").innerHTML = loginView() + footer();
     bindLoginView();
+    MIS.renderChat();
   }
 
   /** Redraws the header, navigation and current screen. */
@@ -106,6 +107,7 @@
     S.exportSpec = null;
     const html = canSee(screen) ? VIEWS[screen]() : renderDenied(screen);
     $("#main").innerHTML = html + footer();
+    MIS.renderChat();
   }
 
   /* =========================================================
@@ -175,6 +177,7 @@
     $("#lang").addEventListener("change", onLanguageChange);
     $("#user").addEventListener("change", onProfileChange);
     $("#search-form").addEventListener("submit", onSearch);
+    MIS.bindChat();
     window.addEventListener("hashchange", () => { closeDlg(); render(); window.scrollTo(0, 0); });
   }
 

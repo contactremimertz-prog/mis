@@ -1,4 +1,4 @@
-# Cahier de tests fonctionnels (V2.6)
+# Cahier de tests fonctionnels (V2.7)
 
 Ce cahier s'adresse aux testeurs fonctionnels. Chaque cas indique le profil, les étapes et le résultat attendu. Noter pour chaque cas : **OK**, **KO** (avec capture et étapes exactes) ou **Bloqué**.
 
@@ -107,7 +107,28 @@ Profils : Sophie Durand (Responsable CAMO), Paul Garnier (Planificateur), Nadia 
 | L-03 | Mobile (390 px) : tableau de bord, flotte, OT, stock, journal. | Lisible, sans défilement horizontal de la page. |
 | L-04 | Ouvrir `index.html` en local (double-clic). | Le site démarre (mode asm.js, plus lent) et les cas C-01 à C-04 passent. |
 
-## 9. Limites connues (à ne pas remonter comme anomalies)
+## 9. Assistant MIS (chatbot)
+
+| N° | Profil | Étapes | Résultat attendu |
+|---|---|---|---|
+| A-01 | aucun | Écran de connexion. | Pas de bouton « ? » tant que personne n'est connecté. |
+| A-02 | Hugo Lefèvre | Cliquer le bouton « ? » en bas à droite. | Le panneau s'ouvre, le bouton devient « × », le curseur est dans la zone de saisie. Avertissement visible en haut du panneau. |
+| A-03 | Hugo Lefèvre | Regarder les questions fréquentes. | 4 questions du Certificateur (CRS, contresignature, conservation d'un CRS, clôture de NC). |
+| A-04 | Hugo Lefèvre | Cliquer « Comment émettre un CRS ? ». | Réponse avec sources (dont Part-145, 145.A.50) et lien « Ouvrir l'écran Ordres de travail ». |
+| A-05 | Hugo Lefèvre | « Oui, réponse utile ». | Bouton marqué, « Merci pour votre retour. » |
+| A-06 | Hugo Lefèvre | Taper `conservation crs` puis Entrée. | Réponse sur la conservation d'un CRS (145.A.55(c)). |
+| A-07 | Hugo Lefèvre | Taper `signer`. | « Votre question est un peu large. Voulez-vous dire : » avec des questions à choisir. |
+| A-08 | Hugo Lefèvre | Taper `xyzzy`. | Aucune réponse validée : message d'orientation et questions proposées. |
+| A-09 | Hugo Lefèvre | Taper `Peux-tu clôturer la NC pour moi ?`. | Badge « Hors périmètre » : l'assistant n'agit pas sur les données. |
+| A-10 | Hugo Lefèvre | Taper `who can close a finding` (en anglais, site en français). | Réponse en français sur la clôture des non-conformités. |
+| A-11 | Hugo Lefèvre | Boutons FR / EN / ES / DE du panneau. | Le panneau, l'historique et tout le site passent dans la langue choisie. |
+| A-12 | Hugo Lefèvre | Maj+Entrée dans la zone de saisie, puis Échap. | Retour à la ligne sans envoi ; Échap ferme le panneau. |
+| A-13 | Hugo Lefèvre | Cliquer un lien « Ouvrir l'écran … ». | L'écran s'ouvre, le panneau reste ouvert avec l'historique. |
+| A-14 | Inès Roche | Changer de profil, ouvrir l'assistant. | Historique effacé ; questions du Magasinier. Une réponse ne propose pas de lien vers un écran interdit au rôle. |
+| A-15 | Rémi Quentel | Journal d'audit après les cas A-04 à A-13. | Aucune entrée créée par l'assistant (les questions ne sont pas journalisées). |
+| A-16 | tous | Mobile (390 px). | Le panneau occupe la largeur de l'écran, sans défilement horizontal. |
+
+## 10. Limites connues (à ne pas remonter comme anomalies)
 
 - Le contrôle d'accès, le verrouillage et le journal s'exécutent dans le navigateur : effacer les données du site ou modifier le code avec les outils du navigateur les contourne. C'est une limite assumée de la démonstration statique (voir « Limites » dans le README).
 - La signature électronique est simulée (code personnel, sans certificat).

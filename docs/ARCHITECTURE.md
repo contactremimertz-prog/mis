@@ -40,12 +40,14 @@ any change to a `.js` file or to the loader, run `python3 tools/update-sri.py`.
 | 7 | `js/core/db.js` | Query helpers, `transact()`, IndexedDB persistence, `freshDb()` |
 | 8 | `js/core/journal.js` | Append-only, hash-chained audit log |
 | 9 | `js/core/rules.js` | Airworthiness rules: dues, ADs, aircraft status, LLP, Form 1, ids |
+| 9c | `js/chat/kb.js`, `js/chat/engine.js` | Assistant: validated answers in 4 languages (`window.MIS_KB`) and keyword matching (`MIS.chatEngine`) |
 | 9b | `js/core/session.js` | Sign-in and signature checks with the personal code (PBKDF2, persistent lock) |
 | 10 | `js/ui/components.js` | HTML components, tables, forms, dialog, toast, `safe()`, `deny()` |
 | 11 | `js/ui/views.js` | One function per screen (`MIS.VIEWS`) |
 | 12 | `js/ui/sheets.js` | Record dialogs: aircraft, work order, part, finding, CRS |
 | 13 | `js/ui/sign.js` | Simulated electronic signature |
 | 13b | `js/ui/login.js` | Sign-in screen and profile switch dialog |
+| 13c | `js/ui/chat.js` | Assistant button and panel (`renderChat`, `bindChat`) |
 | 14 | `js/actions/workorders.js` | Work orders, task cards, part installation, CRS |
 | 15 | `js/actions/stock.js` | Reception, Form 1 release from quarantine, purchase orders |
 | 16 | `js/actions/quality.js` | Findings, audits, documents, modifications |
@@ -116,6 +118,21 @@ and the hashes on the workstation can be attacked offline; production needs
 server-side authentication and rate limiting. A CRS freezes a non-secret
 credential identifier (`MIS_SEED.credentialId`), never the code.
 
+### Assistant
+
+The site stays static, so the assistant generates nothing and calls no
+service. `MIS.chatEngine.match(text)` folds the text (lower case, no accents,
+no stop words) and compares its words with the keywords and questions of the
+20 entries of `window.MIS_KB`, in the 4 languages. Words match when they share
+a beginning of at least 5 letters and 55 % of the longer word. The result is
+`answer` (one entry wins on matched words, then on the share of its words
+matched), `clarify` (a single vague word, or an exact tie: up to 3 questions
+are offered) or `none`. Typing an entry's exact question always answers it.
+`renderChat()` runs after every `render()`; the panel keeps the typed text and
+focus. The conversation and votes live in `state.chat` only: nothing is
+logged, stored or sent, and they are reset on sign-out or profile change.
+Screen links are shown only when `canSee(screen)` is true.
+
 ### Audit log
 
 Each entry stores `prev` (hash of the previous entry, 64 zeros for the first)
@@ -136,6 +153,7 @@ time source).
 | `me` | Signed-in profile (row of `users`), `null` before sign-in |
 | `lang` | UI language code |
 | `exportSpec` | Table on screen, used by the exports |
+| `chat` | Assistant: `open`, `owner` (profile id), `history`, `votes` (memory only) |
 | `current` | `"type:id"` of the open dialog, refreshed after an action |
 | `filters` | Filter chips and search text |
 | `shaOk`, `saveState`, `lastDenied` | SHA self-test, persistence indicator, last logged denial |
