@@ -1,6 +1,6 @@
 /**
  * @file PDF exports (jsPDF + AutoTable): current table, CRS, and record sheets
- * (aircraft, work order, part). Authorisation numbers are always masked.
+ * (aircraft, work order, part). Personal codes are never printed.
  */
 (function () {
   "use strict";

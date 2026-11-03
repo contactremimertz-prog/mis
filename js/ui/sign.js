@@ -1,9 +1,9 @@
 /**
  * @file SIMULATED electronic signature (demo only).
  *
- * The user re-types their authorisation number, which is checked against
- * its PBKDF2 hash and never displayed. A wrong value is refused and logged
- * ("sign_fail"). Production would use strong authentication and a qualified
+ * The user re-types their personal code, which is checked against its PBKDF2
+ * hash and never displayed. A wrong value is refused and logged ("sign_fail");
+ * repeated failures lock the profile (see js/core/session.js). Production would use strong authentication and a qualified
  * signature instead.
  */
 (function () {
@@ -11,7 +11,7 @@
 
   const MIS = window.MIS;
   const S = MIS.state;
-  const { $, esc, t, openDlg, safe, logNow, checkMySecret } = MIS;
+  const { $, esc, t, openDlg, checkMySecret } = MIS;
 
   function signForm() {
     return `<form id="f-sign" class="fields one" novalidate>
@@ -37,11 +37,11 @@
       e.preventDefault();
       const button = document.querySelector('button[form="f-sign"]');
       if (button) button.disabled = true;
-      const ok = await checkMySecret($("#sign-auth").value);
+      const err = await checkMySecret($("#sign-auth").value); // logs failures and applies the lock
       if (button) button.disabled = false;
-      if (!ok) {
-        safe(() => logNow("sign_fail", "log.sign_fail", {}));
-        $("#sign-err").textContent = t("err.sign");
+      if (err) {
+        MIS.render(); // refresh the header and the open screen (new log entry)
+        $("#sign-err").textContent = err;
         $("#sign-auth").value = "";
         return;
       }

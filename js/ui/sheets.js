@@ -129,7 +129,7 @@
     return can("card.insp") ? `<button class="btn small" data-act="card-insp" data-id="${c.id}">${esc(t("card.countersign"))}</button>` : waiting("card.wait_insp");
   }
 
-  /** Signed cell: name, masked authorisation number and time. */
+  /** Signed cell: name, masked personal code and time. */
   function signedCell(uid, at) {
     return `<span class="signed">${esc(uname(uid))}</span><br><span class="small muted mono">${esc(maskAuth(uauth(uid)))} · ${esc(fTs(at))}</span>`;
   }

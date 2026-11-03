@@ -140,7 +140,7 @@
 
   /* ---------------------------------------------------------
      Credentials: PBKDF2-HMAC-SHA256
-     Authorisation numbers are never stored in clear: the database keeps
+     Personal codes are never stored in clear: the database keeps
      "pbkdf2-sha256$<iterations>$<salt hex>$<hash hex>". Verification uses
      WebCrypto when available, else the synchronous fallback below.
      --------------------------------------------------------- */

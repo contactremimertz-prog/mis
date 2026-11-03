@@ -1,4 +1,4 @@
-# MIS Hélicoptères : démonstration EASA (V2.5)
+# MIS Hélicoptères : démonstration EASA (V2.6)
 
 Site statique de démonstration d'un MIS (Management Information System) pour une flotte d'hélicoptères fictive, couvrant Part-M / Part-CAMO, Part-145, Part-21, la logistique et la qualité.
 
@@ -29,24 +29,26 @@ Le code est commenté en anglais (en-tête de chaque module et description des f
 
 ## Profils de démonstration
 
-À l'ouverture, aucun écran n'est accessible : choisir un profil et saisir son numéro d'habilitation (tableau ci-dessous). Le même numéro est demandé pour changer de profil (liste en haut à droite) et pour chaque signature. Il n'est jamais stocké en clair : la base ne contient qu'une empreinte PBKDF2-SHA256 salée (100 000 itérations). Chaque échec de connexion est journalisé ; après 5 échecs, la connexion est bloquée 30 secondes. Le numéro n'est jamais affiché (masque ••••••).
+À l'ouverture, aucun écran n'est accessible : choisir un profil et saisir son **code personnel**. Le même code est demandé pour changer de profil (liste en haut à droite) et pour chaque signature. Les codes (12 caractères aléatoires, tirets facultatifs) sont **remis séparément aux présentateurs et ne sont pas publiés** : ni dans ce dépôt, ni sur le site. La base ne contient qu'une empreinte PBKDF2-SHA256 salée (100 000 itérations) ; le code n'est jamais affiché (masque ••••••).
 
-| Profil | Rôle | N° d'habilitation |
-|---|---|---|
-| Sophie Durand | Responsable CAMO | CAM-0310 |
-| Paul Garnier | Planificateur maintenance | PLN-0207 |
-| Nadia Benali, Yanis Torres | Technicien certifié | TEC-1140, TEC-1187 |
-| Claire Morand (B1), Hugo Lefèvre (B2) | Certificateur (CRS) | CRS-0872, CRS-0915 |
-| Inès Roche | Magasinier | MAG-0451 |
-| Rémi Quentel | Responsable qualité | QA-001 |
-| Alex Martin | Administrateur | ADM-0001 |
+Chaque échec (connexion ou signature) est inscrit au journal d'audit. Le verrouillage est calculé à partir de ce journal, donc il résiste au rechargement de la page : 5 échecs en 10 minutes sur un profil bloquent ce profil (connexion et signature) pendant 5 minutes ; 20 échecs de connexion en 10 minutes, tous profils confondus, bloquent toute connexion pendant 5 minutes. Une connexion réussie remet le compteur du profil à zéro.
+
+| Profil | Rôle |
+|---|---|
+| Sophie Durand | Responsable CAMO |
+| Paul Garnier | Planificateur maintenance |
+| Nadia Benali, Yanis Torres | Technicien certifié |
+| Claire Morand (B1), Hugo Lefèvre (B2) | Certificateur (CRS) |
+| Inès Roche | Magasinier |
+| Rémi Quentel | Responsable qualité |
+| Alex Martin | Administrateur |
 
 ## Scénario de démo conseillé (critères d'acceptation)
 
 1. **Échéance dépassée** : le tableau de bord affiche une alerte rouge (F-XXXD visite 100 h, F-XXXK batterie ELT).
-2. **OT clos → CRS + journal** : profil Hugo Lefèvre, Ordres de travail, WO-2026-0415, « Émettre le CRS », signer avec CRS-0915. Le CRS est généré (PDF téléchargeable) et tracé dans le journal d'audit.
+2. **OT clos → CRS + journal** : profil Hugo Lefèvre, Ordres de travail, WO-2026-0415, « Émettre le CRS », signer avec son code personnel. Le CRS est généré (PDF téléchargeable) et tracé dans le journal d'audit.
 3. **Traçabilité pièce** : Stock, pièce SG-55188 : réception, sortie magasin, installation sur F-XXXB via WO-2026-0415.
-4. **Séparation des rôles et signature rejetée** : profil Nadia Benali, WO-2026-0418 : signer une carte. Profil Hugo Lefèvre, WO-2026-0415, « Émettre le CRS » : saisir un mauvais numéro, la signature est refusée et l'échec est journalisé ; puis saisir CRS-0915.
+4. **Séparation des rôles et signature rejetée** : profil Nadia Benali, WO-2026-0418 : signer une carte. Profil Hugo Lefèvre, WO-2026-0415, « Émettre le CRS » : saisir un mauvais code, la signature est refusée et l'échec est journalisé ; puis saisir le bon code.
 5. **Droits par rôle** : profil Inès Roche (magasinier) : les écrans CAMO et Part-21 sont absents, et l'accès direct est refusé et journalisé.
 6. **Quarantaine et Form 1** : la pièce LGT-90017 sans Form 1 bloque WO-2026-0421. Profil Inès Roche : « Rattacher un EASA Form 1 » exige une référence au format F1-ORG-AA-NNNNN (ex. F1-DEMO-26-13001), unique, l'organisme émetteur (ex. FR.21G.DEMO) et une date non future. À l'installation, le Form 1, la date de péremption et la limite de vie sont revérifiés.
 7. **4 langues** : sélecteur en haut, tous les écrans, messages, journaux et exports sont traduits.
@@ -54,22 +56,25 @@ Le code est commenté en anglais (en-tête de chaque module et description des f
 ## Limites (démonstration)
 
 - **Journal d'audit (modifiable sur le poste)** : stocké dans le navigateur (IndexedDB), protégé par des déclencheurs SQL (ni modification ni suppression) et chaîné en **SHA-256** (implémentation contrôlée au démarrage contre WebCrypto). La réinitialisation des données de démo **conserve le journal** et y est tracée. Limite : sur le poste, un utilisateur averti peut supprimer les déclencheurs et recalculer toute la chaîne ; seule l'empreinte de tête conservée hors du poste permet de le détecter. Un journal infalsifiable exige un serveur (journal scellé, horodatage et clé de signature côté serveur).
-- **Réinitialisation** : réservée à l'administrateur et protégée par une ré-authentification (numéro d'habilitation). Le journal est conservé.
+- **Réinitialisation** : réservée à l'administrateur et protégée par une ré-authentification (code personnel). Le journal est conservé.
 - **Empreinte de tête du journal** : affichée dans l'écran Journal d'audit (bouton Copier) et ajoutée à la fin des exports CSV et PDF du journal. La conserver hors du poste permet de détecter une réécriture complète du journal, que le navigateur seul ne peut pas empêcher.
 - **Exports CSV** : les cellules commençant par =, +, -, @, tabulation ou retour chariot sont neutralisées (préfixe ') contre l'injection de formules.
 - **Intégrité des scripts** : le chargeur est intégré à `index.html` et n'est exécuté par le navigateur que si son empreinte sha256 correspond à la CSP. En http(s) (GitHub Pages), il vérifie ensuite chaque script avec SRI sha384 : un fichier modifié bloque le démarrage. `index.html` reste la racine de confiance. En ouverture directe du fichier, le navigateur n'applique pas le SRI (la CSP reste appliquée).
 - **Horodatage** : horloge du poste client. En production : horodatage serveur (source de temps fiable).
-- **Signature électronique simulée** : saisie du numéro d'habilitation, sans certificat ni authentification forte.
-- **Contrôle d'accès côté navigateur** : connexion obligatoire par numéro d'habilitation, droits par rôle contrôlés à chaque action. Ces contrôles s'exécutent toutefois dans le navigateur : un utilisateur qui modifie le code ou la base avec les outils du navigateur peut les contourner. En production : authentification forte et contrôles côté serveur.
-- **Numéro d'habilitation sur le CRS** : Part-145 demande que le CRS porte la référence d'habilitation du certificateur. En démo, ce numéro sert aussi de secret de connexion et de signature : il n'est ni stocké ni imprimé ; le CRS fige un identifiant non secret de l'habilitation. En production : signature par authentification forte distincte, et référence d'habilitation imprimée en clair sur le CRS.
+- **Signature électronique simulée** : saisie du code personnel, sans certificat ni authentification forte. Les échecs comptent dans le même verrouillage que la connexion.
+- **Verrouillage après échecs (côté navigateur)** : le compteur est déduit du journal d'audit enregistré dans le navigateur, il survit donc au rechargement. Limite : effacer les données du site, utiliser un autre navigateur ou modifier le code le contourne, et l'empreinte PBKDF2 présente sur le poste peut être attaquée hors ligne (d'où des codes longs et aléatoires). En production : authentification et limitation des essais côté serveur.
+- **Codes personnels** : 12 caractères aléatoires (environ 60 bits), remis séparément, jamais publiés dans le dépôt ni sur le site.
+- **Contrôle d'accès côté navigateur** : connexion obligatoire par code personnel, droits par rôle contrôlés à chaque action. Ces contrôles s'exécutent toutefois dans le navigateur : un utilisateur qui modifie le code ou la base avec les outils du navigateur peut les contourner. En production : authentification forte et contrôles côté serveur.
+- **Référence d'habilitation sur le CRS** : Part-145 demande que le CRS porte la référence d'habilitation du certificateur. En démo, le CRS fige un identifiant non secret dérivé de l'empreinte du code, jamais le code. En production : signature par authentification forte distincte, et référence d'habilitation imprimée en clair sur le CRS.
 - **Polices** : les polices Inter et JetBrains Mono sont chargées depuis Google Fonts (seule ressource externe, sans script). Hors connexion, les polices système sont utilisées. En production : polices hébergées sur le serveur.
 - **CRS** : la référence d'agrément de l'organisme, l'identifiant d'habilitation et la catégorie du certificateur sont figés dans chaque CRS au moment de l'émission.
 - **Conservation des enregistrements** : en démo, durée illimitée dans le navigateur. En production, à confirmer par le contrôleur EASA (au minimum 3 ans après la remise en service pour Part-145, et durées propres à Part-CAMO / Part-M pour le dossier de navigabilité).
 - **Données** : toutes fictives (immatriculations F-XXXA à F-XXXM, MSN, P/N, AD-DEMO, Form 1 DEMO). Aucun logo ni marque Airbus n'est reproduit ; seuls les noms de modèles sont cités.
-- **Stockage** : propre à chaque navigateur et à chaque poste. À chaque changement de schéma (V2.1, V2.5), les sauvegardes précédentes du navigateur sont remplacées par les données d'exemple.
+- **Stockage** : propre à chaque navigateur et à chaque poste. À chaque changement de schéma (V2.1, V2.5, V2.6), les sauvegardes précédentes du navigateur sont remplacées par les données d'exemple.
 
 ## Historique
 
+- **V2.6** : revalidation du test d'intrusion. Verrouillage persistant calculé depuis le journal (5 échecs en 10 min par profil, 20 au total), appliqué aussi à la signature ; numéros d'habilitation courts remplacés par des codes personnels aléatoires de 12 caractères, non publiés ; limites du statique documentées.
 - **V2.5** : corrections du test d'intrusion. P1 : connexion obligatoire et changement de profil par numéro d'habilitation, échecs journalisés, blocage après 5 échecs. P2 : numéros stockés uniquement sous forme d'empreinte PBKDF2 salée, CRS sans numéro. P4 : chargeur intégré et autorisé par empreinte CSP. P6 : échappement par défaut des fiches. P3 et P5 (journal recalculable sur le poste) : limite d'un site sans serveur, documentée.
 - **V2.4** : code découpé en 17 modules (socle, interface, actions, exports), fonctions courtes, commentaires en anglais, document d'architecture interne. Correctif : à la clôture d'une NC, la cause et l'action saisies sans enregistrer préalable sont conservées.
 - **V2.3** : corrections des tests (favicon, fermeture des fenêtres après CRS et libération Form 1, fiche pièce PDF sans mouvement) et de la revue Cybersécurité (numéro d'habilitation entièrement masqué, limites documentées).

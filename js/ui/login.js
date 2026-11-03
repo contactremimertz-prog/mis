@@ -2,7 +2,7 @@
  * @file Sign-in screen and profile switch dialog.
  *
  * No screen is available before sign-in. Switching profile from the header
- * asks for the new profile's authorisation number.
+ * asks for the new profile's personal code.
  */
 (function () {
   "use strict";
@@ -64,7 +64,7 @@
     });
   }
 
-  /** Header profile switch: asks for the chosen profile's number first. */
+  /** Header profile switch: asks for the chosen profile's code first. */
   function askProfileSwitch(uid) {
     const user = MIS.one("SELECT * FROM users WHERE id=? AND active=1", [uid]);
     if (!user) return MIS.render();

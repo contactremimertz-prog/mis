@@ -49,8 +49,8 @@
   const canSee = screen => !!S.me && (SCREEN_ROLES[screen] || []).includes(S.me.role);
 
   /**
-   * Masks an authorisation number. In the demo it doubles as the signature
-   * secret, so it is never displayed: fixed-length mask, no digit, no length hint.
+   * Masks the personal code (sign-in and signature secret). Only its hash is
+   * stored; the mask has a fixed length and gives no hint about the code.
    */
   const maskAuth = auth => (auth ? "••••••" : "-");
 

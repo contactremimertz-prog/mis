@@ -40,7 +40,7 @@ any change to a `.js` file or to the loader, run `python3 tools/update-sri.py`.
 | 7 | `js/core/db.js` | Query helpers, `transact()`, IndexedDB persistence, `freshDb()` |
 | 8 | `js/core/journal.js` | Append-only, hash-chained audit log |
 | 9 | `js/core/rules.js` | Airworthiness rules: dues, ADs, aircraft status, LLP, Form 1, ids |
-| 9b | `js/core/session.js` | Sign-in with the authorisation number (PBKDF2 check, lock-out) |
+| 9b | `js/core/session.js` | Sign-in and signature checks with the personal code (PBKDF2, persistent lock) |
 | 10 | `js/ui/components.js` | HTML components, tables, forms, dialog, toast, `safe()`, `deny()` |
 | 11 | `js/ui/views.js` | One function per screen (`MIS.VIEWS`) |
 | 12 | `js/ui/sheets.js` | Record dialogs: aircraft, work order, part, finding, CRS |
@@ -65,7 +65,7 @@ at run time: `MIS.render` (main), `MIS.showRecord` (sheets) and `MIS.download`
 ```
 inline loader ── loads every script ──> main.js start()
   loadSqlJs()        WebAssembly over http(s), asm.js for file:// or after 8 s
-  openDatabase()     saved file from IndexedDB if schema "4", else freshDb() + seed
+  openDatabase()     saved file from IndexedDB if schema "5", else freshDb() + seed
   state.me = null    every page load starts signed out
   selfTestSha()      checks sha256() against WebCrypto
   bind(); render()   sign-in screen until signIn() succeeds
@@ -98,12 +98,23 @@ click [data-act="crs"] ─> MIS.ACTIONS.crs(id)
 
 ### Credentials
 
-Authorisation numbers are never stored. `users.auth_hash` holds
-`pbkdf2-sha256$100000$<salt>$<hash>` (PBKDF2-HMAC-SHA256, random 16-byte salt).
-`verifySecret()` uses WebCrypto, with a pure JavaScript fallback. The same
-number is asked to sign in, to switch profile and to sign. Each failure is
-logged; after 5 failures sign-in is locked for 30 s. A CRS freezes a
-non-secret credential identifier (`MIS_SEED.credentialId`), never the number.
+Each profile has a random 12-character personal code (about 60 bits). Codes
+are handed to presenters separately and are never committed or published.
+`users.auth_hash` holds `pbkdf2-sha256$100000$<salt>$<hash>`
+(PBKDF2-HMAC-SHA256, random 16-byte salt). `verifySecret()` uses WebCrypto,
+with a pure JavaScript fallback, and compares in constant time. Typed codes
+are normalised (upper case, spaces and dashes removed). The same code is
+asked to sign in, to switch profile and to sign.
+
+Every failure is logged (`login_fail`, `sign_fail`). The lock is computed from
+the audit log, so a page reload does not reset it: 5 failures of one profile
+within 10 minutes (since its last successful sign-in) lock that profile, for
+sign-in and signature, until 5 minutes after the last failure; 20 failed
+sign-ins of all profiles within 10 minutes lock every sign-in the same way.
+Limit: clearing site data, another browser or editing the code bypasses it,
+and the hashes on the workstation can be attacked offline; production needs
+server-side authentication and rate limiting. A CRS freezes a non-secret
+credential identifier (`MIS_SEED.credentialId`), never the code.
 
 ### Audit log
 
@@ -143,9 +154,10 @@ time source).
 | `t(key, params)`, `tx(value)` | Translate a key, or a data value starting with `@` |
 | `fD`, `fTs`, `fH`, `fN` | Format a date, timestamp, hours, number |
 | `can(perm)`, `canSee(screen)` | Permission checks for the active profile |
-| `signIn(uid, typed)`, `checkMySecret(typed)` | Sign-in and signature checks (async, PBKDF2) |
+| `signIn(uid, typed)`, `checkMySecret(typed)` | Sign-in and signature checks (async, PBKDF2, persistent lock) |
+| `lockRemaining(uid, forSignIn)` | Seconds before the profile may try again (0 if not locked) |
 | `verifySecret(stored, typed)` | Compares a typed secret with a stored PBKDF2 hash |
-| `maskAuth(auth)` | Fixed mask: authorisation numbers are never displayed |
+| `maskAuth(auth)` | Fixed mask: personal codes are never displayed |
 | `taskRows(reg?)`, `adRows(reg?)` | Programme tasks and ADs with due status |
 | `acStatus(aircraft)` | `aog`, `overdue`, `soon` or `airworthy`, with details |
 | `llp(part)`, `isInstallable(part)` | Life-limit status, installation check |

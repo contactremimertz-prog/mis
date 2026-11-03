@@ -261,7 +261,7 @@
       }) + `</section>`;
   };
 
-  /** "Name (••••••, B2)" certifier text: the authorisation number is always masked. */
+  /** "Name (••••••, B2)" certifier text: the personal code is always masked. */
   const certifierText = r => uname(r.certifier) + " (" + maskAuth(r.cert_auth) + (r.cert_cat ? " " + r.cert_cat : "") + ")";
 
   V.certificates = () => {

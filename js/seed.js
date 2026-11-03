@@ -39,19 +39,20 @@
 
   /**
    * Demo credentials: PBKDF2-HMAC-SHA256 (100 000 iterations, random salt) of each
-   * profile's authorisation number. The numbers themselves are only in the README
-   * (demo guide); they are never stored, so a database download does not reveal them.
+   * profile's personal code (12 random characters, dashes removed, upper case).
+   * The codes are not published (neither here nor in the README): they are handed
+   * out separately, so neither the repository nor a database download reveals them.
    */
   const CRED = {
-    u1: "pbkdf2-sha256$100000$86929be2f62ad94669002b245b337dac$c987bec507a7715da8865942e90387c82994d8ce3e6581715972da81b1114363",
-    u2: "pbkdf2-sha256$100000$5362a26f63fe8ebfa607e9f925f88ea3$e15bee5e06d861c543280a80861701f5339b986b9b7e5dde9b2ba448cccff7e4",
-    u3: "pbkdf2-sha256$100000$f12c4d04f3683acbada06facf1a67421$823d3b823aa6012666afbca749dae8c68163c6ffaf4feb2f7e5bd93ddb8a2002",
-    u8: "pbkdf2-sha256$100000$09defc47f18068776a1db091c4983c09$53bfe374ae36ad9f88065b466393882db61b5d70210696fb2a942a84bdede355",
-    u4: "pbkdf2-sha256$100000$a5b6bbc4acf89e4ae9d892930b46f58c$44d2b4fa16578c2e717809bd706762b289d7bc3e642ab2e7d61bb213a2aad088",
-    u5: "pbkdf2-sha256$100000$00b882d8b370de177000092cadcf83ed$b48a644247e1cea42a80c88ccc6e7fa427d4219298193c25a82eb3ebda99d653",
-    u6: "pbkdf2-sha256$100000$08c0dc120cc244702cfba6971962ff52$34d4503ef4678323ce2158c619867b759edd692fe7995f7120f0cbafd9958419",
-    u7: "pbkdf2-sha256$100000$15fc7c01991a7cbd520b455a753888cb$d202ecbe7ca2402647da6587e88e8b92d06196f3d06c15d4a2704dd631a78560",
-    u9: "pbkdf2-sha256$100000$43d5a825113b77a0f4982620a2087bcb$bd8c3639c66a123e278b7380d01a7549fe1014cdb19abd648b5834bcf5e4c494"
+    u1: "pbkdf2-sha256$100000$cc0e6c38dd4c0f417c9af2a69e97683f$e1b1d18d5330893a29b34998115f30e0e5328f2b58bc25bcc93e92445bfde7c5",
+    u2: "pbkdf2-sha256$100000$d06828611a1a4207b214e64446aaebd8$c815aa57942bd837aa1c43daa8dec749a14d21cac5137b0cced1428f671e7065",
+    u3: "pbkdf2-sha256$100000$463e35e5fe771e2d51115da92ef402dd$1ac16d0b9532de39c4c42e454192d70b6a68070685977bd354fcfe934026a785",
+    u8: "pbkdf2-sha256$100000$f74d038df22d1765d2bd22256c53bcf2$0d4e1f44114fa2ba5e1d88d2d401e109246c1b5e56063737538e67cd3fb30cd0",
+    u4: "pbkdf2-sha256$100000$db37ab5e612ec37ee0ab6f6c1616b194$7209ac8e5f21c599c3dd9d9afabcdd405da036b3b93b6a96a7a5b622bce3512e",
+    u5: "pbkdf2-sha256$100000$7ce1f042e33dd5248e3ab5ec0f7c15d9$c2857fbc65f1168d1c9434d5c398ce8ab6cc7bc976c439aa792cd7a9b0692f5e",
+    u6: "pbkdf2-sha256$100000$54c638ad06deb55ac8317d06183e6c8e$9960ed12597789276e648730dde221449a5723787d2e8a8a283ca1a72b34998d",
+    u7: "pbkdf2-sha256$100000$3dcd114c6d19882f2078a64405f39f29$25dbe998f3b97436aded94613a7bb4bd253e7e77bf86acefe1c013b2b2c1c289",
+    u9: "pbkdf2-sha256$100000$f7fd891ab59ca3ff9095ff3e024e5812$57d1b13a7f32f59ccb099329206abe991b367762bcf7840e4e8cf595a3c41c66"
   };
 
   /** Non-secret identifier of a credential, frozen in each CRS. */
@@ -81,7 +82,7 @@
   /** Metadata (schema version, organisation approval) and the 9 demo profiles. */
   function seedReference(c) {
     const { ins, today } = c;
-    ins("meta", [{ k: "schema", v: "4" }, { k: "approval", v: "FR.145.DEMO" }, { k: "seeded_at", v: today.toISOString() }]);
+    ins("meta", [{ k: "schema", v: "5" }, { k: "approval", v: "FR.145.DEMO" }, { k: "seeded_at", v: today.toISOString() }]);
 
     ins("users", [
       { id: "u1", name: "Rémi Quentel", role: "QUALITY", auth_hash: CRED.u1, active: 1 },
