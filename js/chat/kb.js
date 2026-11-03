@@ -11,9 +11,11 @@
  * Keywords are matched without accents or case; a question typed in any of
  * the 4 languages is understood, the answer follows the UI language.
  *
- * EASA references are selected extracts checked by the EASA controller team
- * (145.A.42, 145.A.50, 145.A.55(c), M.A.301, M.A.303). Statements such as
- * "not airworthy" describe MIS rules, not quotations of the regulation.
+ * EASA references: only the extracts confirmed against the official text by
+ * the EASA controller team are cited (145.A.42, 145.A.50, 145.A.55(c),
+ * M.A.301, M.A.303). Part-CAMO articles are not verified and are not cited.
+ * Statements such as "not airworthy" describe MIS rules, and the alert
+ * thresholds (25 h, 30 days, 30 cycles) are MIS settings, not EASA limits.
  */
 (function () {
   "use strict";
