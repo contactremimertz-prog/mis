@@ -1,8 +1,19 @@
-/* MIS démo : schéma SQLite et données de démonstration FICTIVES.
-   Les textes commençant par "@" sont des clés de traduction (voir js/i18n). */
+/**
+ * @file SQLite schema and FICTITIOUS demo data.
+ *
+ * All registrations (F-XXXA to F-XXXM), serial numbers, part numbers, ADs and
+ * Form 1 references are invented. Texts starting with "@" are translation
+ * keys (see js/i18n), so the seeded data follows the selected language.
+ *
+ * Public API: window.MIS_SEED = { seed, SCHEMA }.
+ */
 (function () {
   "use strict";
 
+  /**
+   * Database schema. The `log` table is append-only: two triggers reject any
+   * UPDATE or DELETE, so audit entries can only be added.
+   */
   const SCHEMA = `
   CREATE TABLE meta(k TEXT PRIMARY KEY, v TEXT);
   CREATE TABLE users(id TEXT PRIMARY KEY, name TEXT NOT NULL, role TEXT NOT NULL, auth TEXT NOT NULL UNIQUE, cat TEXT, active INTEGER NOT NULL DEFAULT 1);
@@ -26,17 +37,30 @@
   CREATE TRIGGER log_no_delete BEFORE DELETE ON log BEGIN SELECT RAISE(ABORT,'append-only'); END;
   `;
 
-  function seed(db, today, addDays, addMonths, logFn, opts) {
-    db.exec(SCHEMA);
-    const ins = (table, rows) => {
+  /** Returns ins(table, rows): bulk insert of plain objects (missing fields become NULL). */
+  function makeInserter(db) {
+    return (table, rows) => {
       if (!rows.length) return;
       const cols = Object.keys(rows[0]);
       const st = db.prepare(`INSERT INTO ${table}(${cols.join(",")}) VALUES(${cols.map(() => "?").join(",")})`);
       rows.forEach(r => st.run(cols.map(c => (r[c] === undefined ? null : r[c]))));
       st.free();
     };
-    const D = addDays;
+  }
 
+  /** Returns ts(dayOffset, hour): ISO timestamp `dayOffset` days from today at hour:15. */
+  function makeTimestamp(today) {
+    return (d, h) => {
+      const x = new Date(today);
+      x.setDate(x.getDate() + d);
+      x.setHours(h, 15, 0, 0);
+      return x.toISOString();
+    };
+  }
+
+  /** Metadata (schema version, organisation approval) and the 9 demo profiles. */
+  function seedReference(c) {
+    const { ins, today } = c;
     ins("meta", [{ k: "schema", v: "3" }, { k: "approval", v: "FR.145.DEMO" }, { k: "seeded_at", v: today.toISOString() }]);
 
     ins("users", [
@@ -50,7 +74,14 @@
       { id: "u7", name: "Inès Roche", role: "STORE", auth: "MAG-0451", active: 1 },
       { id: "u9", name: "Alex Martin", role: "ADMIN", auth: "ADM-0001", active: 1 }
     ]);
+  }
 
+  /**
+   * The 12 helicopters: [reg, model, msn, base, mission, hours, cycles, ARC days left, year].
+   * @returns {Array} the fleet rows, reused by the programme and AD sections
+   */
+  function seedFleet(c) {
+    const { ins, D } = c;
     const fleet = [
       ["F-XXXA", "H125", "9101", "Marignane", "aerial_work", 3421.6, 5120, 132, 2014],
       ["F-XXXB", "H125", "9134", "Annecy", "mountain", 1288.4, 2214, 260, 2019],
@@ -66,8 +97,13 @@
       ["F-XXXL", "H175", "5112", "Marignane", "offshore", 2210.6, 2480, 243, 2019]
     ];
     ins("aircraft", fleet.map(f => ({ reg: f[0], model: f[1], msn: f[2], base: f[3], mission: "@mission." + f[4], hours: f[5], cycles: f[6], arc_expiry: D(f[7]), mfg_year: f[8] })));
+    return fleet;
+  }
 
-    // Programme d'entretien (intervalles fictifs, représentatifs)
+  /** Maintenance programme per model and last accomplishment per aircraft. */
+  function seedProgramme(c, fleet) {
+    const { ins, D } = c;
+    // Maintenance programme templates (fictitious but representative intervals): [code, title, hours, cycles, months]
     const models = ["H125", "H130", "H145", "H160", "H175"];
     const mp = [];
     const tpl = [
@@ -81,14 +117,14 @@
     models.forEach(m => tpl.forEach(t => mp.push({ id: m + "-" + t[0], model: m, code: t[0], title: t[1], interval_h: t[2], interval_c: t[3], interval_m: t[4], ref: "MP-" + m + "-DEMO rev.4" })));
     ins("mp_task", mp);
 
-    // Dernières exécutions : décalages déterministes, avec cas particuliers pour la démo
+    // Last accomplishment of each task: deterministic offsets, plus special cases used by the demo scenario
     const special = {
-      "F-XXXD|INSP-100": { h: 104.2, d: -150 },      // dépassée en heures
-      "F-XXXB|INSP-100": { h: 88.4, d: -200 },       // proche (11,6 h)
-      "F-XXXK|ELT-BAT": { d: -395 },                 // dépassée au calendrier
-      "F-XXXM|LDG-CYC": { c: 2985 },                 // proche en cycles
-      "F-XXXE|INSP-600": { h: 590, d: -500 },        // proche (10 h)
-      "F-XXXF|INSP-600": { h: 0, d: -9 }             // faite récemment (OT clos)
+      "F-XXXD|INSP-100": { h: 104.2, d: -150 },      // overdue by hours
+      "F-XXXB|INSP-100": { h: 88.4, d: -200 },       // due soon (11.6 h left)
+      "F-XXXK|ELT-BAT": { d: -395 },                 // overdue by calendar
+      "F-XXXM|LDG-CYC": { c: 2985 },                 // due soon by cycles
+      "F-XXXE|INSP-600": { h: 590, d: -500 },        // due soon (10 h left)
+      "F-XXXF|INSP-600": { h: 0, d: -9 }             // done recently (closed WO)
     };
     const act = [];
     let k = 7;
@@ -96,7 +132,7 @@
       tpl.forEach(t => {
         k = (k * 37 + 11) % 97;
         const sp = special[f[0] + "|" + t[0]] || {};
-        const frac = 0.15 + (k % 60) / 100; // 15 % à 74 % de l'intervalle consommé
+        const frac = 0.15 + (k % 60) / 100; // 15 % to 74 % of the interval used
         const lh = t[2] ? Math.max(0, Math.round((f[5] - (sp.h !== undefined ? sp.h : t[2] * frac)) * 10) / 10) : Math.max(0, Math.round((f[5] - 40 * frac) * 10) / 10);
         const lc = t[3] ? Math.max(0, f[6] - (sp.c !== undefined ? sp.c : Math.round(t[3] * frac))) : Math.max(0, f[6] - Math.round(60 * frac));
         const ld = sp.d !== undefined ? D(sp.d) : D(-Math.round((t[4] ? t[4] * 30 : 365) * frac));
@@ -104,7 +140,11 @@
       });
     });
     ins("ac_task", act);
+  }
 
+  /** Airworthiness directives (one per model) and their status per aircraft. */
+  function seedDirectives(c, fleet) {
+    const { ins, D } = c;
     ins("ad", [
       { id: "AD-DEMO-2025-014", model: "H125", title: "@ad.t1", kind: "repeat", interval_h: 100, effective: D(-300), comply_days: 30 },
       { id: "AD-DEMO-2026-011", model: "H130", title: "@ad.t2", kind: "once", interval_h: null, effective: D(-20), comply_days: 60 },
@@ -121,10 +161,13 @@
       adRows.push({ reg: f[0], ad_id: m, status, last_h: lh, last_date: ld, wo_id: null });
     });
     ins("ac_ad", adRows);
+  }
 
+  /** Work orders, task cards (signed or not) and the two existing CRS. */
+  function seedWorkOrders(c) {
+    const { db, ins, D, ts } = c;
     const tid = (reg, code) => db.exec(`SELECT a.id FROM ac_task a JOIN aircraft c ON c.reg=a.reg WHERE a.reg='${reg}' AND a.task_id=c.model||'-${code}'`)[0].values[0][0];
     const adid = reg => db.exec(`SELECT id FROM ac_ad WHERE reg='${reg}'`)[0].values[0][0];
-    const ts = (d, h) => { const x = new Date(today); x.setDate(x.getDate() + d); x.setHours(h, 15, 0, 0); return x.toISOString(); };
 
     ins("wo", [
       { id: "WO-2026-0398", reg: "F-XXXH", title: "@mp.insp100", kind: "scheduled", status: "closed", opened: D(-22), planner: "u6", assignee: "u5", ac_task_id: tid("F-XXXH", "INSP-100"), crs_id: "CRS-2026-0081", closed_at: ts(-18, 16) },
@@ -155,6 +198,11 @@
       { id: "CRS-2026-0088", wo_id: "WO-2026-0412", reg: "F-XXXF", certifier: "u3", cert_auth: "CRS-0872", cert_cat: "B1", approval: "FR.145.DEMO", at: ts(-9, 17), hours: 1544.2, cycles: 2390, fp: "demo-0088" }
     ]);
 
+  }
+
+  /** Parts (one in quarantine without Form 1), their movements and purchase orders. */
+  function seedParts(c) {
+    const { db, ins, D, ts } = c;
     ins("part", [
       { id: "PT-0001", pn: "130A11-0400-01", descr: "@part.mrb", sn: "MRB-24117", lot: null, qty: 1, form1: "F1-DEMO-26-11872", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXC", wo_id: null, tsn: 1820.4, limit_h: 20000, limit_date: null, received: D(-400) },
       { id: "PT-0002", pn: "145A33-1010-02", descr: "@part.tgb", sn: "TGB-08832", lot: null, qty: 1, form1: "F1-DEMO-25-90311", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXE", wo_id: null, tsn: 2310.5, limit_h: 4500, limit_date: null, received: D(-700) },
@@ -183,6 +231,11 @@
       { id: "PO-2026-0101", pn: "DEMO-SEAL-160", descr: "@part.seal", qty: 2, supplier: "@sup.b", status: "ordered", ordered: D(-3), uid: "u6" },
       { id: "PO-2026-0102", pn: "125A55-0012-01", descr: "@part.led", qty: 1, supplier: "@sup.a", status: "awaiting_doc", ordered: D(-10), uid: "u7" }
     ]);
+  }
+
+  /** Part-21 modifications, findings, audits and controlled documents. */
+  function seedQuality(c) {
+    const { ins, D } = c;
     ins("modif", [
       { id: "MOD-2026-004", reg: "F-XXXA", title: "@mod.t1", cls: "minor", approval: "DOA-DEMO-21J-001", status: "in_work", opened: D(-25) },
       { id: "MOD-2026-002", reg: "F-XXXH", title: "@mod.t2", cls: "major", approval: "STC-DEMO-0001", status: "embodied", opened: D(-160) },
@@ -210,9 +263,12 @@
       { id: "DOC-SB-H125", title: "@doc.sb125", kind: "@dk.data", rev: "R31", rev_date: D(-60), status: "pending", pending: "R32" },
       { id: "DOC-POE", title: "@doc.poe", kind: "@dk.org", rev: "E2 R0", rev_date: D(-120), status: "current" }
     ]);
+  }
 
-    // Journal initial (absent lors d'une réinitialisation : le journal existant est conservé)
-    if (!(opts && opts.skipLog)) [
+  /** Initial audit log entries (hash-chained through logFn). */
+  function seedInitialLog(c, logFn) {
+    const { ts } = c;
+    [
       [-22, 8, "u6", "wo_create", "log.wo_create", { id: "WO-2026-0398", reg: "F-XXXH" }],
       [-18, 16, "u8", "crs_issue", "log.crs_issue", { id: "CRS-2026-0081", wo: "WO-2026-0398" }],
       [-9, 17, "u3", "crs_issue", "log.crs_issue", { id: "CRS-2026-0088", wo: "WO-2026-0412" }],
@@ -222,6 +278,28 @@
       [-1, 14, "u5", "denied", "log.denied", { what: "@perm.crs.issue" }],
       [-1, 16, "u1", "doc_approve", "log.doc_approve", { id: "DOC-MOE", rev: "E7 R3" }]
     ].forEach(r => logFn(r[2], r[3], r[4], r[5], ts(r[0], r[1])));
+  }
+
+  /**
+   * Creates the schema and the demo data in `db`.
+   * @param {object} db sql.js database (empty)
+   * @param {Date} today reference date: every date is relative to it
+   * @param {Function} addDays (n) => ISO day n days from today
+   * @param {Function} addMonths kept for API compatibility (unused here)
+   * @param {Function} logFn (uid, action, msg, params, ts) => void, appends a chained log entry
+   * @param {object} [opts] { skipLog: true } on an admin reset, when the existing log is kept
+   */
+  function seed(db, today, addDays, addMonths, logFn, opts) {
+    db.exec(SCHEMA);
+    const c = { db, today, ins: makeInserter(db), D: addDays, ts: makeTimestamp(today) };
+    seedReference(c);
+    const fleet = seedFleet(c);
+    seedProgramme(c, fleet);
+    seedDirectives(c, fleet);
+    seedWorkOrders(c);
+    seedParts(c);
+    seedQuality(c);
+    if (!(opts && opts.skipLog)) seedInitialLog(c, logFn);
   }
 
   window.MIS_SEED = { seed, SCHEMA };

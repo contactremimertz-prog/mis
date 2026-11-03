@@ -1,3 +1,9 @@
+/**
+ * @file Spanish UI texts.
+ *
+ * Flat dictionary key -> text. "{name}" placeholders are filled by MIS.t().
+ * Every language file must define the same keys as fr.js (missing keys fall back to French).
+ */
 window.I18N = window.I18N || {};
 window.I18N.es = {
   "app.title": "MIS Helicópteros · Demo EASA",

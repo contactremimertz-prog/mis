@@ -1,4 +1,6 @@
-/* MIS démo : en-tête collant, menu latéral groupé par domaine réglementaire, zone de travail en cartes (maquette validée). */
+/* MIS demo stylesheet.
+   Layout: sticky header, side menu grouped by regulatory domain, card-based work area (validated mock-up).
+   Colours are design tokens on :root, redefined for dark mode. */
 :root{
   --bg:#f4f6fa; --surface:#ffffff; --surface-2:#f7f9fc; --fg:#0f1b2d; --muted:#56627a; --line:#e2e8f1;
   --brand:#00205B; --brand-solid:#00205B; --on-brand:#ffffff; --accent:#0063b0;

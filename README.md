@@ -1,4 +1,4 @@
-# MIS Hélicoptères : démonstration EASA (V2.3)
+# MIS Hélicoptères : démonstration EASA (V2.4)
 
 Site statique de démonstration d'un MIS (Management Information System) pour une flotte d'hélicoptères fictive, couvrant Part-M / Part-CAMO, Part-145, Part-21, la logistique et la qualité.
 
@@ -14,12 +14,19 @@ Sur un serveur web (GitHub Pages ou `python3 -m http.server`), la base utilise W
 |---|---|
 | `index.html` | Page unique, avec politique de sécurité du contenu (CSP) |
 | `js/boot.js` | Chargeur des scripts avec contrôle d'intégrité SRI (sha384) en http(s) |
-| `tools/update-sri.py` | Recalcule les empreintes SRI : à lancer après toute modification d'un fichier JS |
-| `css/app.css` | Styles, thèmes clair et sombre, responsive |
-| `js/app.js` | Application : vues, règles métier, droits, exports |
+| `js/core/` | Socle : état partagé, langues, droits, base SQLite, journal d'audit, règles de navigabilité |
+| `js/ui/` | Interface : composants, écrans, fiches, signature simulée |
+| `js/actions/` | Actions métier : OT et CRS, stock et Form 1, qualité, administration |
+| `js/export/` | Exports CSV et PDF |
+| `js/main.js` | Point d'entrée : affichage, navigation, événements, démarrage |
 | `js/seed.js` | Schéma SQLite et données de démonstration fictives |
 | `js/i18n/fr.js`, `en.js`, `es.js`, `de.js` | Un fichier de traduction par langue (566 textes chacun) |
+| `css/app.css` | Styles, thèmes clair et sombre, responsive |
+| `tools/update-sri.py` | Recalcule les empreintes SRI : à lancer après toute modification d'un fichier JS |
+| `docs/ARCHITECTURE.md` | Architecture interne (en anglais) : modules, flux de données, fonctions publiques |
 | `vendor/` | sql.js 1.10.3, jsPDF 4.2.1, jsPDF-AutoTable 5.0.9, hébergés localement (licences incluses) |
+
+Le code est commenté en anglais (en-tête de chaque module et description des fonctions). Voir [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Profils de démonstration
 
@@ -64,6 +71,7 @@ Choisir le profil en haut à droite. Pour signer, saisir de mémoire le numéro 
 
 ## Historique
 
+- **V2.4** : code découpé en 17 modules (socle, interface, actions, exports), fonctions courtes, commentaires en anglais, document d'architecture interne. Correctif : à la clôture d'une NC, la cause et l'action saisies sans enregistrer préalable sont conservées.
 - **V2.3** : corrections des tests (favicon, fermeture des fenêtres après CRS et libération Form 1, fiche pièce PDF sans mouvement) et de la revue Cybersécurité (numéro d'habilitation entièrement masqué, limites documentées).
 - **V2.2** : corrections de la revue Cybersécurité (numéros d'habilitation masqués, CSV protégé contre l'injection de formules, empreinte de tête du journal, ré-authentification avant réinitialisation, jsPDF 4.2.1 et SRI).
 - **V2.1** : corrections du rapport d'écarts EASA (P1 : numéro d'habilitation masqué, journal conservé à la réinitialisation, chaînage SHA-256 ; P2 : mention des droits côté navigateur, agrément et habilitation figés dans le CRS, contrôle du Form 1, revérification à l'installation, conservation documentée ; P3 : horodatage et scénario de signature rejetée documentés).
