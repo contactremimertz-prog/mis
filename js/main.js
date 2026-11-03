@@ -29,7 +29,7 @@
   }
 
   /** Expected schema version: an older saved database is replaced by the demo data. */
-  const SCHEMA_VERSION = "5";
+  const SCHEMA_VERSION = "6";
 
   /** Header elements that only make sense once signed in. */
   const SIGNED_IN_ONLY = ["#search-form", "#user", "#user-label", "#avatar", "#compliance"];

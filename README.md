@@ -1,10 +1,10 @@
-# MIS Hélicoptères : démonstration EASA (V2.6)
+# MIS Hélicoptères : démonstration EASA (V2.6.1)
 
 Site statique de démonstration d'un MIS (Management Information System) pour une flotte d'hélicoptères fictive, couvrant Part-M / Part-CAMO, Part-145, Part-21, la logistique et la qualité.
 
 ## Lancer la démo en local
 
-Ouvrir `index.html` dans Chrome, Edge ou Firefox (double-clic). Aucune installation, aucun serveur, aucune connexion requise (seules les polices Google sont chargées si Internet est disponible).
+Ouvrir `index.html` dans Chrome, Edge ou Firefox (double-clic), puis se connecter avec un profil et son code personnel (voir ci-dessous). Aucune installation, aucun serveur, aucune connexion requise (seules les polices Google sont chargées si Internet est disponible).
 
 Sur un serveur web (GitHub Pages ou `python3 -m http.server`), la base utilise WebAssembly, plus rapide. En ouverture directe du fichier, elle passe automatiquement en version asm.js.
 
@@ -23,6 +23,7 @@ Sur un serveur web (GitHub Pages ou `python3 -m http.server`), la base utilise W
 | `css/app.css` | Styles, thèmes clair et sombre, responsive |
 | `tools/update-sri.py` | Recalcule les empreintes SRI et CSP : à lancer après toute modification d'un fichier JS ou du chargeur |
 | `docs/ARCHITECTURE.md` | Architecture interne (en anglais) : modules, flux de données, fonctions publiques |
+| `docs/TESTS-FONCTIONNELS.md` | Cahier de tests fonctionnels : connexion, profils, verrouillage, signatures, exports, journal |
 | `vendor/` | sql.js 1.10.3, jsPDF 4.2.1, jsPDF-AutoTable 5.0.9, hébergés localement (licences incluses) |
 
 Le code est commenté en anglais (en-tête de chaque module et description des fonctions). Voir [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -44,6 +45,8 @@ Chaque échec (connexion ou signature) est inscrit au journal d'audit. Le verrou
 | Alex Martin | Administrateur |
 
 ## Scénario de démo conseillé (critères d'acceptation)
+
+Le cahier de tests complet est dans [docs/TESTS-FONCTIONNELS.md](docs/TESTS-FONCTIONNELS.md).
 
 1. **Échéance dépassée** : le tableau de bord affiche une alerte rouge (F-XXXD visite 100 h, F-XXXK batterie ELT).
 2. **OT clos → CRS + journal** : profil Hugo Lefèvre, Ordres de travail, WO-2026-0415, « Émettre le CRS », signer avec son code personnel. Le CRS est généré (PDF téléchargeable) et tracé dans le journal d'audit.
@@ -70,10 +73,11 @@ Chaque échec (connexion ou signature) est inscrit au journal d'audit. Le verrou
 - **CRS** : la référence d'agrément de l'organisme, l'identifiant d'habilitation et la catégorie du certificateur sont figés dans chaque CRS au moment de l'émission.
 - **Conservation des enregistrements** : en démo, durée illimitée dans le navigateur. En production, à confirmer par le contrôleur EASA (au minimum 3 ans après la remise en service pour Part-145, et durées propres à Part-CAMO / Part-M pour le dossier de navigabilité).
 - **Données** : toutes fictives (immatriculations F-XXXA à F-XXXM, MSN, P/N, AD-DEMO, Form 1 DEMO). Aucun logo ni marque Airbus n'est reproduit ; seuls les noms de modèles sont cités.
-- **Stockage** : propre à chaque navigateur et à chaque poste. À chaque changement de schéma (V2.1, V2.5, V2.6), les sauvegardes précédentes du navigateur sont remplacées par les données d'exemple.
+- **Stockage** : propre à chaque navigateur et à chaque poste. À chaque changement de schéma (V2.1, V2.5, V2.6, V2.6.1), les sauvegardes précédentes du navigateur sont remplacées par les données d'exemple.
 
 ## Historique
 
+- **V2.6.1** : documentation mise à jour et cahier de tests fonctionnels (`docs/TESTS-FONCTIONNELS.md`). Correction : certaines données d'exemple n'étaient pas chargées (catégorie B1/B2 des certificateurs, révisions de documents en attente, liens OT vers AD et modification, date de clôture d'une NC).
 - **V2.6** : revalidation du test d'intrusion. Verrouillage persistant calculé depuis le journal (5 échecs en 10 min par profil, 20 au total), appliqué aussi à la signature ; numéros d'habilitation courts remplacés par des codes personnels aléatoires de 12 caractères, non publiés ; limites du statique documentées.
 - **V2.5** : corrections du test d'intrusion. P1 : connexion obligatoire et changement de profil par numéro d'habilitation, échecs journalisés, blocage après 5 échecs. P2 : numéros stockés uniquement sous forme d'empreinte PBKDF2 salée, CRS sans numéro. P4 : chargeur intégré et autorisé par empreinte CSP. P6 : échappement par défaut des fiches. P3 et P5 (journal recalculable sur le poste) : limite d'un site sans serveur, documentée.
 - **V2.4** : code découpé en 17 modules (socle, interface, actions, exports), fonctions courtes, commentaires en anglais, document d'architecture interne. Correctif : à la clôture d'une NC, la cause et l'action saisies sans enregistrer préalable sont conservées.
@@ -84,4 +88,4 @@ Chaque échec (connexion ou signature) est inscrit au journal d'audit. Le verrou
 
 ## Mise en ligne (GitHub Pages)
 
-Copier le contenu de ce dossier à la racine d'un dépôt, puis activer GitHub Pages (branche `main`, dossier racine). Adresse prévue : https://contactremimertz-prog.github.io/mis/
+Version en ligne : https://contactremimertz-prog.github.io/mis/ (GitHub Pages, branche `main`, dossier racine). Chaque envoi sur `main` republie le site. Après toute modification d'un fichier JS ou du chargeur, lancer `python3 tools/update-sri.py` avant l'envoi.

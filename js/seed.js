@@ -62,7 +62,9 @@
   function makeInserter(db) {
     return (table, rows) => {
       if (!rows.length) return;
-      const cols = Object.keys(rows[0]);
+      // Union of the keys of all rows: a field present only on later rows
+      // (e.g. `pending` on a document, `cat` on a certifier) must not be dropped.
+      const cols = [...new Set(rows.flatMap(r => Object.keys(r)))];
       const st = db.prepare(`INSERT INTO ${table}(${cols.join(",")}) VALUES(${cols.map(() => "?").join(",")})`);
       rows.forEach(r => st.run(cols.map(c => (r[c] === undefined ? null : r[c]))));
       st.free();
@@ -82,7 +84,7 @@
   /** Metadata (schema version, organisation approval) and the 9 demo profiles. */
   function seedReference(c) {
     const { ins, today } = c;
-    ins("meta", [{ k: "schema", v: "5" }, { k: "approval", v: "FR.145.DEMO" }, { k: "seeded_at", v: today.toISOString() }]);
+    ins("meta", [{ k: "schema", v: "6" }, { k: "approval", v: "FR.145.DEMO" }, { k: "seeded_at", v: today.toISOString() }]);
 
     ins("users", [
       { id: "u1", name: "Rémi Quentel", role: "QUALITY", auth_hash: CRED.u1, active: 1 },

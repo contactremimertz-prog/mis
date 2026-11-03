@@ -65,7 +65,7 @@ at run time: `MIS.render` (main), `MIS.showRecord` (sheets) and `MIS.download`
 ```
 inline loader ── loads every script ──> main.js start()
   loadSqlJs()        WebAssembly over http(s), asm.js for file:// or after 8 s
-  openDatabase()     saved file from IndexedDB if schema "5", else freshDb() + seed
+  openDatabase()     saved file from IndexedDB if schema "6", else freshDb() + seed
   state.me = null    every page load starts signed out
   selfTestSha()      checks sha256() against WebCrypto
   bind(); render()   sign-in screen until signIn() succeeds
@@ -194,7 +194,9 @@ time source).
 3. **Texts:** add every new key to `fr.js`, `en.js`, `es.js` and `de.js`.
 4. **Schema change:** update `js/seed.js` and the schema version (`meta.schema`
    and `SCHEMA_VERSION` in `js/main.js`), so old saved databases are replaced.
-5. Run `python3 tools/update-sri.py`, then test over http and file://.
+5. Run `python3 tools/update-sri.py`, then test over http and file://, and update
+   the functional test plan (`docs/TESTS-FONCTIONNELS.md`, in French) when a
+   user-visible behaviour changes.
 
 ## 7. Conventions
 
