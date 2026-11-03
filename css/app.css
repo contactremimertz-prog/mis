@@ -173,3 +173,7 @@ textarea.input{resize:vertical}
 .foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px;padding-top:6px}
 @media print{header.top,nav.side,.statusbar,.demo-banner,.toolbar{display:none!important} .layout{display:block} main{padding:0} .card{box-shadow:none;border:1px solid #ccc}}
 .anchor{word-break:break-all;background:var(--surface-2);padding:10px 12px;border-radius:8px;margin:8px 0 4px}
+
+/* Hidden elements stay hidden whatever their display rule; sign-in card */
+[hidden]{display:none!important}
+.login{max-width:520px;margin:32px auto}

@@ -2,10 +2,10 @@
  * @file Core utilities shared by every module.
  *
  * Creates the global `window.MIS` namespace and the shared application state,
- * then exposes small helpers: DOM lookup, HTML escaping, date arithmetic and a
- * synchronous SHA-256 used to chain the audit log.
+ * then exposes small helpers: DOM lookup, HTML escaping, date arithmetic, a
+ * synchronous SHA-256 used to chain the audit log, and PBKDF2 credential checks.
  *
- * Load order: this file must be loaded first (see js/boot.js).
+ * Load order: this file must be loaded first (see the inline loader in index.html).
  */
 (function () {
   "use strict";
@@ -30,7 +30,7 @@
   };
 
   /** Browser storage keys. */
-  MIS.KEYS = { store: "mis-demo-db-v2", lang: "mis-demo-lang", user: "mis-demo-user" };
+  MIS.KEYS = { store: "mis-demo-db-v2", lang: "mis-demo-lang" };
 
   /** Reference "today" for every due-date computation (fixed for the session). */
   const TODAY = new Date();
@@ -91,9 +91,8 @@
   const SHA_H0 = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
   const rotr = (x, n) => (x >>> n) | (x << (32 - n));
 
-  /** Pads the UTF-8 message and packs it into 32-bit big-endian words. */
-  function shaPad(str) {
-    const bytes = new TextEncoder().encode(str);
+  /** Pads the message bytes and packs them into 32-bit big-endian words. */
+  function shaPad(bytes) {
     const len = bytes.length;
     const nBlocks = (len + 9 + 63) >> 6;
     const words = new Uint32Array(nBlocks * 16);
@@ -121,13 +120,88 @@
     return [H[0] + a, H[1] + b, H[2] + c, H[3] + d, H[4] + e, H[5] + f, H[6] + g, H[7] + h].map(x => x | 0);
   }
 
-  /** SHA-256 of a string, as 64 lowercase hex characters. */
-  function sha256(str) {
-    const { words, nBlocks } = shaPad(str);
+  /** SHA-256 of a byte array, as a 32-byte Uint8Array. */
+  function sha256Bytes(bytes) {
+    const { words, nBlocks } = shaPad(bytes);
     const W = new Uint32Array(64);
     let H = SHA_H0.slice();
     for (let b = 0; b < nBlocks; b++) H = shaBlock(H, words, b, W);
-    return H.map(x => (x >>> 0).toString(16).padStart(8, "0")).join("");
+    const out = new Uint8Array(32);
+    H.forEach((x, i) => { out[i * 4] = x >>> 24; out[i * 4 + 1] = (x >>> 16) & 255; out[i * 4 + 2] = (x >>> 8) & 255; out[i * 4 + 3] = x & 255; });
+    return out;
+  }
+
+  const utf8 = str => new TextEncoder().encode(str);
+  const toHex = bytes => [...bytes].map(b => b.toString(16).padStart(2, "0")).join("");
+  const fromHex = hex => new Uint8Array(hex.match(/../g).map(h => parseInt(h, 16)));
+
+  /** SHA-256 of a string (UTF-8), as 64 lowercase hex characters. */
+  const sha256 = str => toHex(sha256Bytes(utf8(str)));
+
+  /* ---------------------------------------------------------
+     Credentials: PBKDF2-HMAC-SHA256
+     Authorisation numbers are never stored in clear: the database keeps
+     "pbkdf2-sha256$<iterations>$<salt hex>$<hash hex>". Verification uses
+     WebCrypto when available, else the synchronous fallback below.
+     --------------------------------------------------------- */
+
+  /** HMAC-SHA256 (RFC 2104) on byte arrays. */
+  function hmacSha256(key, message) {
+    let k = key.length > 64 ? sha256Bytes(key) : key;
+    const block = new Uint8Array(64);
+    block.set(k);
+    const inner = new Uint8Array(64 + message.length), outer = new Uint8Array(64 + 32);
+    for (let i = 0; i < 64; i++) { inner[i] = block[i] ^ 0x36; outer[i] = block[i] ^ 0x5c; }
+    inner.set(message, 64);
+    outer.set(sha256Bytes(inner), 64);
+    return sha256Bytes(outer);
+  }
+
+  /** PBKDF2-HMAC-SHA256 (RFC 8018), one 32-byte block, synchronous fallback. */
+  function pbkdf2Sync(password, salt, iterations) {
+    const key = utf8(password);
+    const first = new Uint8Array(salt.length + 4);
+    first.set(salt);
+    first[salt.length + 3] = 1; // block index 1, big-endian
+    let u = hmacSha256(key, first);
+    const out = u.slice();
+    for (let i = 1; i < iterations; i++) {
+      u = hmacSha256(key, u);
+      for (let j = 0; j < 32; j++) out[j] ^= u[j];
+    }
+    return out;
+  }
+
+  /** PBKDF2-HMAC-SHA256 with WebCrypto, falling back to pbkdf2Sync(). Returns hex. */
+  async function pbkdf2(password, saltHex, iterations) {
+    const salt = fromHex(saltHex);
+    try {
+      const key = await crypto.subtle.importKey("raw", utf8(password), "PBKDF2", false, ["deriveBits"]);
+      const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt, iterations }, key, 256);
+      return toHex(new Uint8Array(bits));
+    } catch (e) {
+      return toHex(pbkdf2Sync(password, salt, iterations));
+    }
+  }
+
+  /** Constant-time comparison of two hex strings. */
+  function sameHex(a, b) {
+    if (a.length !== b.length) return false;
+    let diff = 0;
+    for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return diff === 0;
+  }
+
+  /**
+   * Checks a typed secret against a stored "pbkdf2-sha256$iter$salt$hash" value.
+   * @returns {Promise<boolean>}
+   */
+  async function verifySecret(stored, typed) {
+    const parts = String(stored || "").split("$");
+    if (parts.length !== 4 || parts[0] !== "pbkdf2-sha256") return false;
+    const iterations = parseInt(parts[1], 10);
+    if (!(iterations >= 10000)) return false;
+    return sameHex(await pbkdf2(typed, parts[2], iterations), parts[3]);
   }
 
   /** Previous-hash value of the first audit log entry. */
@@ -148,5 +222,5 @@
     }
   }
 
-  Object.assign(MIS, { $, esc, TODAY, isoD, addDays, addMonths, daysTo, sha256, selfTestSha, GENESIS });
+  Object.assign(MIS, { $, esc, TODAY, isoD, addDays, addMonths, daysTo, sha256, selfTestSha, GENESIS, verifySecret, pbkdf2Sync, toHex, fromHex });
 })();

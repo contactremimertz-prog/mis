@@ -24,10 +24,10 @@
     return u ? u.name : "-";
   }
 
-  /** Authorisation number of a user id (never displayed unmasked). */
+  /** Stored credential (PBKDF2 hash) of a user id; only ever displayed masked. */
   function uauth(id) {
-    const u = one("SELECT auth FROM users WHERE id=?", [id]);
-    return u ? u.auth : "-";
+    const u = one("SELECT auth_hash FROM users WHERE id=?", [id]);
+    return u ? u.auth_hash : "-";
   }
 
   /* ---------------------------------------------------------

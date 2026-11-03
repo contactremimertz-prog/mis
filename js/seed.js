@@ -16,7 +16,7 @@
    */
   const SCHEMA = `
   CREATE TABLE meta(k TEXT PRIMARY KEY, v TEXT);
-  CREATE TABLE users(id TEXT PRIMARY KEY, name TEXT NOT NULL, role TEXT NOT NULL, auth TEXT NOT NULL UNIQUE, cat TEXT, active INTEGER NOT NULL DEFAULT 1);
+  CREATE TABLE users(id TEXT PRIMARY KEY, name TEXT NOT NULL, role TEXT NOT NULL, auth_hash TEXT NOT NULL, cat TEXT, active INTEGER NOT NULL DEFAULT 1);
   CREATE TABLE aircraft(reg TEXT PRIMARY KEY, model TEXT NOT NULL, msn TEXT NOT NULL UNIQUE, base TEXT, mission TEXT, hours REAL NOT NULL CHECK(hours>=0), cycles INTEGER NOT NULL CHECK(cycles>=0), arc_expiry TEXT, mfg_year INTEGER);
   CREATE TABLE mp_task(id TEXT PRIMARY KEY, model TEXT NOT NULL, code TEXT NOT NULL, title TEXT NOT NULL, interval_h REAL, interval_c INTEGER, interval_m INTEGER, ref TEXT);
   CREATE TABLE ac_task(id INTEGER PRIMARY KEY AUTOINCREMENT, reg TEXT NOT NULL REFERENCES aircraft(reg), task_id TEXT NOT NULL REFERENCES mp_task(id), last_h REAL, last_c INTEGER, last_date TEXT);
@@ -36,6 +36,26 @@
   CREATE TRIGGER log_no_update BEFORE UPDATE ON log BEGIN SELECT RAISE(ABORT,'append-only'); END;
   CREATE TRIGGER log_no_delete BEFORE DELETE ON log BEGIN SELECT RAISE(ABORT,'append-only'); END;
   `;
+
+  /**
+   * Demo credentials: PBKDF2-HMAC-SHA256 (100 000 iterations, random salt) of each
+   * profile's authorisation number. The numbers themselves are only in the README
+   * (demo guide); they are never stored, so a database download does not reveal them.
+   */
+  const CRED = {
+    u1: "pbkdf2-sha256$100000$86929be2f62ad94669002b245b337dac$c987bec507a7715da8865942e90387c82994d8ce3e6581715972da81b1114363",
+    u2: "pbkdf2-sha256$100000$5362a26f63fe8ebfa607e9f925f88ea3$e15bee5e06d861c543280a80861701f5339b986b9b7e5dde9b2ba448cccff7e4",
+    u3: "pbkdf2-sha256$100000$f12c4d04f3683acbada06facf1a67421$823d3b823aa6012666afbca749dae8c68163c6ffaf4feb2f7e5bd93ddb8a2002",
+    u8: "pbkdf2-sha256$100000$09defc47f18068776a1db091c4983c09$53bfe374ae36ad9f88065b466393882db61b5d70210696fb2a942a84bdede355",
+    u4: "pbkdf2-sha256$100000$a5b6bbc4acf89e4ae9d892930b46f58c$44d2b4fa16578c2e717809bd706762b289d7bc3e642ab2e7d61bb213a2aad088",
+    u5: "pbkdf2-sha256$100000$00b882d8b370de177000092cadcf83ed$b48a644247e1cea42a80c88ccc6e7fa427d4219298193c25a82eb3ebda99d653",
+    u6: "pbkdf2-sha256$100000$08c0dc120cc244702cfba6971962ff52$34d4503ef4678323ce2158c619867b759edd692fe7995f7120f0cbafd9958419",
+    u7: "pbkdf2-sha256$100000$15fc7c01991a7cbd520b455a753888cb$d202ecbe7ca2402647da6587e88e8b92d06196f3d06c15d4a2704dd631a78560",
+    u9: "pbkdf2-sha256$100000$43d5a825113b77a0f4982620a2087bcb$bd8c3639c66a123e278b7380d01a7549fe1014cdb19abd648b5834bcf5e4c494"
+  };
+
+  /** Non-secret identifier of a credential, frozen in each CRS. */
+  const credentialId = hash => window.MIS.sha256(hash).slice(0, 16);
 
   /** Returns ins(table, rows): bulk insert of plain objects (missing fields become NULL). */
   function makeInserter(db) {
@@ -61,18 +81,18 @@
   /** Metadata (schema version, organisation approval) and the 9 demo profiles. */
   function seedReference(c) {
     const { ins, today } = c;
-    ins("meta", [{ k: "schema", v: "3" }, { k: "approval", v: "FR.145.DEMO" }, { k: "seeded_at", v: today.toISOString() }]);
+    ins("meta", [{ k: "schema", v: "4" }, { k: "approval", v: "FR.145.DEMO" }, { k: "seeded_at", v: today.toISOString() }]);
 
     ins("users", [
-      { id: "u1", name: "Rémi Quentel", role: "QUALITY", auth: "QA-001", active: 1 },
-      { id: "u2", name: "Sophie Durand", role: "CAMO", auth: "CAM-0310", active: 1 },
-      { id: "u3", name: "Claire Morand", role: "CERT", auth: "CRS-0872", cat: "B1", active: 1 },
-      { id: "u8", name: "Hugo Lefèvre", role: "CERT", auth: "CRS-0915", cat: "B2", active: 1 },
-      { id: "u4", name: "Nadia Benali", role: "TECH", auth: "TEC-1140", active: 1 },
-      { id: "u5", name: "Yanis Torres", role: "TECH", auth: "TEC-1187", active: 1 },
-      { id: "u6", name: "Paul Garnier", role: "PLANNER", auth: "PLN-0207", active: 1 },
-      { id: "u7", name: "Inès Roche", role: "STORE", auth: "MAG-0451", active: 1 },
-      { id: "u9", name: "Alex Martin", role: "ADMIN", auth: "ADM-0001", active: 1 }
+      { id: "u1", name: "Rémi Quentel", role: "QUALITY", auth_hash: CRED.u1, active: 1 },
+      { id: "u2", name: "Sophie Durand", role: "CAMO", auth_hash: CRED.u2, active: 1 },
+      { id: "u3", name: "Claire Morand", role: "CERT", auth_hash: CRED.u3, cat: "B1", active: 1 },
+      { id: "u8", name: "Hugo Lefèvre", role: "CERT", auth_hash: CRED.u8, cat: "B2", active: 1 },
+      { id: "u4", name: "Nadia Benali", role: "TECH", auth_hash: CRED.u4, active: 1 },
+      { id: "u5", name: "Yanis Torres", role: "TECH", auth_hash: CRED.u5, active: 1 },
+      { id: "u6", name: "Paul Garnier", role: "PLANNER", auth_hash: CRED.u6, active: 1 },
+      { id: "u7", name: "Inès Roche", role: "STORE", auth_hash: CRED.u7, active: 1 },
+      { id: "u9", name: "Alex Martin", role: "ADMIN", auth_hash: CRED.u9, active: 1 }
     ]);
   }
 
@@ -194,8 +214,8 @@
     addCards("WO-2026-0425", std, "u4", "u3", 0, 0, 0);
     ins("card", cards);
     ins("crs", [
-      { id: "CRS-2026-0081", wo_id: "WO-2026-0398", reg: "F-XXXH", certifier: "u8", cert_auth: "CRS-0915", cert_cat: "B2", approval: "FR.145.DEMO", at: ts(-18, 16), hours: 640.2, cycles: 872, fp: "demo-0081" },
-      { id: "CRS-2026-0088", wo_id: "WO-2026-0412", reg: "F-XXXF", certifier: "u3", cert_auth: "CRS-0872", cert_cat: "B1", approval: "FR.145.DEMO", at: ts(-9, 17), hours: 1544.2, cycles: 2390, fp: "demo-0088" }
+      { id: "CRS-2026-0081", wo_id: "WO-2026-0398", reg: "F-XXXH", certifier: "u8", cert_auth: credentialId(CRED.u8), cert_cat: "B2", approval: "FR.145.DEMO", at: ts(-18, 16), hours: 640.2, cycles: 872, fp: "demo-0081" },
+      { id: "CRS-2026-0088", wo_id: "WO-2026-0412", reg: "F-XXXF", certifier: "u3", cert_auth: credentialId(CRED.u3), cert_cat: "B1", approval: "FR.145.DEMO", at: ts(-9, 17), hours: 1544.2, cycles: 2390, fp: "demo-0088" }
     ]);
 
   }
@@ -302,5 +322,5 @@
     if (!(opts && opts.skipLog)) seedInitialLog(c, logFn);
   }
 
-  window.MIS_SEED = { seed, SCHEMA };
+  window.MIS_SEED = { seed, SCHEMA, credentialId };
 })();

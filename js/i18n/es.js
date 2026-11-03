@@ -206,5 +206,17 @@ window.I18N.es = {
   "log.anchor_meta": "{n} entradas · última el {d}",
   "log.anchor_export": "Huella de cabeza SHA-256: {h} ({n} entradas, última el {d})",
   "log.anchor_copied": "Huella copiada.",
-  "log.anchor_select": "Huella seleccionada: cópiela con Cmd+C o Ctrl+C."
+  "log.anchor_select": "Huella seleccionada: cópiela con Cmd+C o Ctrl+C.",
+  "login.title": "Inicio de sesión",
+  "login.sub": "Elija un perfil de demostración e introduzca su número de habilitación.",
+  "login.profile": "Perfil",
+  "login.auth": "Número de habilitación",
+  "login.submit": "Iniciar sesión",
+  "login.hint": "Los números de los perfiles de demostración figuran en la guía de demostración (README). Nunca se almacenan en claro: la base solo contiene una huella PBKDF2.",
+  "login.switch_title": "Cambiar de perfil: {name}",
+  "login.checking": "Comprobando…",
+  "err.login": "Número de habilitación incorrecto. Intento registrado.",
+  "err.login_locked": "Demasiados fallos. Inténtelo de nuevo en {n} s.",
+  "act.login_fail": "Fallo de inicio de sesión",
+  "log.login_fail": "Inicio de sesión rechazado ({role})"
 };

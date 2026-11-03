@@ -457,7 +457,7 @@
       title: "nav.users", rows: q("SELECT * FROM users ORDER BY role, name"), cols: [
         { h: "col.name", v: u => u.name, cls: "strong" },
         { h: "col.role", v: u => t("role." + u.role), html: u => roleCell(u, editable) },
-        { h: "col.auth", v: u => maskAuth(u.auth), cls: "mono" },
+        { h: "col.auth", v: u => maskAuth(u.auth_hash), cls: "mono" },
         { h: "col.cat", v: u => u.cat || "-" },
         { h: "col.status", v: status, html: u => pill(u.active ? "ok" : "plain", status(u)) },
         { h: "", v: () => "", html: u => userToggleCell(u, editable) }]

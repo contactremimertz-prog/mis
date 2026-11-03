@@ -206,5 +206,17 @@ window.I18N.de = {
   "log.anchor_meta": "{n} Einträge · letzter am {d}",
   "log.anchor_export": "SHA-256-Kopf-Prüfwert: {h} ({n} Einträge, letzter am {d})",
   "log.anchor_copied": "Prüfwert kopiert.",
-  "log.anchor_select": "Prüfwert markiert: mit Cmd+C oder Strg+C kopieren."
+  "log.anchor_select": "Prüfwert markiert: mit Cmd+C oder Strg+C kopieren.",
+  "login.title": "Anmeldung",
+  "login.sub": "Wählen Sie ein Demo-Profil und geben Sie dessen Berechtigungsnummer ein.",
+  "login.profile": "Profil",
+  "login.auth": "Berechtigungsnummer",
+  "login.submit": "Anmelden",
+  "login.hint": "Die Nummern der Demo-Profile stehen im Demo-Leitfaden (README). Sie werden nie im Klartext gespeichert: Die Datenbank enthält nur einen PBKDF2-Hash.",
+  "login.switch_title": "Profil wechseln: {name}",
+  "login.checking": "Prüfung…",
+  "err.login": "Falsche Berechtigungsnummer. Versuch protokolliert.",
+  "err.login_locked": "Zu viele Fehlversuche. Erneut versuchen in {n} s.",
+  "act.login_fail": "Anmeldung fehlgeschlagen",
+  "log.login_fail": "Anmeldung abgelehnt ({role})"
 };

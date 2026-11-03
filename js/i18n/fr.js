@@ -206,5 +206,17 @@ window.I18N.fr = {
   "log.anchor_meta": "{n} entrées · dernière le {d}",
   "log.anchor_export": "Empreinte de tête SHA-256 : {h} ({n} entrées, dernière le {d})",
   "log.anchor_copied": "Empreinte copiée.",
-  "log.anchor_select": "Empreinte sélectionnée : copiez-la avec Cmd+C ou Ctrl+C."
+  "log.anchor_select": "Empreinte sélectionnée : copiez-la avec Cmd+C ou Ctrl+C.",
+  "login.title": "Connexion",
+  "login.sub": "Choisissez un profil de démonstration et saisissez son numéro d'habilitation.",
+  "login.profile": "Profil",
+  "login.auth": "Numéro d'habilitation",
+  "login.submit": "Se connecter",
+  "login.hint": "Les numéros des profils de démo figurent dans le guide de démonstration (README). Ils ne sont jamais stockés en clair : la base ne contient qu'une empreinte PBKDF2.",
+  "login.switch_title": "Changer de profil : {name}",
+  "login.checking": "Vérification…",
+  "err.login": "Numéro d'habilitation incorrect. Tentative enregistrée.",
+  "err.login_locked": "Trop d'échecs. Réessayez dans {n} s.",
+  "act.login_fail": "Échec de connexion",
+  "log.login_fail": "Connexion refusée ({role})"
 };

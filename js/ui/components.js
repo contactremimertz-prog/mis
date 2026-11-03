@@ -63,9 +63,18 @@
     return `<div class="toolbar" role="group">${buttons.join("")}</div>`;
   }
 
-  /** Key/value list. `pairs` = [[labelKey, html], ...] (values are already HTML). */
+  /** Marks a string as trusted HTML (already escaped) for kv(). */
+  const html = markup => ({ html: String(markup) });
+
+  /** Renders a kv() value: escaped text by default, raw only when marked with html(). */
+  const kvValue = v => (v && typeof v === "object" && "html" in v ? v.html : esc(v ?? "-"));
+
+  /**
+   * Key/value list. `pairs` = [[labelKey, value], ...]. Values are escaped
+   * unless wrapped with html(), so a caller cannot forget to escape data.
+   */
   function kv(pairs) {
-    return `<dl class="kv">${pairs.map(([k, v]) => `<div><dt>${esc(t(k))}</dt><dd>${v}</dd></div>`).join("")}</dl>`;
+    return `<dl class="kv">${pairs.map(([k, v]) => `<div><dt>${esc(t(k))}</dt><dd>${kvValue(v)}</dd></div>`).join("")}</dl>`;
   }
 
   /** Simple list of rows, with an "empty" line when there is nothing. */
@@ -211,7 +220,7 @@
   }
 
   Object.assign(MIS, {
-    pill, acPill, remText, pageHead, exportBtns, actionBtn, rowBtn, chips, kv, list, openLink,
+    pill, acPill, remText, pageHead, exportBtns, actionBtn, rowBtn, chips, kv, html, list, openLink,
     table, tableNoExport, val, field, select, dlg, openDlg, closeDlg, formDlg, toast, safe, reopen, deny
   });
 })();

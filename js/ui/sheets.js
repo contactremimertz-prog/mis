@@ -13,7 +13,7 @@
   const {
     $, esc, t, tx, fD, fTs, fH, fN, q, one, run, can, canSee, maskAuth, uname, uauth, transact, log,
     acStatus, isModBlocked, llp, ST_K, WO_K, NC_K, PART_K,
-    pill, acPill, remText, kv, list, openLink, tableNoExport, openDlg, safe, deny, adPill, llpPill
+    pill, acPill, remText, kv, html, list, openLink, tableNoExport, openDlg, safe, deny, adPill, llpPill
   } = MIS;
 
   const mono = v => `<span class="mono">${esc(v)}</span>`;
@@ -27,12 +27,12 @@
 
   function aircraftKv(a, s) {
     return kv([
-      ["col.msn", mono(a.msn)],
-      ["col.year", esc(a.mfg_year)],
-      ["col.base", esc(a.base) + " · " + esc(tx(a.mission))],
-      ["col.hours", esc(fH(a.hours)) + " h"],
-      ["col.cycles", esc(fN(a.cycles))],
-      ["col.arc", esc(fD(a.arc_expiry)) + ` <span class="small muted">(${esc(t("rem.d", { n: s.arcD }))})</span>`]
+      ["col.msn", html(mono(a.msn))],
+      ["col.year", a.mfg_year],
+      ["col.base", a.base + " · " + tx(a.mission)],
+      ["col.hours", fH(a.hours) + " h"],
+      ["col.cycles", fN(a.cycles)],
+      ["col.arc", html(esc(fD(a.arc_expiry)) + ` <span class="small muted">(${esc(t("rem.d", { n: s.arcD }))})</span>`)]
     ]);
   }
 
@@ -145,12 +145,12 @@
 
   function woKv(w) {
     return kv([
-      ["col.aircraft", `${openLink("ac:" + w.reg, w.reg, "mono")} · ${esc(w.model)} MSN ${esc(w.msn)}`],
-      ["col.kind", esc(t("wok." + w.kind))],
-      ["col.task", esc(tx(w.title))],
-      ["col.opened", esc(fD(w.opened))],
-      ["col.planner", esc(uname(w.planner))],
-      ["col.assignee", esc(w.assignee ? uname(w.assignee) : "-")]
+      ["col.aircraft", html(`${openLink("ac:" + w.reg, w.reg, "mono")} · ${esc(w.model)} MSN ${esc(w.msn)}`)],
+      ["col.kind", t("wok." + w.kind)],
+      ["col.task", tx(w.title)],
+      ["col.opened", fD(w.opened)],
+      ["col.planner", uname(w.planner)],
+      ["col.assignee", w.assignee ? uname(w.assignee) : "-"]
     ]);
   }
 
@@ -189,14 +189,14 @@
 
   function partKv(p) {
     return kv([
-      ["col.pn", mono(p.pn)],
-      ["col.snlot", mono(p.sn || "Lot " + p.lot)],
-      ["col.form1", form1Value(p)],
-      ["col.qty", esc(fN(p.qty))],
-      ["col.location", p.reg ? openLink("ac:" + p.reg, p.reg, "mono") : esc(p.location || "-")],
-      ["col.tsn", p.tsn !== null ? esc(fH(p.tsn)) + " h" : "-"],
-      ["col.limit", esc(limitText(p))],
-      ["col.wo", p.wo_id ? openLink("wo:" + p.wo_id, p.wo_id, "mono") : "-"]
+      ["col.pn", html(mono(p.pn))],
+      ["col.snlot", html(mono(p.sn || "Lot " + p.lot))],
+      ["col.form1", html(form1Value(p))],
+      ["col.qty", fN(p.qty)],
+      ["col.location", p.reg ? html(openLink("ac:" + p.reg, p.reg, "mono")) : (p.location || "-")],
+      ["col.tsn", p.tsn !== null ? fH(p.tsn) + " h" : "-"],
+      ["col.limit", limitText(p)],
+      ["col.wo", p.wo_id ? html(openLink("wo:" + p.wo_id, p.wo_id, "mono")) : "-"]
     ]);
   }
 
@@ -238,12 +238,12 @@
     const editable = n.status === "open" && can("nc.edit");
     const body = `<div class="toolbar">${pill(NC_K[n.level], t("lvl." + n.level))}${pill(n.status === "open" ? "warn" : "ok", t("ncs." + n.status))}</div>` +
       kv([
-        ["col.reg", n.reg ? openLink("ac:" + n.reg, n.reg, "mono") : "-"],
-        ["col.source", esc(tx(n.source))],
-        ["col.opened", esc(fD(n.opened))],
-        ["col.due", esc(fD(n.due))],
-        ["col.owner", esc(uname(n.owner))],
-        ["col.closed", esc(fD(n.closed_at))]
+        ["col.reg", n.reg ? html(openLink("ac:" + n.reg, n.reg, "mono")) : "-"],
+        ["col.source", tx(n.source)],
+        ["col.opened", fD(n.opened)],
+        ["col.due", fD(n.due)],
+        ["col.owner", uname(n.owner)],
+        ["col.closed", fD(n.closed_at)]
       ]) +
       `<p><strong>${esc(t("col.descr"))} :</strong> ${esc(tx(n.descr))}</p>` + ncForm(n, editable);
     const foot = (editable ? `<button class="btn" data-act="nc-save" data-id="${esc(id)}">${esc(t("btn.save"))}</button>` : "") +
@@ -267,12 +267,12 @@
       <p class="eyebrow">${esc(t("crs.org", { a: c.approval }))}</p>
       <h3>${esc(t("crs.heading"))}</h3>
       ${kv([
-        ["col.crs", mono(c.id)],
-        ["col.wo", mono(c.wo_id)],
-        ["col.aircraft", `${esc(c.reg)} · ${esc(c.model)} MSN ${esc(c.msn)}`],
-        ["col.task", esc(tx(c.title))],
-        ["col.hours", esc(fH(c.hours)) + " h · " + esc(fN(c.cycles)) + " cyc"],
-        ["col.date", esc(fTs(c.at))]
+        ["col.crs", html(mono(c.id))],
+        ["col.wo", html(mono(c.wo_id))],
+        ["col.aircraft", `${c.reg} · ${c.model} MSN ${c.msn}`],
+        ["col.task", tx(c.title)],
+        ["col.hours", fH(c.hours) + " h · " + fN(c.cycles) + " cyc"],
+        ["col.date", fTs(c.at)]
       ])}
       <p class="statement">${esc(t("crs.statement"))}</p>
       <p><strong>${esc(t("col.certifier"))} :</strong> ${esc(uname(c.certifier))} · ${mono(maskAuth(c.cert_auth))}${category}</p>

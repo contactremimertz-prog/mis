@@ -6,8 +6,8 @@ and the role of the public functions. The user guide (in French) is in the
 
 ## 1. Principles
 
-- **Static site, no build step.** Plain JavaScript files loaded by `js/boot.js`
-  in a fixed order. No bundler, no framework, no server.
+- **Static site, no build step.** Plain JavaScript files loaded by the inline
+  loader of `index.html` in a fixed order. No bundler, no framework, no server.
 - **One namespace.** Every module is an IIFE that reads and extends
   `window.MIS`. Modules never use hidden globals.
 - **One shared state.** All mutable state lives in `MIS.state` (database,
@@ -22,9 +22,12 @@ and the role of the public functions. The user guide (in French) is in the
 
 ## 2. Files and load order
 
-`js/boot.js` loads the scripts below one after another. Over http(s) each file
-is checked with Subresource Integrity (sha384). After any change to a `.js`
-file, run `python3 tools/update-sri.py`.
+The inline loader in `index.html` (between `<!-- boot:start -->` and
+`<!-- boot:end -->`) loads the scripts below one after another. The browser
+runs that loader only if its sha256 hash matches the Content-Security-Policy
+(`script-src 'self' 'sha256-...'`), so `index.html` is the root of trust. Over
+http(s) the loader checks each file with Subresource Integrity (sha384). After
+any change to a `.js` file or to the loader, run `python3 tools/update-sri.py`.
 
 | # | File | Responsibility |
 |---|------|----------------|
@@ -37,10 +40,12 @@ file, run `python3 tools/update-sri.py`.
 | 7 | `js/core/db.js` | Query helpers, `transact()`, IndexedDB persistence, `freshDb()` |
 | 8 | `js/core/journal.js` | Append-only, hash-chained audit log |
 | 9 | `js/core/rules.js` | Airworthiness rules: dues, ADs, aircraft status, LLP, Form 1, ids |
+| 9b | `js/core/session.js` | Sign-in with the authorisation number (PBKDF2 check, lock-out) |
 | 10 | `js/ui/components.js` | HTML components, tables, forms, dialog, toast, `safe()`, `deny()` |
 | 11 | `js/ui/views.js` | One function per screen (`MIS.VIEWS`) |
 | 12 | `js/ui/sheets.js` | Record dialogs: aircraft, work order, part, finding, CRS |
 | 13 | `js/ui/sign.js` | Simulated electronic signature |
+| 13b | `js/ui/login.js` | Sign-in screen and profile switch dialog |
 | 14 | `js/actions/workorders.js` | Work orders, task cards, part installation, CRS |
 | 15 | `js/actions/stock.js` | Reception, Form 1 release from quarantine, purchase orders |
 | 16 | `js/actions/quality.js` | Findings, audits, documents, modifications |
@@ -58,12 +63,12 @@ at run time: `MIS.render` (main), `MIS.showRecord` (sheets) and `MIS.download`
 ### Start-up
 
 ```
-boot.js ── loads every script ──> main.js start()
+inline loader ── loads every script ──> main.js start()
   loadSqlJs()        WebAssembly over http(s), asm.js for file:// or after 8 s
-  openDatabase()     saved file from IndexedDB if schema "3", else freshDb() + seed
-  restoreProfile()   last profile from localStorage (default: CAMO manager)
+  openDatabase()     saved file from IndexedDB if schema "4", else freshDb() + seed
+  state.me = null    every page load starts signed out
   selfTestSha()      checks sha256() against WebCrypto
-  bind(); render()
+  bind(); render()   sign-in screen until signIn() succeeds
 ```
 
 ### Display
@@ -91,6 +96,15 @@ click [data-act="crs"] ─> MIS.ACTIONS.crs(id)
 
 `transact()` saves the database to IndexedDB after each commit.
 
+### Credentials
+
+Authorisation numbers are never stored. `users.auth_hash` holds
+`pbkdf2-sha256$100000$<salt>$<hash>` (PBKDF2-HMAC-SHA256, random 16-byte salt).
+`verifySecret()` uses WebCrypto, with a pure JavaScript fallback. The same
+number is asked to sign in, to switch profile and to sign. Each failure is
+logged; after 5 failures sign-in is locked for 30 s. A CRS freezes a
+non-secret credential identifier (`MIS_SEED.credentialId`), never the number.
+
 ### Audit log
 
 Each entry stores `prev` (hash of the previous entry, 64 zeros for the first)
@@ -98,13 +112,17 @@ and `h = SHA-256(prev | ts | uid | role | action | msg | params)`. SQL triggers
 forbid `UPDATE` and `DELETE` on the table. `verifyLog()` recomputes the chain;
 the head hash is shown on the audit log screen and appended to its exports.
 The admin reset copies the existing log unchanged into the new database.
+Limit: in a browser, a user with developer tools can drop the triggers and
+recompute the whole chain; only the head hash kept outside the workstation
+reveals it. A tamper-proof log needs a server (sealed log, server-side key and
+time source).
 
 ## 4. Shared state (`MIS.state`)
 
 | Field | Content |
 |-------|---------|
 | `SQL`, `db` | sql.js module and current database |
-| `me` | Active profile (row of `users`) |
+| `me` | Signed-in profile (row of `users`), `null` before sign-in |
 | `lang` | UI language code |
 | `exportSpec` | Table on screen, used by the exports |
 | `current` | `"type:id"` of the open dialog, refreshed after an action |
@@ -125,6 +143,8 @@ The admin reset copies the existing log unchanged into the new database.
 | `t(key, params)`, `tx(value)` | Translate a key, or a data value starting with `@` |
 | `fD`, `fTs`, `fH`, `fN` | Format a date, timestamp, hours, number |
 | `can(perm)`, `canSee(screen)` | Permission checks for the active profile |
+| `signIn(uid, typed)`, `checkMySecret(typed)` | Sign-in and signature checks (async, PBKDF2) |
+| `verifySecret(stored, typed)` | Compares a typed secret with a stored PBKDF2 hash |
 | `maskAuth(auth)` | Fixed mask: authorisation numbers are never displayed |
 | `taskRows(reg?)`, `adRows(reg?)` | Programme tasks and ADs with due status |
 | `acStatus(aircraft)` | `aog`, `overdue`, `soon` or `airworthy`, with details |
@@ -137,7 +157,7 @@ The admin reset copies the existing log unchanged into the new database.
 | Function | Role |
 |----------|------|
 | `table(spec)`, `tableNoExport(spec)` | Table HTML; the first one becomes the export |
-| `pageHead`, `pill`, `kv`, `list`, `chips`, `field`, `select` | HTML components |
+| `pageHead`, `pill`, `kv`, `list`, `chips`, `field`, `select` | HTML components; `kv()` escapes values unless wrapped with `html()` |
 | `openDlg`, `closeDlg`, `formDlg` | Modal dialog and generic form dialog |
 | `toast(message, bad?)` | Transient message |
 | `safe(fn, okKey?, params?)` | Runs a write action, reports the result, refreshes the screen |
@@ -161,7 +181,7 @@ The admin reset copies the existing log unchanged into the new database.
    and register it in `MIS.ACTIONS`.
 3. **Texts:** add every new key to `fr.js`, `en.js`, `es.js` and `de.js`.
 4. **Schema change:** update `js/seed.js` and the schema version (`meta.schema`
-   and the check in `openDatabase()`), so old saved databases are replaced.
+   and `SCHEMA_VERSION` in `js/main.js`), so old saved databases are replaced.
 5. Run `python3 tools/update-sri.py`, then test over http and file://.
 
 ## 7. Conventions

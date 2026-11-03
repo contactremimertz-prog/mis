@@ -206,5 +206,17 @@ window.I18N.en = {
   "log.anchor_meta": "{n} entries · last on {d}",
   "log.anchor_export": "SHA-256 head hash: {h} ({n} entries, last on {d})",
   "log.anchor_copied": "Hash copied.",
-  "log.anchor_select": "Hash selected: copy it with Cmd+C or Ctrl+C."
+  "log.anchor_select": "Hash selected: copy it with Cmd+C or Ctrl+C.",
+  "login.title": "Sign in",
+  "login.sub": "Choose a demo profile and enter its authorisation number.",
+  "login.profile": "Profile",
+  "login.auth": "Authorisation number",
+  "login.submit": "Sign in",
+  "login.hint": "The demo profiles' numbers are in the demo guide (README). They are never stored in clear: the database only holds a PBKDF2 hash.",
+  "login.switch_title": "Switch profile: {name}",
+  "login.checking": "Checking…",
+  "err.login": "Wrong authorisation number. Attempt recorded.",
+  "err.login_locked": "Too many failures. Try again in {n} s.",
+  "act.login_fail": "Sign-in failure",
+  "log.login_fail": "Sign-in refused ({role})"
 };

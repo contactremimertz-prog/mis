@@ -213,16 +213,17 @@
   /**
    * Writes the CRS and its consequences: WO closed, programme task or AD
    * reset to the current hours/cycles/date, modification embodied.
-   * Approval, authorisation number and category are frozen in the CRS.
+   * Approval, credential identifier and category are frozen in the CRS.
    */
   function recordCrs(cid, w) {
     const a = one("SELECT * FROM aircraft WHERE reg=?", [w.reg]);
     const at = nowIso(), today = isoD(new Date());
     const approval = (one("SELECT v FROM meta WHERE k='approval'") || { v: "FR.145.DEMO" }).v;
     const me = S.me;
-    const fp = sha256([cid, w.id, w.reg, me.id, me.auth, me.cat || "", approval, at, a.hours, a.cycles].join("|"));
+    const credential = window.MIS_SEED.credentialId(me.auth_hash); // identifies the credential, reveals nothing
+    const fp = sha256([cid, w.id, w.reg, me.id, credential, me.cat || "", approval, at, a.hours, a.cycles].join("|"));
     run("INSERT INTO crs(id,wo_id,reg,certifier,cert_auth,cert_cat,approval,at,hours,cycles,fp) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-      [cid, w.id, w.reg, me.id, me.auth, me.cat || null, approval, at, a.hours, a.cycles, fp]);
+      [cid, w.id, w.reg, me.id, credential, me.cat || null, approval, at, a.hours, a.cycles, fp]);
     run("UPDATE wo SET status='closed', crs_id=?, closed_at=? WHERE id=?", [cid, at, w.id]);
     if (w.ac_task_id) run("UPDATE ac_task SET last_h=?, last_c=?, last_date=? WHERE id=?", [a.hours, a.cycles, today, w.ac_task_id]);
     if (w.ac_ad_id) run("UPDATE ac_ad SET status='applied', last_h=?, last_date=?, wo_id=? WHERE id=?", [a.hours, today, w.id, w.ac_ad_id]);

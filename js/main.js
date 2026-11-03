@@ -1,8 +1,9 @@
 /**
  * @file Application entry point: rendering, routing, event binding, start-up.
  *
- * Routing uses the URL hash (#dashboard, #fleet, ...). A screen the profile
- * may not see renders the "access denied" view and the attempt is logged once.
+ * Routing uses the URL hash (#dashboard, #fleet, ...). Nothing is shown before
+ * sign-in. A screen the profile may not see renders the "access denied" view
+ * and the attempt is logged once.
  */
 (function () {
   "use strict";
@@ -11,7 +12,8 @@
   const S = MIS.state;
   const {
     $, esc, t, q, one, logNow, verifyLog, canSee, persist, loadSaved, freshDb, renderSaveState,
-    selfTestSha, LANGS, SCREENS, VIEWS, ACTIONS, setLang, safe, toast, closeDlg, dlg, reopen, openRecord
+    selfTestSha, LANGS, SCREENS, VIEWS, ACTIONS, setLang, closeDlg, dlg, reopen, openRecord,
+    loginView, bindLoginView, askProfileSwitch
   } = MIS;
 
   const isHttp = () => location.protocol === "http:" || location.protocol === "https:";
@@ -26,6 +28,12 @@
     return VIEWS[r] && r !== "denied" ? r : "dashboard";
   }
 
+  /** Expected schema version: an older saved database is replaced by the demo data. */
+  const SCHEMA_VERSION = "4";
+
+  /** Header elements that only make sense once signed in. */
+  const SIGNED_IN_ONLY = ["#search-form", "#user", "#user-label", "#avatar", "#compliance"];
+
   /** Static texts of the header, language and profile selectors. */
   function renderHeader() {
     document.documentElement.lang = S.lang;
@@ -38,6 +46,8 @@
     $("#gsearch").placeholder = t("hdr.search");
     $("#gsearch").setAttribute("aria-label", t("hdr.search"));
     $("#lang").innerHTML = LANGS.map(([code, name]) => `<option value="${code}" ${code === S.lang ? "selected" : ""}>${name}</option>`).join("");
+    SIGNED_IN_ONLY.forEach(sel => { $(sel).hidden = !S.me; });
+    if (!S.me) return;
     const users = q("SELECT * FROM users WHERE active=1 ORDER BY role, name");
     $("#user").innerHTML = users.map(u => `<option value="${esc(u.id)}" ${u.id === S.me.id ? "selected" : ""}>${esc(u.name)} · ${esc(t("role." + u.role))}</option>`).join("");
     $("#avatar").textContent = S.me.name.split(" ").map(s => s[0]).join("").slice(0, 2).toUpperCase();
@@ -74,8 +84,20 @@
     return VIEWS.denied();
   }
 
+  const footer = () => `<footer class="foot"><span>${esc(t("foot.demo"))}</span><span>${esc(t("foot.storage"))}</span></footer>`;
+
+  /** Sign-in page: no navigation, no data. */
+  function renderSignedOut() {
+    renderHeader();
+    renderSaveState();
+    $("#nav").innerHTML = "";
+    $("#main").innerHTML = loginView() + footer();
+    bindLoginView();
+  }
+
   /** Redraws the header, navigation and current screen. */
   function render() {
+    if (!S.me) return renderSignedOut();
     const screen = route();
     renderHeader();
     renderCompliancePill();
@@ -83,7 +105,7 @@
     renderNav(screen);
     S.exportSpec = null;
     const html = canSee(screen) ? VIEWS[screen]() : renderDenied(screen);
-    $("#main").innerHTML = html + `<footer class="foot"><span>${esc(t("foot.demo"))}</span><span>${esc(t("foot.storage"))}</span></footer>`;
+    $("#main").innerHTML = html + footer();
   }
 
   /* =========================================================
@@ -112,13 +134,14 @@
     }
   }
 
-  /** Switches the demo profile (logged as a session opening). */
+  /** Header profile list: the new profile must sign in with its own number. */
   function onProfileChange(e) {
-    S.me = one("SELECT * FROM users WHERE id=?", [e.target.value]);
-    try { localStorage.setItem(MIS.KEYS.user, S.me.id); } catch (_) { /* ignore */ }
-    safe(() => logNow("login", "log.login", { role: "@role." + S.me.role }));
-    closeDlg();
-    toast(t("toast.login", { name: S.me.name, role: t("role." + S.me.role) }));
+    if (S.me && e.target.value !== S.me.id) askProfileSwitch(e.target.value);
+  }
+
+  /** After a successful sign-in: go to the dashboard if the screen is not allowed. */
+  function afterSignIn() {
+    S.lastDenied = null;
     if (!canSee(route())) location.hash = "#dashboard";
     else render();
   }
@@ -191,7 +214,7 @@
       try {
         S.db = new S.SQL.Database(saved);
         one("SELECT COUNT(*) n FROM log");
-        if ((one("SELECT v FROM meta WHERE k='schema'") || {}).v !== "3") throw new Error("schema");
+        if ((one("SELECT v FROM meta WHERE k='schema'") || {}).v !== SCHEMA_VERSION) throw new Error("schema");
       } catch (e) {
         S.db = null;
       }
@@ -202,18 +225,11 @@
     }
   }
 
-  /** Restores the last profile, or the CAMO manager by default. */
-  function restoreProfile() {
-    let uid = "u2";
-    try { uid = localStorage.getItem(MIS.KEYS.user) || uid; } catch (e) { /* ignore */ }
-    S.me = one("SELECT * FROM users WHERE id=? AND active=1", [uid]) || one("SELECT * FROM users WHERE active=1 ORDER BY id");
-  }
-
   async function start() {
     try {
       S.SQL = await loadSqlJs();
       await openDatabase();
-      restoreProfile();
+      S.me = null; // every page load starts signed out
       S.shaOk = await selfTestSha();
       $("#boot").hidden = true;
       $("#app").hidden = false;
@@ -227,5 +243,6 @@
 
   ACTIONS.close = closeDlg; // "Close" and "Cancel" buttons of every dialog
   MIS.render = render;
+  MIS.afterSignIn = afterSignIn;
   start();
 })();
