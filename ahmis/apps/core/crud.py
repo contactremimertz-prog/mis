@@ -140,7 +140,7 @@ class AhmisUpdateView(PermissionRequiredMixin, _FormMixin, UpdateView):
         return [perm(self.model, "change")]
 
     def get_title(self):
-        return self.title or f"Modifier {self.object}"
+        return self.title or gettext("Modifier {obj}").format(obj=self.object)
 
 
 def back(request, default="dashboard"):

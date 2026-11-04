@@ -52,7 +52,7 @@ Transverse : interface en **français, anglais, espagnol et allemand** (sélecte
 python manage.py test apps
 ```
 
-136 tests couvrent les règles critiques : calcul « premier critère atteint », tolérances non cumulatives, seuils, délais d'AD, compteurs des composants, LLP/TBO, forecast, autorisations, contrôle indépendant, CRS, contrôles de pose, quarantaine, outillage, péremption, audit, intégrité des signatures, le parcours web avec ressaisie du mot de passe, l'expérience récente, la revue du programme, la conservation, les comptes rendus d'événements, le transfert de dossiers, la prorogation de report, le rebut et les classes d'articles, les audits internes, les documents maîtrisés, les dossiers Part-21, les commandes d'achat, la recherche, l'assistant, et un parcours de toutes les pages dans les quatre langues pour chaque rôle de démonstration.
+137 tests couvrent les règles critiques : calcul « premier critère atteint », tolérances non cumulatives, seuils, délais d'AD, compteurs des composants, LLP/TBO, forecast, autorisations, contrôle indépendant, CRS, contrôles de pose, quarantaine, outillage, péremption, audit, intégrité des signatures, le parcours web avec ressaisie du mot de passe, l'expérience récente, la revue du programme, la conservation, les comptes rendus d'événements, le transfert de dossiers, la prorogation de report, le rebut et les classes d'articles, les audits internes, les documents maîtrisés, les dossiers Part-21, les commandes d'achat, la recherche, l'assistant, et un parcours de toutes les pages dans les quatre langues pour chaque rôle de démonstration.
 
 ## Avertissement
 

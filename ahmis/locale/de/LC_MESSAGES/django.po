@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 18:17+0100\n"
+"POT-Creation-Date: 2026-11-04 18:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1213,9 +1213,6 @@ msgstr ""
 " anlegen."
 
 #: apps/camo/models.py:569
-#| msgid ""
-#| "Une modification ou réparation majeure exige une approbation EASA, un STC ou"
-#| " une approbation DOA."
 msgid ""
 "Une modification ou réparation majeure exige des données approuvées par "
 "l'EASA, un STC, une approbation DOA ou un bulletin service approuvé du "
@@ -2972,6 +2969,12 @@ msgstr "{capitalize} „{object}“ gespeichert."
 msgid "Nouveau / nouvelle {verbose_name}"
 msgstr "Neu: {verbose_name}"
 
+#: apps/core/crud.py:143
+#, python-brace-format
+#| msgid "Modifier"
+msgid "Modifier {obj}"
+msgstr "{obj} bearbeiten"
+
 #: apps/core/models.py:19
 msgid "créé le"
 msgstr "erstellt am"
@@ -3184,7 +3187,6 @@ msgid "verrou d'authentification"
 msgstr "Authentifizierungssperre"
 
 #: apps/core/models.py:252
-#| msgid "Justification"
 msgid "verrous d'authentification"
 msgstr "Authentifizierungssperren"
 
@@ -3657,6 +3659,10 @@ msgstr "Abbrechen"
 msgid "Tutoriels"
 msgstr "Tutorials"
 
+#: apps/core/templates/core/help.html:9
+msgid "Les tutoriels sont rédigés en français."
+msgstr "Die Tutorials sind auf Französisch verfasst."
+
 #: apps/core/templates/core/list.html:8
 msgid "+ Créer"
 msgstr "+ Anlegen"
@@ -3776,7 +3782,6 @@ msgid "mon code de signature"
 msgstr "mein Signaturcode"
 
 #: apps/core/templates/core/my_account.html:27
-#| msgid "ou avec un identifiant et un mot de passe"
 msgid "Code actuel (ou mot de passe)"
 msgstr "Aktueller Code (oder Passwort)"
 
@@ -3983,12 +3988,10 @@ msgstr "Seite %(number)s /"
 
 #: apps/core/uploads.py:31
 #, python-format
-#| msgid "Archive trop volumineuse (500 Mo maximum)."
 msgid "Fichier trop volumineux (%(n)s Mo au maximum)."
 msgstr "Datei zu groß (höchstens %(n)s MB)."
 
 #: apps/core/uploads.py:46
-#| msgid "Le P/N du certificat ne correspond pas au composant."
 msgid "Le contenu du fichier ne correspond pas à son extension."
 msgstr "Der Dateiinhalt entspricht nicht der Dateiendung."
 
@@ -4009,7 +4012,6 @@ msgstr ""
 "Signaturcode ändern."
 
 #: apps/core/views.py:106
-#| msgid "Identifiant ou mot de passe incorrect."
 msgid "Code de signature actuel (ou mot de passe) incorrect."
 msgstr "Aktueller Signaturcode (oder Passwort) falsch."
 
@@ -6133,8 +6135,6 @@ msgstr ""
 "Die Bestellung muss versendet sein, um einen Wareneingang zu erfassen."
 
 #: apps/logistics/purchasing.py:56
-#| msgid ""
-#| "Fournisseur non accepté : évaluez-le avant d'émettre la commande (145.A.42)."
 msgid ""
 "Le fournisseur n'est plus accepté : réception bloquée, informez la qualité "
 "(145.A.42)."
@@ -6180,22 +6180,18 @@ msgid "La quantité dépasse celle couverte par le certificat."
 msgstr "Die Menge übersteigt die durch das Zertifikat abgedeckte Menge."
 
 #: apps/logistics/purchasing.py:75
-#| msgid "Date de certificat dans le futur."
 msgid "Date de réception dans le futur."
 msgstr "Eingangsdatum in der Zukunft."
 
 #: apps/logistics/purchasing.py:110
-#| msgid "quantité reçue"
 msgid "Quantité reçue"
 msgstr "Erhaltene Menge"
 
 #: apps/logistics/purchasing.py:112
-#| msgid "reçu le"
 msgid "Reçu le"
 msgstr "Erhalten am"
 
 #: apps/logistics/purchasing.py:123
-#| msgid "n° d'agrément"
 msgid "N° d'agrément"
 msgstr "Genehmigungs-Nr."
 
@@ -6239,7 +6235,6 @@ msgstr ""
 "Freigabebescheinigung verknüpft."
 
 #: apps/logistics/purchasing.py:165
-#| msgid "commande d'achat"
 msgid "Nouvelle commande d'achat"
 msgstr "Neue Bestellung"
 
@@ -8870,7 +8865,6 @@ msgid "audits internes"
 msgstr "interne Audits"
 
 #: apps/quality/models.py:84
-#| msgid "Une signature ne peut pas être modifiée."
 msgid "Audit clôturé ou annulé : il ne peut plus être modifié."
 msgstr ""
 "Audit abgeschlossen oder storniert: es kann nicht mehr geändert werden."
@@ -8880,9 +8874,6 @@ msgid "Rapport émis : seule la clôture de l'audit est encore possible."
 msgstr "Bericht erstellt: nur der Abschluss des Audits ist noch möglich."
 
 #: apps/quality/models.py:89
-#| msgid ""
-#| "Avant de démarrer, confirmez que l'auditeur est indépendant de l'activité "
-#| "auditée."
 msgid ""
 "Un audit ne peut démarrer que si l'auditeur est indépendant de l'activité "
 "auditée."
@@ -8891,12 +8882,10 @@ msgstr ""
 "unabhängig ist."
 
 #: apps/quality/models.py:92
-#| msgid "Indiquez la date de notification."
 msgid "Indiquez la date de réalisation."
 msgstr "Durchführungsdatum angeben."
 
 #: apps/quality/models.py:94
-#| msgid "Le motif de report est obligatoire."
 msgid "La synthèse du rapport est obligatoire."
 msgstr "Die Zusammenfassung des Berichts ist Pflicht."
 
@@ -8973,9 +8962,13 @@ msgid "constats d'audit"
 msgstr "Audit-Feststellungen"
 
 #: apps/quality/models.py:153
-#| msgid "Constat %(n)s clôturé et signé."
-msgid "Cet audit est clôturé ou annulé."
-msgstr "Dieses Audit ist abgeschlossen oder storniert."
+#| msgid ""
+#| "Rapport émis : seule la clôture de l'audit est encore possible."
+msgid ""
+"Rapport émis, audit clôturé ou annulé : aucun nouveau constat possible."
+msgstr ""
+"Bericht erstellt, Audit abgeschlossen oder storniert: keine neuen "
+"Feststellungen möglich."
 
 #: apps/quality/models.py:158
 #, python-format
@@ -8983,12 +8976,10 @@ msgid "Échéance au-delà du délai maximal du niveau (au plus le %(d)s)."
 msgstr "Frist überschreitet die Höchstdauer der Stufe (spätestens %(d)s)."
 
 #: apps/quality/models.py:161
-#| msgid "Décrivez les actions correctives avant clôture."
 msgid "Décrivez la cause racine avant clôture."
 msgstr "Ursache vor dem Abschluss beschreiben."
 
 #: apps/quality/models.py:163
-#| msgid "Décrivez les actions correctives avant clôture."
 msgid "Décrivez l'action corrective avant clôture."
 msgstr "Korrekturmaßnahme vor dem Abschluss beschreiben."
 
@@ -9114,8 +9105,6 @@ msgid "Approuver une révision de document"
 msgstr "Dokumentrevision genehmigen"
 
 #: apps/quality/models.py:271
-#| msgid ""
-#| "Une révision est en attente : approuvez-la ou refusez-la d'abord."
 msgid "Une révision est déjà en attente d'approbation pour ce document."
 msgstr "Für dieses Dokument wartet bereits eine Revision auf Genehmigung."
 
@@ -9377,12 +9366,10 @@ msgid "Aucune révision."
 msgstr "Keine Revision."
 
 #: apps/quality/views.py:24
-#| msgid "référentiel"
 msgid "Référentiel"
 msgstr "Regelwerk"
 
 #: apps/quality/views.py:24
-#| msgid "Effectivité"
 msgid "Activité"
 msgstr "Tätigkeit"
 
@@ -9403,7 +9390,6 @@ msgid "Constats ouverts"
 msgstr "Offene Feststellungen"
 
 #: apps/quality/views.py:41
-#| msgid "Planifier :"
 msgid "Planifier un audit"
 msgstr "Audit planen"
 
@@ -9418,7 +9404,6 @@ msgid "Constat %(n)s clôturé et signé."
 msgstr "Feststellung %(n)s abgeschlossen und signiert."
 
 #: apps/quality/views.py:106
-#| msgid "Constat d'audit"
 msgid "Constats d'audit"
 msgstr "Auditfeststellungen"
 
@@ -9443,7 +9428,6 @@ msgstr ""
 "Person als den Verfasser in Kraft."
 
 #: apps/quality/views.py:125
-#| msgid "document maîtrisé"
 msgid "Nouveau document maîtrisé"
 msgstr "Neues gelenktes Dokument"
 
@@ -10071,3 +10055,6 @@ msgstr "Demo-Konten"
 #: templates/registration/login.html:20
 msgid "(mot de passe :"
 msgstr "(Passwort:"
+
+#~ msgid "Cet audit est clôturé ou annulé."
+#~ msgstr "Dieses Audit ist abgeschlossen oder storniert."

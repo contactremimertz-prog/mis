@@ -149,8 +149,8 @@ class AuditFinding(TrackedModel):
 
     def clean(self):
         errors = {}
-        if self.audit_id and self.audit.status in ("closed", "cancelled") and self._state.adding:
-            errors["audit"] = gettext("Cet audit est clôturé ou annulé.")
+        if self.audit_id and self.audit.status in ("reported", "closed", "cancelled") and self._state.adding:
+            errors["audit"] = gettext("Rapport émis, audit clôturé ou annulé : aucun nouveau constat possible.")
         if self.due_date and self.audit_id and not self.pk:
             base = self.audit.performed_on or timezone.localdate()
             limit = base + timedelta(days=FINDING_DAYS.get(self.level, 30))

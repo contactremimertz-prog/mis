@@ -28,7 +28,7 @@ class SmokeCrawlTests(TestCase):
     def test_dashboard_is_translated(self):
         c = Client()
         c.force_login(get_user_model().objects.get(username="admin"))
-        for lang, title in [("fr", "Tableau de bord"), ("en", "Dashboard"), ("es", "Panel"), ("de", "Übersicht")]:
+        for lang, title in [("fr", "Tableau de bord"), ("en", "Dashboard"), ("es", "Panel de control"), ("de", "Übersicht")]:
             c.cookies[settings.LANGUAGE_COOKIE_NAME] = lang
             self.assertContains(c.get("/"), f"<h1>{title}</h1>", html=False)
 

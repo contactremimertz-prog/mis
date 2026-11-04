@@ -63,6 +63,8 @@ class EasaFixTests(TestCase):
         with self.assertRaises(ValidationError):
             a.full_clean()
         a.refresh_from_db()
+        with self.assertRaises(ValidationError):  # aucun nouveau constat après rapport
+            AuditFinding(audit=a, level="level2", requirement="x", description="x").full_clean()
         a.status, a.closed_on = "closed", today()
         a.full_clean()
         a.save()
@@ -172,6 +174,13 @@ class CyberFixTests(TestCase):
         self.client.post(reverse("my_account"), {"pin": "nouveau9", "pin_confirm": "nouveau9", "current": "ancien1"})
         pin.refresh_from_db()
         self.assertTrue(pin.check_pin("nouveau9"))
+
+    def test_html_lang_and_translated_edit_title(self):
+        from django.conf import settings
+
+        self.client.force_login(self.w["u_mag"])
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "de"
+        self.assertContains(self.client.get("/"), '<html lang="de">')
 
     def test_csp_header_on_pages(self):
         self.client.force_login(self.w["u_camo"])
