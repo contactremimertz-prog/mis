@@ -136,10 +136,12 @@ def dashboard(request):
         if st["status"] != "ok":
             amp_alerts.append({"type": t, **st})
     amp_alerts.sort(key=lambda r: r["type"].code)
+    from apps.quality.views import dashboard_kpi as quality_kpi
     from apps.safety.views import dashboard_kpi
 
     ctx = {
         "occ": dashboard_kpi(request.user),
+        "qual": quality_kpi(request.user),
         "amp_alerts": amp_alerts,
         "today": today,
         "kpi": {

@@ -55,13 +55,13 @@ class TrackedModel(models.Model):
 class AuditLog(models.Model):
     ACTIONS = [("create", gettext_lazy("Création")), ("update", gettext_lazy("Modification")), ("delete", gettext_lazy("Suppression"))]
 
-    timestamp = models.DateTimeField("horodatage", default=timezone.now, db_index=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, verbose_name="utilisateur")
-    username = models.CharField("identifiant", max_length=150, blank=True)
+    timestamp = models.DateTimeField(gettext_lazy("horodatage"), default=timezone.now, db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, verbose_name=gettext_lazy("utilisateur"))
+    username = models.CharField(gettext_lazy("identifiant"), max_length=150, blank=True)
     action = models.CharField(max_length=10, choices=ACTIONS)
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.CharField(max_length=64, db_index=True)
-    object_repr = models.CharField("objet", max_length=255)
+    object_repr = models.CharField(gettext_lazy("objet"), max_length=255)
     changes = models.TextField(gettext_lazy("modifications (JSON)"), blank=True)
 
     class Meta:
@@ -109,13 +109,13 @@ class SignatureRecord(models.Model):
     ]
 
     signed_at = models.DateTimeField(gettext_lazy("signé le"), default=timezone.now)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="utilisateur")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name=gettext_lazy("utilisateur"))
     signer_name = models.CharField(gettext_lazy("nom du signataire"), max_length=150)
     signer_licence = models.CharField(gettext_lazy("licence / autorisation"), max_length=150, blank=True)
     action = models.CharField(max_length=20, choices=ACTIONS)
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.CharField(max_length=64, db_index=True)
-    object_repr = models.CharField("objet", max_length=255)
+    object_repr = models.CharField(gettext_lazy("objet"), max_length=255)
     statement = models.TextField(gettext_lazy("déclaration signée"))
     digest = models.CharField(gettext_lazy("empreinte SHA-256"), max_length=64, editable=False)
 
@@ -198,8 +198,8 @@ class ExternalIdentity(models.Model):
 
     PROVIDERS = [("ldap", gettext_lazy("Active Directory (LDAP)")), ("oidc", gettext_lazy("SSO OpenID Connect"))]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="external_identities", verbose_name="utilisateur")
-    provider = models.CharField("fournisseur", max_length=10, choices=PROVIDERS)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="external_identities", verbose_name=gettext_lazy("utilisateur"))
+    provider = models.CharField(gettext_lazy("fournisseur"), max_length=10, choices=PROVIDERS)
     subject = models.CharField(gettext_lazy("identifiant externe"), max_length=255, help_text=gettext_lazy("objectGUID AD, ou émetteur|sub OpenID Connect"))
     login_name = models.CharField(gettext_lazy("identifiant de connexion"), max_length=255, blank=True, help_text=gettext_lazy("sAMAccountName ou UPN, utilisé pour revérifier le mot de passe à la signature"))
     groups = models.TextField(gettext_lazy("groupes reçus à la dernière connexion"), blank=True)

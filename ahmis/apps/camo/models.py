@@ -23,10 +23,10 @@ class Directive(TrackedModel):
     AUTHORITIES = [("EASA", "EASA"), ("FAA", "FAA"), ("DGAC", "DGAC"), ("TCCA", "TCCA"), ("OEM", gettext_lazy("Constructeur"))]
 
     number = models.CharField(gettext_lazy("numéro"), max_length=40, unique=True)
-    kind = models.CharField("type", max_length=4, choices=KINDS, default="AD")
+    kind = models.CharField(gettext_lazy("type"), max_length=4, choices=KINDS, default="AD")
     authority = models.CharField(gettext_lazy("émetteur"), max_length=5, choices=AUTHORITIES, default="EASA")
     revision = models.CharField(gettext_lazy("révision"), max_length=10, blank=True)
-    title = models.CharField("objet", max_length=200)
+    title = models.CharField(gettext_lazy("objet"), max_length=200)
     effective_date = models.DateField(gettext_lazy("date d'entrée en vigueur"))
     aircraft_types = models.ManyToManyField(AircraftType, blank=True, verbose_name=gettext_lazy("types concernés"), related_name="directives")
     part_numbers = models.ManyToManyField(PartNumber, blank=True, verbose_name=gettext_lazy("P/N concernés"), related_name="directives")
@@ -34,8 +34,8 @@ class Directive(TrackedModel):
     required_action = models.TextField(gettext_lazy("action requise"), blank=True)
     is_recurring = models.BooleanField(gettext_lazy("action répétitive"), default=False)
     related_sb = models.CharField(gettext_lazy("SB associé"), max_length=60, blank=True)
-    supersedes = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True, verbose_name="remplace", related_name="superseded_by")
-    document = models.FileField("document", upload_to="consignes/", blank=True)
+    supersedes = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("remplace"), related_name="superseded_by")
+    document = models.FileField(gettext_lazy("document"), upload_to="consignes/", blank=True)
 
     class Meta:
         ordering = ["-effective_date", "number"]
@@ -69,9 +69,9 @@ class DirectiveApplicability(TrackedModel):
         ("not_applicable", gettext_lazy("Non applicable")),
     ]
 
-    directive = models.ForeignKey(Directive, on_delete=models.PROTECT, related_name="applicabilities", verbose_name="consigne")
+    directive = models.ForeignKey(Directive, on_delete=models.PROTECT, related_name="applicabilities", verbose_name=gettext_lazy("consigne"))
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, related_name="directive_status", verbose_name=gettext_lazy("aéronef"))
-    status = models.CharField("statut", max_length=16, choices=STATUSES, default="to_assess")
+    status = models.CharField(gettext_lazy("statut"), max_length=16, choices=STATUSES, default="to_assess")
     justification = models.TextField(gettext_lazy("justification / méthode de conformité"), blank=True)
     compliance_date = models.DateField(gettext_lazy("date de conformité"), null=True, blank=True)
     compliance_fh = models.DecimalField(gettext_lazy("FH à la conformité"), max_digits=10, decimal_places=2, null=True, blank=True)
@@ -118,18 +118,18 @@ class MaintenanceTask(TrackedModel):
 
     reference = models.CharField(gettext_lazy("référence tâche"), max_length=50)
     title = models.CharField(gettext_lazy("intitulé"), max_length=200)
-    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.PROTECT, verbose_name="type", related_name="tasks")
-    source = models.CharField("origine", max_length=4, choices=SOURCES, default="AMP")
+    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.PROTECT, verbose_name=gettext_lazy("type"), related_name="tasks")
+    source = models.CharField(gettext_lazy("origine"), max_length=4, choices=SOURCES, default="AMP")
     directive = models.ForeignKey(Directive, on_delete=models.PROTECT, null=True, blank=True, related_name="tasks", verbose_name=gettext_lazy("consigne liée"))
-    task_type = models.CharField("nature", max_length=4, choices=TASK_TYPES, default="INSP")
-    ata = models.CharField("ATA", max_length=10, blank=True)
+    task_type = models.CharField(gettext_lazy("nature"), max_length=4, choices=TASK_TYPES, default="INSP")
+    ata = models.CharField(gettext_lazy("ATA"), max_length=10, blank=True)
     part_number = models.ForeignKey(
         PartNumber, on_delete=models.PROTECT, null=True, blank=True, related_name="tasks", verbose_name=gettext_lazy("P/N composant"),
         help_text=gettext_lazy("Renseigner pour une tâche suivie sur le composant (compteurs du composant)"),
     )
     effectivity = models.ManyToManyField(
         Aircraft, blank=True, related_name="specific_tasks", verbose_name=gettext_lazy("effectivité (aéronefs)"),
-        help_text="Laisser vide = applicable à tous les aéronefs du type",
+        help_text=gettext_lazy("Laisser vide = applicable à tous les aéronefs du type"),
     )
     description = models.TextField(gettext_lazy("description / référence documentaire"), blank=True)
     steps = models.TextField(gettext_lazy("étapes (une par ligne)"), blank=True)
@@ -147,7 +147,7 @@ class MaintenanceTask(TrackedModel):
     tolerance_days = models.PositiveIntegerField(gettext_lazy("tolérance jours"), null=True, blank=True)
     # Exécution
     estimated_mh = models.DecimalField(gettext_lazy("charge estimée (h.h)"), max_digits=6, decimal_places=2, default=Decimal("1"))
-    zone = models.CharField("zone", max_length=40, blank=True)
+    zone = models.CharField(gettext_lazy("zone"), max_length=40, blank=True)
     access = models.CharField(gettext_lazy("accès / panneaux"), max_length=120, blank=True)
     skill = models.CharField(gettext_lazy("qualification requise"), max_length=3, choices=SKILLS, default="B1")
     requires_independent_inspection = models.BooleanField(gettext_lazy("contrôle indépendant requis (tâche critique)"), default=False)
@@ -156,7 +156,7 @@ class MaintenanceTask(TrackedModel):
         gettext_lazy("référence autorisant la tolérance"), max_length=120, blank=True,
         help_text=gettext_lazy("Obligatoire pour une tolérance sur une tâche issue d'une consigne (AD) : paragraphe de l'AD qui l'autorise."),
     )
-    active = models.BooleanField("active", default=True)
+    active = models.BooleanField(gettext_lazy("active"), default=True)
 
     class Meta:
         ordering = ["aircraft_type__code", "ata", "reference"]
@@ -231,7 +231,7 @@ def _days_label(days):
 
 class TaskRequiredPart(TrackedModel):
     task = models.ForeignKey(MaintenanceTask, on_delete=models.CASCADE, related_name="required_parts", verbose_name=gettext_lazy("tâche"))
-    part_number = models.ForeignKey(PartNumber, on_delete=models.PROTECT, verbose_name="P/N")
+    part_number = models.ForeignKey(PartNumber, on_delete=models.PROTECT, verbose_name=gettext_lazy("P/N"))
     quantity = models.DecimalField(gettext_lazy("quantité"), max_digits=8, decimal_places=2, default=Decimal("1"))
 
     ahmis_no_delete = False
@@ -251,17 +251,17 @@ class TaskAccomplishment(TrackedModel):
 
     task = models.ForeignKey(MaintenanceTask, on_delete=models.PROTECT, related_name="accomplishments", verbose_name=gettext_lazy("tâche"))
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, related_name="accomplishments", verbose_name=gettext_lazy("aéronef"))
-    component = models.ForeignKey(Component, on_delete=models.PROTECT, null=True, blank=True, related_name="accomplishments", verbose_name="composant")
+    component = models.ForeignKey(Component, on_delete=models.PROTECT, null=True, blank=True, related_name="accomplishments", verbose_name=gettext_lazy("composant"))
     date = models.DateField(gettext_lazy("date de réalisation"))
     fh = models.DecimalField(gettext_lazy("FH aéronef"), max_digits=10, decimal_places=2)
     fc = models.PositiveIntegerField(gettext_lazy("cycles aéronef"))
     comp_fh = models.DecimalField(gettext_lazy("TSN composant"), max_digits=10, decimal_places=2, null=True, blank=True)
     comp_fc = models.PositiveIntegerField(gettext_lazy("CSN composant"), null=True, blank=True)
-    source = models.CharField("origine", max_length=10, choices=SOURCES, default="taskcard")
+    source = models.CharField(gettext_lazy("origine"), max_length=10, choices=SOURCES, default="taskcard")
     task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, null=True, blank=True, related_name="accomplishments", verbose_name=gettext_lazy("task card"))
     reference = models.CharField(gettext_lazy("référence (CRS, WO externe...)"), max_length=80, blank=True)
     certified_by = models.CharField(gettext_lazy("certifié par"), max_length=120, blank=True)
-    notes = models.TextField("notes", blank=True)
+    notes = models.TextField(gettext_lazy("notes"), blank=True)
     # Butée théorique au moment de la réalisation (règle de tolérance non cumulative).
     # Mêmes compteurs que comp_fh/comp_fc pour une tâche composant, fh/fc sinon.
     due_fh_at_done = models.DecimalField(gettext_lazy("butée FH au moment de la réalisation"), max_digits=10, decimal_places=2, null=True, blank=True, editable=False)
@@ -343,13 +343,13 @@ class AirworthinessReview(TrackedModel):
     TYPES = [("issue", gettext_lazy("Émission ARC")), ("extension", gettext_lazy("Prorogation ARC"))]
 
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, related_name="airworthiness_reviews", verbose_name=gettext_lazy("aéronef"))
-    review_type = models.CharField("type", max_length=10, choices=TYPES, default="issue")
+    review_type = models.CharField(gettext_lazy("type"), max_length=10, choices=TYPES, default="issue")
     reference = models.CharField(gettext_lazy("n° ARC"), max_length=60)
     review_date = models.DateField(gettext_lazy("date de la revue"))
     expiry_date = models.DateField(gettext_lazy("valable jusqu'au"))
     reviewer = models.CharField(gettext_lazy("personnel de revue de navigabilité"), max_length=120)
     physical_survey = models.BooleanField(gettext_lazy("visite physique de l'aéronef réalisée"), default=True)
-    findings = models.TextField("constatations", blank=True)
+    findings = models.TextField(gettext_lazy("constatations"), blank=True)
 
     class Meta:
         ordering = ["-review_date"]
@@ -398,7 +398,7 @@ class AmpReview(TrackedModel):
     approval_reference = models.CharField(gettext_lazy("référence d'approbation"), max_length=80, blank=True)
     approval_date = models.DateField(gettext_lazy("date d'approbation"), null=True, blank=True)
     next_review_due = models.DateField(gettext_lazy("prochaine revue avant le"), blank=True, null=True,
-                                       help_text="Vide = date de revue + périodicité configurée (12 mois par défaut)")
+                                       help_text=gettext_lazy("Vide = date de revue + périodicité configurée (12 mois par défaut)"))
 
     class Meta:
         ordering = ["-review_date"]
@@ -501,17 +501,17 @@ class ModificationRepair(TrackedModel):
     number = models.CharField(gettext_lazy("n° interne"), max_length=20, unique=True, editable=False)
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, related_name="modifications", verbose_name=gettext_lazy("aéronef"))
     component = models.ForeignKey(Component, on_delete=models.PROTECT, null=True, blank=True, related_name="modifications",
-                                  verbose_name=gettext_lazy("composant concerné"), help_text="Vide = cellule")
-    kind = models.CharField("nature", max_length=6, choices=KINDS, default="mod")
-    classification = models.CharField("classification", max_length=8, choices=CLASSES, default="minor")
+                                  verbose_name=gettext_lazy("composant concerné"), help_text=gettext_lazy("Vide = cellule"))
+    kind = models.CharField(gettext_lazy("nature"), max_length=6, choices=KINDS, default="mod")
+    classification = models.CharField(gettext_lazy("classification"), max_length=8, choices=CLASSES, default="minor")
     title = models.CharField(gettext_lazy("intitulé"), max_length=200)
-    description = models.TextField("description", blank=True)
+    description = models.TextField(gettext_lazy("description"), blank=True)
     approval_basis = models.CharField(gettext_lazy("base d'approbation"), max_length=8, choices=BASES)
     approval_reference = models.CharField(gettext_lazy("référence d'approbation"), max_length=120,
                                           help_text=gettext_lazy("N° STC, n° d'approbation DOA, SB, chapitre SRM…"))
     directive = models.ForeignKey(Directive, on_delete=models.PROTECT, null=True, blank=True, related_name="modifications", verbose_name=gettext_lazy("SB / AD liée"))
-    ata = models.CharField("ATA", max_length=10, blank=True)
-    status = models.CharField("statut", max_length=8, choices=STATUSES, default="planned")
+    ata = models.CharField(gettext_lazy("ATA"), max_length=10, blank=True)
+    status = models.CharField(gettext_lazy("statut"), max_length=8, choices=STATUSES, default="planned")
     embodied_on = models.DateField(gettext_lazy("appliquée le"), null=True, blank=True)
     fh_at_embodiment = models.DecimalField(gettext_lazy("FH aéronef à l'application"), max_digits=10, decimal_places=2, null=True, blank=True)
     fc_at_embodiment = models.PositiveIntegerField(gettext_lazy("cycles aéronef à l'application"), null=True, blank=True)
@@ -624,20 +624,20 @@ class TransferRecord(TrackedModel):
 
     number = models.CharField(gettext_lazy("n° de transfert"), max_length=20, unique=True, editable=False)
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, related_name="transfers", verbose_name=gettext_lazy("aéronef"))
-    direction = models.CharField("sens", max_length=4, choices=DIRECTIONS, default="out")
+    direction = models.CharField(gettext_lazy("sens"), max_length=4, choices=DIRECTIONS, default="out")
     transfer_date = models.DateField(gettext_lazy("date du transfert"), default=timezone.localdate)
     counterparty = models.CharField(gettext_lazy("organisme / destinataire"), max_length=150,
                                     help_text=gettext_lazy("CAMO, CAO ou propriétaire qui reçoit (ou qui a envoyé) le dossier"))
     counterparty_approval = models.CharField(gettext_lazy("agrément de l'organisme"), max_length=60, blank=True, help_text=gettext_lazy("ex. FR.CAMO.0123"))
-    reason = models.TextField("motif", blank=True)
+    reason = models.TextField(gettext_lazy("motif"), blank=True)
     archive = models.FileField(gettext_lazy("archive du dossier"), upload_to="transferts/%Y/", blank=True)
     archive_sha256 = models.CharField(gettext_lazy("empreinte SHA-256 de l'archive"), max_length=64, blank=True, editable=False)
     archive_size = models.PositiveIntegerField(gettext_lazy("taille (octets)"), null=True, blank=True, editable=False)
-    manifest = models.JSONField("manifeste", null=True, blank=True, editable=False)
+    manifest = models.JSONField(gettext_lazy("manifeste"), null=True, blank=True, editable=False)
     verification = models.TextField(gettext_lazy("contrôle d'intégrité"), blank=True, editable=False)
     acknowledged_on = models.DateField(gettext_lazy("réception confirmée le"), null=True, blank=True)
     acknowledged_by = models.CharField(gettext_lazy("réception confirmée par"), max_length=120, blank=True)
-    notes = models.TextField("notes", blank=True)
+    notes = models.TextField(gettext_lazy("notes"), blank=True)
 
     class Meta:
         ordering = ["-transfer_date", "-pk"]

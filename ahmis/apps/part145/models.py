@@ -25,15 +25,15 @@ class Staff(TrackedModel):
     ]
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="staff", verbose_name=gettext_lazy("compte utilisateur"))
-    employee_number = models.CharField("matricule", max_length=20, unique=True)
+    employee_number = models.CharField(gettext_lazy("matricule"), max_length=20, unique=True)
     first_name = models.CharField(gettext_lazy("prénom"), max_length=60)
-    last_name = models.CharField("nom", max_length=60)
-    role = models.CharField("fonction", max_length=12, choices=ROLES, default="mechanic")
+    last_name = models.CharField(gettext_lazy("nom"), max_length=60)
+    role = models.CharField(gettext_lazy("fonction"), max_length=12, choices=ROLES, default="mechanic")
     stamp = models.CharField(gettext_lazy("tampon / visa"), max_length=10, blank=True)
     licence_number = models.CharField(gettext_lazy("n° licence Part-66"), max_length=40, blank=True)
     licence_categories = models.CharField(gettext_lazy("catégories de licence"), max_length=60, blank=True, help_text=gettext_lazy("ex. B1.3, B2"))
     licence_expiry = models.DateField(gettext_lazy("validité de la licence"), null=True, blank=True)
-    active = models.BooleanField("actif", default=True)
+    active = models.BooleanField(gettext_lazy("actif"), default=True)
     left_on = models.DateField(gettext_lazy("départ de l'organisme le"), null=True, blank=True,
                                help_text=gettext_lazy("Le dossier est conservé 3 ans après le départ (145.A.35(j))"))
 
@@ -167,13 +167,13 @@ def _months_back(d, months):
 class ExperienceRecord(TrackedModel):
     """Expérience pratique déclarée hors AHMIS (autre organisme, période antérieure) pour le calcul de récence."""
 
-    staff = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="experience_records", verbose_name="personnel")
-    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.PROTECT, null=True, blank=True, verbose_name="type")
-    start = models.DateField("du")
-    end = models.DateField("au")
-    organisation = models.CharField("organisme", max_length=120)
+    staff = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="experience_records", verbose_name=gettext_lazy("personnel"))
+    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("type"))
+    start = models.DateField(gettext_lazy("du"))
+    end = models.DateField(gettext_lazy("au"))
+    organisation = models.CharField(gettext_lazy("organisme"), max_length=120)
     description = models.CharField(gettext_lazy("travaux réalisés"), max_length=200)
-    evidence = models.CharField("justificatif", max_length=120, blank=True, help_text=gettext_lazy("Attestation, carnet de travaux…"))
+    evidence = models.CharField(gettext_lazy("justificatif"), max_length=120, blank=True, help_text=gettext_lazy("Attestation, carnet de travaux…"))
 
     class Meta:
         ordering = ["staff", "-end"]
@@ -195,15 +195,15 @@ class Authorization(TrackedModel):
 
     CATEGORIES = SKILLS + [("MECH", gettext_lazy("Mécanicien non certifiant"))]
 
-    staff = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="authorizations", verbose_name="personnel")
+    staff = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="authorizations", verbose_name=gettext_lazy("personnel"))
     number = models.CharField(gettext_lazy("n° d'autorisation"), max_length=30)
-    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.PROTECT, verbose_name="type", related_name="authorizations")
+    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.PROTECT, verbose_name=gettext_lazy("type"), related_name="authorizations")
     category = models.CharField(gettext_lazy("catégorie"), max_length=4, choices=CATEGORIES)
     certifying = models.BooleanField(gettext_lazy("certifiante (CRS)"), default=False)
     scope = models.CharField(gettext_lazy("portée / limitations"), max_length=200, blank=True)
     valid_from = models.DateField(gettext_lazy("valide du"))
     valid_until = models.DateField(gettext_lazy("valide jusqu'au"))
-    suspended = models.BooleanField("suspendue", default=False)
+    suspended = models.BooleanField(gettext_lazy("suspendue"), default=False)
 
     class Meta:
         ordering = ["staff__last_name", "aircraft_type__code"]
@@ -238,9 +238,9 @@ class Qualification(TrackedModel):
         ("other", gettext_lazy("Autre")),
     ]
 
-    staff = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="qualifications", verbose_name="personnel")
+    staff = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="qualifications", verbose_name=gettext_lazy("personnel"))
     category = models.CharField(gettext_lazy("catégorie"), max_length=15, choices=CATEGORIES, default="other")
-    name = models.CharField("formation", max_length=100)
+    name = models.CharField(gettext_lazy("formation"), max_length=100)
     obtained = models.DateField(gettext_lazy("obtenue le"))
     expiry = models.DateField(gettext_lazy("expire le"), null=True, blank=True)
 
@@ -278,7 +278,7 @@ class WorkPackage(TrackedModel):
     station = models.CharField(gettext_lazy("station / hangar"), max_length=60, blank=True)
     planned_start = models.DateField(gettext_lazy("début prévu"))
     planned_end = models.DateField(gettext_lazy("fin prévue"))
-    status = models.CharField("statut", max_length=12, choices=STATUSES, default="draft")
+    status = models.CharField(gettext_lazy("statut"), max_length=12, choices=STATUSES, default="draft")
     ordered_by = models.CharField(gettext_lazy("commandé par (CAMO / client)"), max_length=120, blank=True)
     customer_order = models.CharField(gettext_lazy("n° de commande / contrat"), max_length=60, blank=True)
     fh_at_check = models.DecimalField(gettext_lazy("FH aéronef à la visite"), max_digits=10, decimal_places=2, null=True, blank=True)
@@ -286,7 +286,7 @@ class WorkPackage(TrackedModel):
     crs_by = models.ForeignKey(Staff, on_delete=models.PROTECT, null=True, blank=True, related_name="crs_issued", verbose_name=gettext_lazy("CRS signé par"))
     crs_date = models.DateTimeField(gettext_lazy("date du CRS"), null=True, blank=True)
     crs_statement = models.TextField(gettext_lazy("déclaration CRS"), blank=True)
-    notes = models.TextField("notes", blank=True)
+    notes = models.TextField(gettext_lazy("notes"), blank=True)
 
     class Meta:
         ordering = ["-planned_start", "-number"]
@@ -363,28 +363,28 @@ class TaskCard(TrackedModel):
 
     number = models.CharField(gettext_lazy("n° task card"), max_length=20, unique=True, editable=False)
     work_package = models.ForeignKey(WorkPackage, on_delete=models.PROTECT, related_name="task_cards", verbose_name=gettext_lazy("work package"))
-    origin = models.CharField("origine", max_length=8, choices=ORIGINS, default="task")
+    origin = models.CharField(gettext_lazy("origine"), max_length=8, choices=ORIGINS, default="task")
     task = models.ForeignKey(MaintenanceTask, on_delete=models.PROTECT, null=True, blank=True, related_name="task_cards", verbose_name=gettext_lazy("tâche AMP"))
     component = models.ForeignKey(Component, on_delete=models.PROTECT, null=True, blank=True, related_name="task_cards", verbose_name=gettext_lazy("composant concerné"))
     defect = models.ForeignKey("Defect", on_delete=models.PROTECT, null=True, blank=True, related_name="task_cards", verbose_name=gettext_lazy("défaut"))
     parent = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True, related_name="findings", verbose_name=gettext_lazy("task card d'origine"))
     title = models.CharField(gettext_lazy("intitulé"), max_length=200)
-    ata = models.CharField("ATA", max_length=10, blank=True)
-    zone = models.CharField("zone", max_length=40, blank=True)
+    ata = models.CharField(gettext_lazy("ATA"), max_length=10, blank=True)
+    zone = models.CharField(gettext_lazy("zone"), max_length=40, blank=True)
     access = models.CharField(gettext_lazy("accès"), max_length=120, blank=True)
     instructions = models.TextField(gettext_lazy("instructions / références"), blank=True)
     skill = models.CharField(gettext_lazy("qualification requise"), max_length=3, choices=SKILLS, default="B1")
     requires_independent_inspection = models.BooleanField(gettext_lazy("contrôle indépendant requis"), default=False)
     estimated_mh = models.DecimalField(gettext_lazy("charge estimée (h.h)"), max_digits=6, decimal_places=2, default=Decimal("1"))
     actual_mh = models.DecimalField(gettext_lazy("temps passé (h.h)"), max_digits=6, decimal_places=2, null=True, blank=True)
-    status = models.CharField("statut", max_length=12, choices=STATUSES, default="open")
+    status = models.CharField(gettext_lazy("statut"), max_length=12, choices=STATUSES, default="open")
     work_done = models.TextField(gettext_lazy("compte rendu des travaux"), blank=True)
     performed_by = models.ForeignKey(Staff, on_delete=models.PROTECT, null=True, blank=True, related_name="cards_performed", verbose_name=gettext_lazy("exécuté par"))
     performed_at = models.DateTimeField(gettext_lazy("exécuté le"), null=True, blank=True)
     inspected_by = models.ForeignKey(Staff, on_delete=models.PROTECT, null=True, blank=True, related_name="cards_inspected", verbose_name=gettext_lazy("contrôlé par"))
     inspected_at = models.DateTimeField(gettext_lazy("contrôlé le"), null=True, blank=True)
     deferral_reason = models.CharField(gettext_lazy("motif de report"), max_length=200, blank=True)
-    sequence = models.PositiveIntegerField("ordre", default=10)
+    sequence = models.PositiveIntegerField(gettext_lazy("ordre"), default=10)
 
     class Meta:
         ordering = ["work_package", "sequence", "number"]
@@ -435,12 +435,12 @@ class TaskCard(TrackedModel):
 
 class TaskCardStep(TrackedModel):
     card = models.ForeignKey(TaskCard, on_delete=models.PROTECT, related_name="steps", verbose_name=gettext_lazy("task card"))
-    order = models.PositiveIntegerField("n°")
+    order = models.PositiveIntegerField(gettext_lazy("n°"))
     text = models.TextField(gettext_lazy("étape"))
     measured_value = models.CharField(gettext_lazy("valeur relevée"), max_length=100, blank=True)
     done_by = models.ForeignKey(Staff, on_delete=models.PROTECT, null=True, blank=True, related_name="+", verbose_name=gettext_lazy("réalisé par"))
     done_at = models.DateTimeField(gettext_lazy("réalisé le"), null=True, blank=True)
-    not_applicable = models.BooleanField("N/A", default=False)
+    not_applicable = models.BooleanField(gettext_lazy("N/A"), default=False)
 
     class Meta:
         ordering = ["card", "order"]
@@ -461,11 +461,11 @@ class Defect(TrackedModel):
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, related_name="defects", verbose_name=gettext_lazy("aéronef"))
     reported_on = models.DateField(gettext_lazy("signalé le"), default=timezone.localdate)
     reported_by = models.CharField(gettext_lazy("signalé par"), max_length=120)
-    source = models.CharField("source", max_length=10, choices=SOURCES, default="techlog")
+    source = models.CharField(gettext_lazy("source"), max_length=10, choices=SOURCES, default="techlog")
     techlog_ref = models.CharField(gettext_lazy("réf. techlog"), max_length=40, blank=True)
-    ata = models.CharField("ATA", max_length=10, blank=True)
-    description = models.TextField("description")
-    status = models.CharField("statut", max_length=10, choices=STATUSES, default="open")
+    ata = models.CharField(gettext_lazy("ATA"), max_length=10, blank=True)
+    description = models.TextField(gettext_lazy("description"))
+    status = models.CharField(gettext_lazy("statut"), max_length=10, choices=STATUSES, default="open")
     # Report
     mel_reference = models.CharField(gettext_lazy("réf. MEL / CDL"), max_length=40, blank=True)
     deferral_category = models.CharField(gettext_lazy("catégorie de report"), max_length=2, choices=CATEGORIES, blank=True)

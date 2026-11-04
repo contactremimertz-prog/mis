@@ -42,7 +42,7 @@ def _value(obj, f):
     if isinstance(v, models.fields.files.FieldFile):
         return v.name or ""
     if f.choices:
-        return getattr(obj, f"get_{f.name}_display")()
+        return str(getattr(obj, f"get_{f.name}_display")())
     return v
 
 
@@ -140,7 +140,7 @@ def build_archive(aircraft, user=None, recipient="", purpose=""):
     generated = timezone.now().replace(microsecond=0)
     files = {
         "dossier.json": json.dumps({"format": "AHMIS-dossier", "version": FORMAT_VERSION, "sections": data},
-                                   ensure_ascii=False, indent=1).encode("utf-8"),
+                                   ensure_ascii=False, indent=1, default=str).encode("utf-8"),
     }
     for name, rows in data.items():
         files[f"csv/{name}.csv"] = _csv(rows)
@@ -166,7 +166,7 @@ def build_archive(aircraft, user=None, recipient="", purpose=""):
     }
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False, indent=1))
+        z.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False, indent=1, default=str))
         for name, content in files.items():
             z.writestr(name, content)
     raw = buf.getvalue()

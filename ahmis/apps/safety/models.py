@@ -49,13 +49,13 @@ class OccurrenceReport(TrackedModel):
     title = models.CharField(gettext_lazy("intitulé"), max_length=200)
     category = models.CharField(gettext_lazy("catégorie"), max_length=26, choices=CATEGORIES)
     severity = models.CharField(gettext_lazy("gravité estimée"), max_length=16, choices=SEVERITIES, default="medium")
-    phase = models.CharField("phase", max_length=12, choices=PHASES, default="maintenance")
+    phase = models.CharField(gettext_lazy("phase"), max_length=12, choices=PHASES, default="maintenance")
     occurred_at = models.DateTimeField(gettext_lazy("date et heure de l'événement"))
     aware_at = models.DateTimeField(gettext_lazy("connaissance par l'organisme le"), default=timezone.now,
                                     help_text=gettext_lazy("Point de départ du délai de 72 h (art. 4 du règlement 376/2014)"))
-    location = models.CharField("lieu", max_length=120, blank=True)
+    location = models.CharField(gettext_lazy("lieu"), max_length=120, blank=True)
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, null=True, blank=True, related_name="occurrences", verbose_name=gettext_lazy("aéronef"))
-    component = models.ForeignKey(Component, on_delete=models.PROTECT, null=True, blank=True, related_name="occurrences", verbose_name="composant")
+    component = models.ForeignKey(Component, on_delete=models.PROTECT, null=True, blank=True, related_name="occurrences", verbose_name=gettext_lazy("composant"))
     defect = models.ForeignKey("part145.Defect", on_delete=models.PROTECT, null=True, blank=True, related_name="occurrences", verbose_name=gettext_lazy("défaut lié"))
     task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, null=True, blank=True, related_name="occurrences", verbose_name=gettext_lazy("task card liée"))
     description = models.TextField(gettext_lazy("description factuelle"))
@@ -64,7 +64,7 @@ class OccurrenceReport(TrackedModel):
     confidential = models.BooleanField(gettext_lazy("déclaration confidentielle"), default=False,
                                        help_text=gettext_lazy("L'identité du déclarant n'est visible que du responsable qualité / sécurité"))
     # Notification
-    status = models.CharField("statut", max_length=16, choices=STATUSES, default="draft")
+    status = models.CharField(gettext_lazy("statut"), max_length=16, choices=STATUSES, default="draft")
     authority = models.CharField(gettext_lazy("autorité notifiée"), max_length=80, blank=True, help_text=gettext_lazy("ex. DSAC / ECCAIRS 2"))
     authority_reference = models.CharField(gettext_lazy("référence autorité (ECCAIRS)"), max_length=60, blank=True)
     submitted_at = models.DateTimeField(gettext_lazy("notifié le"), null=True, blank=True)

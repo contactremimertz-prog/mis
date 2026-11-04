@@ -17,6 +17,8 @@
 </div>
 {% if occ.open %}<div class="alert {% if not occ.overdue %}warn{% endif %}"><strong>{% trans "Comptes rendus d'événements :" %}</strong>
   <a href="{% url 'safety:list' %}">{{ occ.open }} {% trans "ouvert(s)" %}</a>{% blocktrans with to_notify=occ.to_notify %}, dont {{ to_notify }} à notifier{% endblocktrans %}{% if occ.overdue %} – <strong>{{ occ.overdue }} {% trans "hors délai (72 h / 30 j)" %}</strong>{% endif %}.</div>{% endif %}
+{% if qual.findings_open or qual.revisions_pending or qual.docs_review_due %}<div class="alert {% if not qual.findings_overdue and not qual.level1_open %}warn{% endif %}"><strong>{% trans "Qualité :" %}</strong>
+  <a href="{% url 'quality:finding_list' %}?status=open">{{ qual.findings_open }} {% trans "constat(s) ouvert(s)" %}</a>{% if qual.level1_open %}, <strong>{{ qual.level1_open }} {% trans "niveau 1" %}</strong>{% endif %}{% if qual.findings_overdue %}, <strong>{{ qual.findings_overdue }} {% trans "hors délai" %}</strong>{% endif %} · <a href="{% url 'quality:doc_list' %}">{{ qual.revisions_pending }} {% trans "révision(s) à approuver" %}, {{ qual.docs_review_due }} {% trans "document(s) à revoir" %}</a>.</div>{% endif %}
 {% if amp_alerts %}<div class="alert warn"><strong>{% trans "Revue du programme d'entretien (M.A.302(g)) :" %}</strong>
   {% for r in amp_alerts %}<a href="{% url 'camo:amp_review_list' %}">{{ r.type.code }}</a> {% with st=r %}{% include "camo/_amp_status.html" %}{% endwith %}{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}
 

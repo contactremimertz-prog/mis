@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 16:15+0100\n"
+"POT-Creation-Date: 2026-11-04 16:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,129 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/api/templates/api/tokens.html:2 templates/base.html:64
+msgid "Jetons API"
+msgstr "API-Token"
+
+#: apps/api/templates/api/tokens.html:4
+msgid "Jetons d'accès à l'API"
+msgstr "API-Zugriffstoken"
+
+#: apps/api/templates/api/tokens.html:5
+msgid ""
+"Chaque jeton agit avec les droits du compte AHMIS auquel il est lié. "
+"Utilisez un compte de service dédié par système appelant. Documentation : "
+"menu Aide, « API externe ». Point d'entrée :"
+msgstr ""
+"Jedes Token handelt mit den Rechten des AHMIS-Kontos, mit dem es verknüpft "
+"ist. Verwenden Sie für jedes aufrufende System ein eigenes Dienstkonto. "
+"Dokumentation: Menü Hilfe, „Externe API“. Einstiegspunkt:"
+
+#: apps/api/templates/api/tokens.html:5
+msgid "/api/v1/"
+msgstr "/api/v1/"
+
+#: apps/api/templates/api/tokens.html:7
+msgid "Clé du nouveau jeton (affichée une seule fois) :"
+msgstr "Schlüssel des neuen Tokens (wird nur einmal angezeigt):"
+
+#: apps/api/templates/api/tokens.html:9
+msgid "À utiliser dans l'en-tête HTTP :"
+msgstr "Im HTTP-Header zu verwenden:"
+
+#: apps/api/templates/api/tokens.html:9
+#, python-format
+msgid "Authorization: Bearer %(new_key)s…"
+msgstr "Authorization: Bearer %(new_key)s…"
+
+#: apps/api/templates/api/tokens.html:11
+#| msgid "Jetons API"
+msgid "Jetons"
+msgstr "Token"
+
+#: apps/api/templates/api/tokens.html:12
+#| msgid "Audit système"
+msgid "Système"
+msgstr "System"
+
+#: apps/api/templates/api/tokens.html:12
+msgid "Préfixe"
+msgstr "Präfix"
+
+#: apps/api/templates/api/tokens.html:12 apps/part145/views.py:459
+msgid "Compte"
+msgstr "Konto"
+
+#: apps/api/templates/api/tokens.html:12
+#: apps/part145/templates/part145/staff_detail.html:24
+msgid "Portée"
+msgstr "Umfang"
+
+#: apps/api/templates/api/tokens.html:12
+#| msgid "Personnel autorisé"
+msgid "IP autorisées"
+msgstr "Zulässige IP-Adressen"
+
+#: apps/api/templates/api/tokens.html:12
+#: apps/part145/templates/part145/staff_detail.html:31
+msgid "Expire"
+msgstr "Läuft ab"
+
+#: apps/api/templates/api/tokens.html:12
+#| msgid "Dernière réalisation"
+msgid "Dernière utilisation"
+msgstr "Letzte Nutzung"
+
+#: apps/api/templates/api/tokens.html:12
+#: apps/camo/templates/camo/amp_review_list.html:10 apps/logistics/forms.py:21
+#: apps/part145/templates/part145/staff_detail.html:24
+msgid "État"
+msgstr "Zustand"
+
+#: apps/api/templates/api/tokens.html:14
+#, python-format
+#| msgid "· %(registration)s · demandée le %(created_at)s par"
+msgid "créé le %(created_at)s par"
+msgstr "erstellt am %(created_at)s von"
+
+#: apps/api/templates/api/tokens.html:16
+#| msgid "Toutes"
+msgid "toutes"
+msgstr "alle"
+
+#: apps/api/templates/api/tokens.html:16
+#: apps/camo/templates/camo/task_detail.html:46
+msgid "jamais"
+msgstr "nie"
+
+#: apps/api/templates/api/tokens.html:18 apps/part145/views.py:459
+msgid "Actif"
+msgstr "Aktiv"
+
+#: apps/api/templates/api/tokens.html:18
+#| msgid "inactif"
+msgid "Inactif"
+msgstr "Inaktiv"
+
+#: apps/api/templates/api/tokens.html:19
+msgid "Révoquer"
+msgstr "Widerrufen"
+
+#: apps/api/templates/api/tokens.html:20
+#| msgid "Aucune."
+msgid "Aucun jeton."
+msgstr "Kein Token."
+
+#: apps/api/templates/api/tokens.html:22
+#| msgid "Nouveau composant"
+msgid "Nouveau jeton"
+msgstr "Neues Token"
+
+#: apps/api/templates/api/tokens.html:26
+#| msgid "Créer les task cards"
+msgid "Créer le jeton"
+msgstr "Token erstellen"
 
 #: apps/assistant/views.py:18
 msgid ""
@@ -119,8 +242,8 @@ msgstr ""
 #: apps/camo/templates/camo/transfer_detail.html:30 apps/camo/views.py:69
 #: apps/camo/views.py:108 apps/camo/views.py:307 apps/camo/views.py:318
 #: apps/camo/views.py:355 apps/camo/views.py:368 apps/camo/views.py:471
-#: apps/core/search.py:15 apps/core/templates/core/dashboard.html:26
-#: apps/core/templates/core/dashboard.html:45
+#: apps/core/search.py:15 apps/core/templates/core/dashboard.html:28
+#: apps/core/templates/core/dashboard.html:47
 #: apps/core/templates/core/retention.html:28 apps/fleet/forms.py:39
 #: apps/fleet/templates/fleet/component_detail.html:27
 #: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:116
@@ -232,6 +355,14 @@ msgstr "Hersteller"
 msgid "numéro"
 msgstr "Nummer"
 
+#: apps/camo/models.py:26 apps/camo/models.py:121 apps/camo/models.py:346
+#: apps/fleet/models.py:55 apps/logistics/models.py:41
+#: apps/logistics/models.py:124 apps/logistics/models.py:322
+#: apps/part145/models.py:171 apps/part145/models.py:200
+#: apps/quality/models.py:46 apps/quality/models.py:172
+msgid "type"
+msgstr "Typ"
+
 #: apps/camo/models.py:27
 msgid "émetteur"
 msgstr "Herausgeber"
@@ -239,6 +370,11 @@ msgstr "Herausgeber"
 #: apps/camo/models.py:28 apps/quality/models.py:223
 msgid "révision"
 msgstr "Revision"
+
+#: apps/camo/models.py:29 apps/core/models.py:64 apps/core/models.py:118
+#: apps/quality/models.py:44
+msgid "objet"
+msgstr "Gegenstand"
 
 #: apps/camo/models.py:30
 msgid "date d'entrée en vigueur"
@@ -268,6 +404,15 @@ msgstr "wiederkehrende Maßnahme"
 msgid "SB associé"
 msgstr "zugehöriges SB"
 
+#: apps/camo/models.py:37
+#| msgid "Remplace"
+msgid "remplace"
+msgstr "ersetzt"
+
+#: apps/camo/models.py:38 apps/quality/models.py:222
+msgid "document"
+msgstr "Dokument"
+
 #: apps/camo/models.py:42
 msgid "consigne / bulletin"
 msgstr "Anweisung / Bulletin"
@@ -296,6 +441,11 @@ msgstr "Durchgeführt (abgeschlossen)"
 msgid "Non applicable"
 msgstr "Nicht anwendbar"
 
+#: apps/camo/models.py:72
+#| msgid "Consigne"
+msgid "consigne"
+msgstr "Anweisung"
+
 #: apps/camo/models.py:73 apps/camo/models.py:253 apps/camo/models.py:345
 #: apps/camo/models.py:502 apps/camo/models.py:626 apps/fleet/models.py:80
 #: apps/fleet/models.py:165 apps/fleet/models.py:279 apps/fleet/models.py:370
@@ -303,6 +453,17 @@ msgstr "Nicht anwendbar"
 #: apps/safety/models.py:57
 msgid "aéronef"
 msgstr "Luftfahrzeug"
+
+#: apps/camo/models.py:74 apps/camo/models.py:514 apps/fleet/models.py:56
+#: apps/fleet/models.py:269 apps/logistics/models.py:83
+#: apps/logistics/models.py:148 apps/logistics/models.py:212
+#: apps/logistics/models.py:354 apps/part145/models.py:281
+#: apps/part145/models.py:380 apps/part145/models.py:468
+#: apps/quality/models.py:55 apps/quality/models.py:118
+#: apps/quality/models.py:180 apps/quality/models.py:228
+#: apps/safety/models.py:67
+msgid "statut"
+msgstr "Status"
 
 #: apps/camo/models.py:75
 msgid "justification / méthode de conformité"
@@ -418,9 +579,24 @@ msgstr "Aufgabenreferenz"
 msgid "intitulé"
 msgstr "Bezeichnung"
 
+#: apps/camo/models.py:122 apps/camo/models.py:260 apps/part145/models.py:366
+#| msgid "Origine"
+msgid "origine"
+msgstr "Herkunft"
+
 #: apps/camo/models.py:123
 msgid "consigne liée"
 msgstr "zugehörige Anweisung"
+
+#: apps/camo/models.py:124 apps/camo/models.py:505
+#| msgid "Nature"
+msgid "nature"
+msgstr "Art"
+
+#: apps/camo/models.py:125 apps/camo/models.py:513 apps/part145/models.py:372
+#: apps/part145/models.py:466
+msgid "ATA"
+msgstr "ATA"
 
 #: apps/camo/models.py:127
 msgid "P/N composant"
@@ -435,6 +611,11 @@ msgstr ""
 #: apps/camo/models.py:131
 msgid "effectivité (aéronefs)"
 msgstr "Effektivität (Luftfahrzeuge)"
+
+#: apps/camo/models.py:132
+#| msgid "Tous les aéronefs du type"
+msgid "Laisser vide = applicable à tous les aéronefs du type"
+msgstr "Leer = gilt für alle Luftfahrzeuge des Musters"
 
 #: apps/camo/models.py:134
 msgid "description / référence documentaire"
@@ -484,6 +665,10 @@ msgstr "Toleranz Tage"
 msgid "charge estimée (h.h)"
 msgstr "geschätzter Aufwand (h.h)"
 
+#: apps/camo/models.py:150 apps/part145/models.py:373
+msgid "zone"
+msgstr "Zone"
+
 #: apps/camo/models.py:151
 msgid "accès / panneaux"
 msgstr "Zugang / Paneele"
@@ -511,6 +696,11 @@ msgid ""
 msgstr ""
 "Pflicht bei einer Toleranz auf eine Aufgabe aus einer Anweisung (AD): Absatz"
 " der AD, der sie erlaubt."
+
+#: apps/camo/models.py:159
+#| msgid "inactive"
+msgid "active"
+msgstr "aktiv"
 
 #: apps/camo/models.py:164
 msgid "tâche d'entretien"
@@ -549,6 +739,13 @@ msgstr ""
 msgid "tâche"
 msgstr "Aufgabe"
 
+#: apps/camo/models.py:234 apps/fleet/models.py:199 apps/fleet/models.py:267
+#: apps/logistics/models.py:47 apps/logistics/models.py:77
+#: apps/logistics/models.py:145 apps/logistics/models.py:394
+#: apps/logistics/templates/logistics/po_detail.html:23
+msgid "P/N"
+msgstr ""
+
 #: apps/camo/models.py:235 apps/logistics/models.py:49
 #: apps/logistics/models.py:80 apps/logistics/models.py:146
 msgid "quantité"
@@ -573,6 +770,12 @@ msgstr "AHMIS-Task-Card"
 #: apps/camo/models.py:250
 msgid "Organisme externe"
 msgstr "Externe Organisation"
+
+#: apps/camo/models.py:254 apps/fleet/models.py:369
+#: apps/logistics/models.py:50 apps/safety/models.py:58
+#| msgid "Composant"
+msgid "composant"
+msgstr "Komponente"
 
 #: apps/camo/models.py:255
 msgid "date de réalisation"
@@ -608,6 +811,13 @@ msgstr "Referenz (CRS, externer Auftrag...)"
 #: apps/camo/models.py:263
 msgid "certifié par"
 msgstr "bescheinigt von"
+
+#: apps/camo/models.py:264 apps/camo/models.py:640 apps/fleet/models.py:33
+#: apps/fleet/models.py:76 apps/fleet/models.py:224 apps/fleet/models.py:284
+#: apps/part145/models.py:289
+#| msgid "Notes"
+msgid "notes"
+msgstr "Notizen"
 
 #: apps/camo/models.py:267
 msgid "butée FH au moment de la réalisation"
@@ -672,6 +882,11 @@ msgstr "Personal für Lufttüchtigkeitsprüfung"
 #: apps/camo/models.py:351
 msgid "visite physique de l'aéronef réalisée"
 msgstr "physische Begutachtung des Luftfahrzeugs durchgeführt"
+
+#: apps/camo/models.py:352
+#| msgid "Constatations"
+msgid "constatations"
+msgstr "Feststellungen"
 
 #: apps/camo/models.py:356
 msgid "revue de navigabilité (ARC)"
@@ -760,6 +975,10 @@ msgstr "Genehmigungsdatum"
 #: apps/camo/models.py:400
 msgid "prochaine revue avant le"
 msgstr "nächste Überprüfung vor dem"
+
+#: apps/camo/models.py:401
+msgid "Vide = date de revue + périodicité configurée (12 mois par défaut)"
+msgstr "Leer = Prüfdatum + konfiguriertes Intervall (standardmäßig 12 Monate)"
 
 #: apps/camo/models.py:405
 msgid "revue du programme d'entretien"
@@ -893,6 +1112,21 @@ msgstr "interne Nr."
 #: apps/camo/models.py:504 apps/part145/models.py:368
 msgid "composant concerné"
 msgstr "betroffene Komponente"
+
+#: apps/camo/models.py:504
+#| msgid "Heures cellule"
+msgid "Vide = cellule"
+msgstr "Leer = Zelle"
+
+#: apps/camo/models.py:506
+#| msgid "Justification"
+msgid "classification"
+msgstr "Klassifizierung"
+
+#: apps/camo/models.py:508 apps/part145/models.py:467
+#| msgid "Description"
+msgid "description"
+msgstr "Beschreibung"
 
 #: apps/camo/models.py:509
 msgid "base d'approbation"
@@ -1090,6 +1324,10 @@ msgstr "Kopie / Archivierung (Behörde, Eigentümer, Audit)"
 msgid "n° de transfert"
 msgstr "Übergabenr."
 
+#: apps/camo/models.py:627
+msgid "sens"
+msgstr "Richtung"
+
 #: apps/camo/models.py:628
 msgid "date du transfert"
 msgstr "Übergabedatum"
@@ -1110,6 +1348,11 @@ msgstr "Genehmigung der Organisation"
 msgid "ex. FR.CAMO.0123"
 msgstr "z. B. FR.CAMO.0123"
 
+#: apps/camo/models.py:632
+#| msgid "Motif"
+msgid "motif"
+msgstr "Grund"
+
 #: apps/camo/models.py:633
 msgid "archive du dossier"
 msgstr "Aktenarchiv"
@@ -1121,6 +1364,11 @@ msgstr "SHA-256-Hashwert des Archivs"
 #: apps/camo/models.py:635
 msgid "taille (octets)"
 msgstr "Größe (Bytes)"
+
+#: apps/camo/models.py:636
+#| msgid "Contenu (manifeste)"
+msgid "manifeste"
+msgstr "Manifest"
 
 #: apps/camo/models.py:637
 msgid "contrôle d'intégrité"
@@ -1158,7 +1406,7 @@ msgstr "Angeben, wer den Empfang bestätigt hat."
 msgid "La réception ne peut précéder l'envoi."
 msgstr "Der Empfang kann nicht vor dem Versand liegen."
 
-#: apps/camo/services.py:24 apps/core/templates/core/dashboard.html:26
+#: apps/camo/services.py:24 apps/core/templates/core/dashboard.html:28
 msgid "Dépassé"
 msgstr "Überfällig"
 
@@ -1166,7 +1414,7 @@ msgstr "Überfällig"
 msgid "En tolérance"
 msgstr "In der Toleranz"
 
-#: apps/camo/services.py:26 apps/core/templates/core/dashboard.html:26
+#: apps/camo/services.py:26 apps/core/templates/core/dashboard.html:28
 msgid "À planifier"
 msgstr "Zu planen"
 
@@ -1258,8 +1506,8 @@ msgstr "Alle auswählen"
 #: apps/camo/templates/camo/due.html:12
 #: apps/camo/templates/camo/task_detail.html:42 apps/camo/views.py:69
 #: apps/camo/views.py:308 apps/camo/views.py:356 apps/camo/views.py:370
-#: apps/core/templates/core/dashboard.html:26
-#: apps/core/templates/core/dashboard.html:45
+#: apps/core/templates/core/dashboard.html:28
+#: apps/core/templates/core/dashboard.html:47
 #: apps/fleet/templates/fleet/aircraft_detail.html:64
 #: apps/fleet/templates/fleet/aircraft_detail.html:75
 #: apps/fleet/templates/fleet/aircraft_detail.html:82
@@ -1499,7 +1747,7 @@ msgstr "Status je betriebenem Muster"
 #: apps/camo/templates/camo/amp_review_list.html:20
 #: apps/camo/templates/camo/directive_detail.html:31 apps/camo/views.py:124
 #: apps/camo/views.py:226 apps/camo/views.py:318
-#: apps/core/templates/core/dashboard.html:26
+#: apps/core/templates/core/dashboard.html:28
 #: apps/fleet/templates/fleet/component_detail.html:63 apps/fleet/views.py:63
 #: apps/logistics/views.py:72
 #: apps/part145/templates/part145/staff_detail.html:24
@@ -1521,11 +1769,6 @@ msgstr "Gültige Revision"
 #: apps/camo/templates/camo/amp_review_list.html:10
 msgid "Dernière revue"
 msgstr "Letzte Überprüfung"
-
-#: apps/camo/templates/camo/amp_review_list.html:10 apps/logistics/forms.py:21
-#: apps/part145/templates/part145/staff_detail.html:24
-msgid "État"
-msgstr "Zustand"
 
 #: apps/camo/templates/camo/amp_review_list.html:17
 msgid "Aucun type exploité."
@@ -1734,7 +1977,7 @@ msgid "Heures cellule"
 msgstr "Zellenstunden"
 
 #: apps/camo/templates/camo/dossier_synthese.html:19
-#: apps/core/templates/core/dashboard.html:26 apps/fleet/views.py:65
+#: apps/core/templates/core/dashboard.html:28 apps/fleet/views.py:65
 msgid "Compteurs au"
 msgstr "Zähler am"
 
@@ -2350,10 +2593,6 @@ msgstr "Hinzufügen"
 msgid "Situation par aéronef"
 msgstr "Lage je Luftfahrzeug"
 
-#: apps/camo/templates/camo/task_detail.html:46
-msgid "jamais"
-msgstr "nie"
-
 #: apps/camo/templates/camo/task_detail.html:49
 msgid "Réalisée (tâche unique)"
 msgstr "Durchgeführt (einmalige Aufgabe)"
@@ -2771,6 +3010,22 @@ msgstr "Anlage"
 msgid "Suppression"
 msgstr "Löschung"
 
+#: apps/core/models.py:58
+#| msgid "Horodatage"
+msgid "horodatage"
+msgstr "Zeitstempel"
+
+#: apps/core/models.py:59 apps/core/models.py:112 apps/core/models.py:201
+#: apps/logistics/models.py:272
+#| msgid "Utilisateur"
+msgid "utilisateur"
+msgstr "Benutzer"
+
+#: apps/core/models.py:60
+#| msgid "Identifiant"
+msgid "identifiant"
+msgstr "Kennung"
+
 #: apps/core/models.py:65
 msgid "modifications (JSON)"
 msgstr "Änderungen (JSON)"
@@ -2880,6 +3135,12 @@ msgstr ""
 #: apps/core/models.py:199
 msgid "SSO OpenID Connect"
 msgstr ""
+
+#: apps/core/models.py:202 apps/logistics/models.py:86
+#: apps/logistics/models.py:351
+#| msgid "Fournisseur"
+msgid "fournisseur"
+msgstr "Lieferant"
 
 #: apps/core/models.py:203 apps/fleet/models.py:167
 msgid "identifiant externe"
@@ -3247,6 +3508,7 @@ msgid "reporté(s)"
 msgstr "zurückgestellt"
 
 #: apps/core/templates/core/dashboard.html:11
+#: apps/core/templates/core/dashboard.html:21
 msgid "hors délai"
 msgstr "außerhalb der Frist"
 
@@ -3297,69 +3559,94 @@ msgid "hors délai (72 h / 30 j)"
 msgstr "außerhalb der Frist (72 h / 30 T)"
 
 #: apps/core/templates/core/dashboard.html:20
+#| msgid "Qualité"
+msgid "Qualité :"
+msgstr "Qualität:"
+
+#: apps/core/templates/core/dashboard.html:21
+#| msgid "Constats ouverts"
+msgid "constat(s) ouvert(s)"
+msgstr "offene Feststellung(en)"
+
+#: apps/core/templates/core/dashboard.html:21
+#| msgid "niveau"
+msgid "niveau 1"
+msgstr "Stufe 1"
+
+#: apps/core/templates/core/dashboard.html:21
+#| msgid "révisions de documents"
+msgid "révision(s) à approuver"
+msgstr "zu genehmigende Revision(en)"
+
+#: apps/core/templates/core/dashboard.html:21
+#| msgid "Ce document est déjà retiré."
+msgid "document(s) à revoir"
+msgstr "zu überprüfende(s) Dokument(e)"
+
+#: apps/core/templates/core/dashboard.html:22
 msgid "Revue du programme d'entretien (M.A.302(g)) :"
 msgstr "Überprüfung des Instandhaltungsprogramms (M.A.302(g)):"
 
-#: apps/core/templates/core/dashboard.html:24 apps/fleet/views.py:69
+#: apps/core/templates/core/dashboard.html:26 apps/fleet/views.py:69
 #: templates/base.html:21
 msgid "Flotte"
 msgstr ""
 
-#: apps/core/templates/core/dashboard.html:26
+#: apps/core/templates/core/dashboard.html:28
 msgid "FH totales"
 msgstr "FH gesamt"
 
-#: apps/core/templates/core/dashboard.html:26 apps/fleet/models.py:29
+#: apps/core/templates/core/dashboard.html:28 apps/fleet/models.py:29
 #: apps/fleet/views.py:64 apps/fleet/views.py:116
 msgid "Cycles"
 msgstr "Zyklen"
 
-#: apps/core/templates/core/dashboard.html:26 apps/fleet/views.py:65
+#: apps/core/templates/core/dashboard.html:28 apps/fleet/views.py:65
 msgid "ARC jusqu'au"
 msgstr "ARC bis"
 
-#: apps/core/templates/core/dashboard.html:31
+#: apps/core/templates/core/dashboard.html:33
 #: apps/core/templates/core/my_account.html:10
 #: apps/fleet/templates/fleet/aircraft_detail.html:27
 msgid "Aucun"
 msgstr "Keine"
 
-#: apps/core/templates/core/dashboard.html:40
+#: apps/core/templates/core/dashboard.html:42
 msgid "Échéances prioritaires"
 msgstr "Vorrangige Fälligkeiten"
 
-#: apps/core/templates/core/dashboard.html:40
+#: apps/core/templates/core/dashboard.html:42
 #: apps/fleet/templates/fleet/aircraft_detail.html:63
 #: apps/fleet/templates/fleet/aircraft_detail.html:74
 #: apps/fleet/templates/fleet/aircraft_detail.html:98
 msgid "Tout voir →"
 msgstr "Alle anzeigen →"
 
-#: apps/core/templates/core/dashboard.html:44
+#: apps/core/templates/core/dashboard.html:46
 msgid "Work packages en cours"
 msgstr "Laufende Arbeitspakete"
 
-#: apps/core/templates/core/dashboard.html:44
+#: apps/core/templates/core/dashboard.html:46
 msgid "Planning →"
 msgstr "Planung →"
 
-#: apps/core/templates/core/dashboard.html:45
+#: apps/core/templates/core/dashboard.html:47
 msgid "WP"
 msgstr ""
 
-#: apps/core/templates/core/dashboard.html:45
+#: apps/core/templates/core/dashboard.html:47
 #: apps/fleet/templates/fleet/aircraft_detail.html:92
 #: apps/part145/templates/part145/planning.html:30
 msgid "Dates"
 msgstr "Daten"
 
-#: apps/core/templates/core/dashboard.html:45
+#: apps/core/templates/core/dashboard.html:47
 #: apps/part145/templates/part145/planning.html:30
 #: apps/part145/templates/part145/wp_detail.html:15
 msgid "Avancement"
 msgstr "Fortschritt"
 
-#: apps/core/templates/core/dashboard.html:49
+#: apps/core/templates/core/dashboard.html:51
 msgid "Aucun work package actif."
 msgstr "Kein aktives Arbeitspaket."
 
@@ -3726,23 +4013,23 @@ msgstr "Signaturcode von {username}"
 msgid "Code de signature enregistré."
 msgstr "Signaturcode gespeichert."
 
-#: apps/core/views.py:296
+#: apps/core/views.py:298
 msgid "conserver jusqu'au"
 msgstr "aufzubewahren bis"
 
-#: apps/core/views.py:296 apps/fleet/models.py:270
+#: apps/core/views.py:298 apps/fleet/models.py:270
 msgid "état"
 msgstr "Zustand"
 
-#: apps/core/views.py:298
+#: apps/core/views.py:300
 msgid "sans échéance"
 msgstr "ohne Frist"
 
-#: apps/core/views.py:298
+#: apps/core/views.py:300
 msgid "échue – archivable"
 msgstr "abgelaufen – archivierbar"
 
-#: apps/core/views.py:298
+#: apps/core/views.py:300
 msgid "en cours"
 msgstr "laufend"
 
@@ -3814,6 +4101,11 @@ msgstr "Mustercode"
 msgid "ex. H135, H145-D3, ATR72-600"
 msgstr "z. B. H135, H145-D3, ATR72-600"
 
+#: apps/fleet/models.py:22 apps/fleet/models.py:206
+#| msgid "Constructeur"
+msgid "constructeur"
+msgstr "Hersteller"
+
 #: apps/fleet/models.py:23
 msgid "modèle / variante"
 msgstr "Modell / Variante"
@@ -3830,6 +4122,11 @@ msgstr "Rechtsrahmen"
 #: apps/fleet/models.py:26
 msgid "nombre de moteurs"
 msgstr "Anzahl Triebwerke"
+
+#: apps/fleet/models.py:27
+#| msgid "Motorisation"
+msgid "motorisation"
+msgstr "Triebwerk"
 
 #: apps/fleet/models.py:29
 msgid "libellé des cycles"
@@ -3867,13 +4164,27 @@ msgstr "Eingelagert"
 msgid "Retiré"
 msgstr "Ausgemustert"
 
+#: apps/fleet/models.py:53
+#| msgid "Immatriculation"
+msgid "immatriculation"
+msgstr "Kennzeichen"
+
 #: apps/fleet/models.py:54
 msgid "numéro de série (MSN)"
 msgstr "Seriennummer (MSN)"
 
+#: apps/fleet/models.py:57
+#| msgid "Exploitant"
+msgid "exploitant"
+msgstr "Betreiber"
+
 #: apps/fleet/models.py:58
 msgid "propriétaire"
 msgstr "Eigentümer"
+
+#: apps/fleet/models.py:59
+msgid "base"
+msgstr "Basis"
 
 #: apps/fleet/models.py:60 apps/fleet/models.py:271
 msgid "date de fabrication"
@@ -3987,6 +4298,10 @@ msgstr ""
 "Kennung der Erfassung im sendenden System (Flug, CRM): verhindert Dubletten "
 "bei erneutem Senden"
 
+#: apps/fleet/models.py:170 apps/logistics/models.py:128
+msgid "date"
+msgstr "Datum"
+
 #: apps/fleet/models.py:171
 msgid "heures de vol"
 msgstr "Flugstunden"
@@ -3998,6 +4313,11 @@ msgstr "Zyklen / Landungen"
 #: apps/fleet/models.py:173
 msgid "référence (n° page techlog...)"
 msgstr "Referenz (Techlog-Seitennr....)"
+
+#: apps/fleet/models.py:174 apps/part145/models.py:464
+#| msgid "Source"
+msgid "source"
+msgstr "Quelle"
 
 #: apps/fleet/models.py:175
 msgid "total FH après saisie"
@@ -4075,6 +4395,12 @@ msgstr "Rotable / reparierbar"
 #: apps/fleet/models.py:210
 msgid "pièce à vie limitée (LLP)"
 msgstr "lebensdauerbegrenztes Teil (LLP)"
+
+#: apps/fleet/models.py:211 apps/logistics/models.py:270
+#: apps/logistics/models.py:287
+#| msgid "Outillage"
+msgid "outillage"
+msgstr "Werkzeug"
 
 #: apps/fleet/models.py:212
 msgid "durée de stockage limitée"
@@ -4199,6 +4525,10 @@ msgstr "Inspiziert/geprüft"
 msgid "Usagé"
 msgstr "Gebraucht"
 
+#: apps/fleet/models.py:268 apps/logistics/models.py:210
+msgid "S/N"
+msgstr "S/N"
+
 #: apps/fleet/models.py:272
 msgid "date dernière révision"
 msgstr "Datum der letzten Überholung"
@@ -4219,6 +4549,11 @@ msgstr "TSO (Stunden seit Überholung)"
 #: apps/fleet/models.py:277
 msgid "CSO (cycles depuis révision)"
 msgstr "CSO (Zyklen seit Überholung)"
+
+#: apps/fleet/models.py:280 apps/fleet/models.py:371
+#| msgid "Approbation"
+msgid "position"
+msgstr "Position"
 
 #: apps/fleet/models.py:280
 msgid "ex. MOT 1, BTP, MRH, BTA"
@@ -4494,6 +4829,7 @@ msgid "Heures totales"
 msgstr "Gesamtstunden"
 
 #: apps/fleet/templates/fleet/aircraft_detail.html:24
+#: apps/part145/models.py:173
 msgid "au"
 msgstr "am"
 
@@ -5257,6 +5593,11 @@ msgstr "Auszugebende Charge"
 msgid "Choisissez soit un composant, soit un lot."
 msgstr "Wählen Sie entweder eine Komponente oder eine Charge."
 
+#: apps/logistics/models.py:14
+#| msgid "code type"
+msgid "code"
+msgstr "Code"
+
 #: apps/logistics/models.py:16
 msgid "base / station"
 msgstr "Basis / Station"
@@ -5373,6 +5714,11 @@ msgstr "Abgelaufen"
 msgid "n° de lot"
 msgstr "Chargennr."
 
+#: apps/logistics/models.py:79 apps/logistics/models.py:211
+#| msgid "Emplacement"
+msgid "emplacement"
+msgstr "Lagerort"
+
 #: apps/logistics/models.py:81
 msgid "stock mini"
 msgstr "Mindestbestand"
@@ -5414,9 +5760,18 @@ msgstr "Inventurkorrektur"
 msgid "Rebut"
 msgstr "Verschrottung"
 
+#: apps/logistics/models.py:123
+#: apps/logistics/templates/logistics/quarantine.html:15
+msgid "lot"
+msgstr "Charge"
+
 #: apps/logistics/models.py:125
 msgid "quantité (+/-)"
 msgstr "Menge (+/-)"
+
+#: apps/logistics/models.py:127 apps/logistics/models.py:151
+msgid "note"
+msgstr "Notiz"
 
 #: apps/logistics/models.py:132
 msgid "mouvement de stock"
@@ -5582,6 +5937,11 @@ msgstr "Werkzeugnutzungen"
 msgid "date d'étalonnage"
 msgstr "Kalibrierdatum"
 
+#: apps/logistics/models.py:289
+#| msgid "Laboratoire"
+msgid "laboratoire"
+msgstr "Labor"
+
 #: apps/logistics/models.py:290
 msgid "n° certificat d'étalonnage"
 msgstr "Nr. des Kalibrierzertifikats"
@@ -5630,6 +5990,10 @@ msgstr "z. B. FR.145.0123, FR.21G.0045"
 msgid "fournisseur accepté"
 msgstr "Lieferant zugelassen"
 
+#: apps/logistics/models.py:326
+msgid "contact"
+msgstr "Kontakt"
+
 #: apps/logistics/models.py:341
 msgid "Indiquez la date d'évaluation du fournisseur accepté."
 msgstr "Bewertungsdatum des zugelassenen Lieferanten angeben."
@@ -5667,6 +6031,11 @@ msgstr "Bestelldatum"
 msgid "livraison prévue le"
 msgstr "Lieferung geplant am"
 
+#: apps/logistics/models.py:355
+#| msgid "Observations"
+msgid "observations"
+msgstr "Bemerkungen"
+
 #: apps/logistics/models.py:359
 msgid "commande d'achat"
 msgstr "Bestellung"
@@ -5674,6 +6043,11 @@ msgstr "Bestellung"
 #: apps/logistics/models.py:360
 msgid "commandes d'achat"
 msgstr "Bestellungen"
+
+#: apps/logistics/models.py:393
+#| msgid "Commande"
+msgid "commande"
+msgstr "Bestellung"
 
 #: apps/logistics/models.py:395
 msgid "quantité commandée"
@@ -5702,6 +6076,11 @@ msgstr "Die Menge muss positiv sein."
 #: apps/logistics/models.py:419
 msgid "La demande liée porte sur un autre P/N."
 msgstr "Die zugehörige Anforderung betrifft eine andere P/N."
+
+#: apps/logistics/models.py:425
+#| msgid "Lignes"
+msgid "ligne"
+msgstr "Zeile"
 
 #: apps/logistics/models.py:429
 msgid "reçu le"
@@ -5840,10 +6219,6 @@ msgid "Lignes"
 msgstr "Positionen"
 
 #: apps/logistics/templates/logistics/po_detail.html:23
-msgid "P/N"
-msgstr ""
-
-#: apps/logistics/templates/logistics/po_detail.html:23
 msgid "Commandé"
 msgstr "Bestellt"
 
@@ -5926,10 +6301,6 @@ msgstr "Verwendbare, aber abgelaufene Chargen"
 #: apps/logistics/templates/logistics/quarantine.html:15
 msgid "(non délivrables, à passer en « périmé ») :"
 msgstr "(nicht ausgebbar, auf „abgelaufen“ zu setzen):"
-
-#: apps/logistics/templates/logistics/quarantine.html:15
-msgid "lot"
-msgstr "Charge"
 
 #: apps/logistics/templates/logistics/receive.html:4
 msgid "Réception magasin"
@@ -6444,9 +6815,24 @@ msgstr "Verantwortlicher"
 msgid "compte utilisateur"
 msgstr "Benutzerkonto"
 
+#: apps/part145/models.py:28
+#| msgid "Matricule"
+msgid "matricule"
+msgstr "Personalnummer"
+
 #: apps/part145/models.py:29
 msgid "prénom"
 msgstr "Vorname"
+
+#: apps/part145/models.py:30
+#| msgid "Nom"
+msgid "nom"
+msgstr "Name"
+
+#: apps/part145/models.py:31
+#| msgid "Fonction"
+msgid "fonction"
+msgstr "Funktion"
 
 #: apps/part145/models.py:32
 msgid "tampon / visa"
@@ -6467,6 +6853,11 @@ msgstr "z. B. B1.3, B2"
 #: apps/part145/models.py:35
 msgid "validité de la licence"
 msgstr "Gültigkeit der Lizenz"
+
+#: apps/part145/models.py:36
+#| msgid "inactif"
+msgid "actif"
+msgstr "aktiv"
 
 #: apps/part145/models.py:37
 msgid "départ de l'organisme le"
@@ -6520,9 +6911,29 @@ msgstr "{full_name} hat keine gültige Berechtigung für das Muster {code}."
 msgid "{full_name} : formation obligatoire absente ou expirée : {missing}."
 msgstr "{full_name}: Pflichtschulung fehlt oder ist abgelaufen: {missing}."
 
+#: apps/part145/models.py:170 apps/part145/models.py:198
+#: apps/part145/models.py:241
+#| msgid "Personnel"
+msgid "personnel"
+msgstr "Personal"
+
+#: apps/part145/models.py:172
+msgid "du"
+msgstr "vom"
+
+#: apps/part145/models.py:174
+#| msgid "Organisme"
+msgid "organisme"
+msgstr "Organisation"
+
 #: apps/part145/models.py:175
 msgid "travaux réalisés"
 msgstr "durchgeführte Arbeiten"
+
+#: apps/part145/models.py:176
+#| msgid "Justificatif"
+msgid "justificatif"
+msgstr "Nachweis"
 
 #: apps/part145/models.py:176
 msgid "Attestation, carnet de travaux…"
@@ -6568,6 +6979,11 @@ msgstr "gültig ab"
 msgid "valide jusqu'au"
 msgstr "gültig bis"
 
+#: apps/part145/models.py:206
+#| msgid "Suspendue"
+msgid "suspendue"
+msgstr "ausgesetzt"
+
 #: apps/part145/models.py:223
 msgid ""
 "Une autorisation « mécanicien non certifiant » ne peut pas être certifiante."
@@ -6598,6 +7014,11 @@ msgstr "Muster- / Unterschiedsschulung"
 #: apps/part145/models.py:237
 msgid "Sûreté / zones réservées"
 msgstr "Sicherheit / Sicherheitsbereiche"
+
+#: apps/part145/models.py:243
+#| msgid "Formation"
+msgid "formation"
+msgstr "Schulung"
 
 #: apps/part145/models.py:244
 msgid "obtenue le"
@@ -6826,6 +7247,10 @@ msgstr "geprüft am"
 msgid "motif de report"
 msgstr "Rückstellungsgrund"
 
+#: apps/part145/models.py:387
+msgid "ordre"
+msgstr "Reihenfolge"
+
 #: apps/part145/models.py:392
 msgid "task cards"
 msgstr "Task Cards"
@@ -6845,6 +7270,11 @@ msgid ""
 "{description}"
 msgstr "Ref. {reference} (AMP {or_}) {description}"
 
+#: apps/part145/models.py:438
+#| msgid "N°"
+msgid "n°"
+msgstr "Nr."
+
 #: apps/part145/models.py:439 apps/part145/models.py:447
 msgid "étape"
 msgstr "Schritt"
@@ -6860,6 +7290,10 @@ msgstr "erledigt von"
 #: apps/part145/models.py:442 apps/quality/models.py:49
 msgid "réalisé le"
 msgstr "erledigt am"
+
+#: apps/part145/models.py:443
+msgid "N/A"
+msgstr "N/A"
 
 #: apps/part145/models.py:448
 msgid "étapes"
@@ -7868,10 +8302,6 @@ msgstr "Berechtigungen (Part-145-Organisation)"
 msgid "Certifiante"
 msgstr "Freigabeberechtigt"
 
-#: apps/part145/templates/part145/staff_detail.html:24
-msgid "Portée"
-msgstr "Umfang"
-
 #: apps/part145/templates/part145/staff_detail.html:25
 #: apps/part145/templates/part145/staff_detail.html:32
 msgid "Valide"
@@ -7904,10 +8334,6 @@ msgstr "Schulung"
 #: apps/part145/templates/part145/staff_detail.html:31
 msgid "Obtenue"
 msgstr "Erworben"
-
-#: apps/part145/templates/part145/staff_detail.html:31
-msgid "Expire"
-msgstr "Läuft ab"
 
 #: apps/part145/templates/part145/staff_detail.html:36
 msgid "Expériences déclarées (hors AHMIS)"
@@ -8240,14 +8666,6 @@ msgstr "Lizenz"
 msgid "Validité licence"
 msgstr "Gültigkeit der Lizenz"
 
-#: apps/part145/views.py:459
-msgid "Compte"
-msgstr "Konto"
-
-#: apps/part145/views.py:459
-msgid "Actif"
-msgstr "Aktiv"
-
 #: apps/part145/views.py:463
 msgid "Personnel et autorisations"
 msgstr "Personal und Berechtigungen"
@@ -8337,17 +8755,9 @@ msgstr "Abgeschlossen"
 msgid "n° d'audit"
 msgstr "Auditnr."
 
-#: apps/quality/models.py:44
-msgid "objet"
-msgstr "Gegenstand"
-
 #: apps/quality/models.py:45
 msgid "référentiel"
 msgstr "Regelwerk"
-
-#: apps/quality/models.py:46 apps/quality/models.py:172
-msgid "type"
-msgstr "Typ"
 
 #: apps/quality/models.py:47
 msgid "activité ou service audité"
@@ -8376,11 +8786,6 @@ msgstr ""
 #: apps/quality/models.py:54
 msgid "synthèse du rapport"
 msgstr "Zusammenfassung des Berichts"
-
-#: apps/quality/models.py:55 apps/quality/models.py:118
-#: apps/quality/models.py:180 apps/quality/models.py:228
-msgid "statut"
-msgstr "Status"
 
 #: apps/quality/models.py:56 apps/quality/models.py:119
 #: apps/safety/models.py:80
@@ -8538,10 +8943,6 @@ msgstr "Ersetzt"
 #: apps/quality/models.py:220
 msgid "Refusée"
 msgstr "Abgelehnt"
-
-#: apps/quality/models.py:222
-msgid "document"
-msgstr "Dokument"
 
 #: apps/quality/models.py:224
 msgid "objet de la révision"
@@ -8946,6 +9347,10 @@ msgstr "Meldungsnr."
 msgid "gravité estimée"
 msgstr "geschätzte Schwere"
 
+#: apps/safety/models.py:52
+msgid "phase"
+msgstr "Phase"
+
 #: apps/safety/models.py:53
 msgid "date et heure de l'événement"
 msgstr "Datum und Uhrzeit des Ereignisses"
@@ -8957,6 +9362,10 @@ msgstr "Kenntnis der Organisation am"
 #: apps/safety/models.py:55
 msgid "Point de départ du délai de 72 h (art. 4 du règlement 376/2014)"
 msgstr "Beginn der 72-h-Frist (Art. 4 der Verordnung 376/2014)"
+
+#: apps/safety/models.py:56
+msgid "lieu"
+msgstr "Ort"
 
 #: apps/safety/models.py:59
 msgid "défaut lié"
@@ -9376,10 +9785,6 @@ msgstr "Hilfe"
 msgid "Administration"
 msgstr ""
 
-#: templates/base.html:64
-msgid "Jetons API"
-msgstr "API-Token"
-
 #: templates/base.html:69
 msgid "Menu"
 msgstr "Menü"
@@ -9441,7 +9846,7 @@ msgstr "Ihre Frage"
 
 #: templates/base.html:96
 msgid "Poser la question"
-msgstr "Fragen"
+msgstr "Frage stellen"
 
 #: templates/registration/login.html:3
 msgid "Connexion · AHMIS"

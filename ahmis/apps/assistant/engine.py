@@ -55,7 +55,7 @@ def _entry(e, lang, user):
 def answer(query, lang, user):
     """Réponse validée la plus proche, ou None ; et jusqu'à 3 suggestions."""
     lang = lang if lang in LANGS else "fr"
-    tokens = [t for t in normalize((query or "")[:MAX_QUERY]) if t not in STOP]
+    tokens = list(dict.fromkeys(t for t in normalize((query or "")[:MAX_QUERY]) if t not in STOP and len(t) >= 2))
     ranked = sorted(((_score(tokens, words), i, e) for i, (e, words) in enumerate(_INDEX)), key=lambda r: (-r[0], r[1]))
     best = ranked[0] if ranked and ranked[0][0] >= 2 else None
     suggestions = [_entry(e, lang, user) for s, _, e in ranked[1:4] if s >= 2] if best else []

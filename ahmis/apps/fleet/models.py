@@ -19,18 +19,18 @@ class AircraftType(TrackedModel):
     ]
 
     code = models.CharField(gettext_lazy("code type"), max_length=30, unique=True, help_text=gettext_lazy("ex. H135, H145-D3, ATR72-600"))
-    manufacturer = models.CharField("constructeur", max_length=80)
+    manufacturer = models.CharField(gettext_lazy("constructeur"), max_length=80)
     model = models.CharField(gettext_lazy("modèle / variante"), max_length=80)
     category = models.CharField(gettext_lazy("catégorie"), max_length=12, choices=CATEGORIES)
     regulatory_frame = models.CharField(gettext_lazy("cadre réglementaire"), max_length=12, choices=FRAMES, default="part-camo")
     engine_count = models.PositiveSmallIntegerField(gettext_lazy("nombre de moteurs"), default=1)
-    engine_model = models.CharField("motorisation", max_length=80, blank=True)
+    engine_model = models.CharField(gettext_lazy("motorisation"), max_length=80, blank=True)
     cycle_label = models.CharField(
         gettext_lazy("libellé des cycles"), max_length=40, default=gettext_lazy("Cycles"),
         help_text=gettext_lazy("ex. « Atterrissages » pour un hélicoptère, « Cycles » pour un avion"),
     )
     mtow_kg = models.PositiveIntegerField(gettext_lazy("MTOW (kg)"), null=True, blank=True)
-    notes = models.TextField("notes", blank=True)
+    notes = models.TextField(gettext_lazy("notes"), blank=True)
 
     class Meta:
         ordering = ["manufacturer", "code"]
@@ -50,13 +50,13 @@ class Aircraft(TrackedModel):
         ("retired", gettext_lazy("Retiré")),
     ]
 
-    registration = models.CharField("immatriculation", max_length=12, unique=True)
+    registration = models.CharField(gettext_lazy("immatriculation"), max_length=12, unique=True)
     msn = models.CharField(gettext_lazy("numéro de série (MSN)"), max_length=30)
-    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.PROTECT, verbose_name="type", related_name="aircraft")
-    status = models.CharField("statut", max_length=12, choices=STATUSES, default="active")
-    operator = models.CharField("exploitant", max_length=120, blank=True)
+    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.PROTECT, verbose_name=gettext_lazy("type"), related_name="aircraft")
+    status = models.CharField(gettext_lazy("statut"), max_length=12, choices=STATUSES, default="active")
+    operator = models.CharField(gettext_lazy("exploitant"), max_length=120, blank=True)
     owner = models.CharField(gettext_lazy("propriétaire"), max_length=120, blank=True)
-    base = models.CharField("base", max_length=60, blank=True)
+    base = models.CharField(gettext_lazy("base"), max_length=60, blank=True)
     manufacture_date = models.DateField(gettext_lazy("date de fabrication"))
     entry_into_service = models.DateField(gettext_lazy("mise en service"), null=True, blank=True)
     # Compteurs cellule
@@ -73,7 +73,7 @@ class Aircraft(TrackedModel):
         gettext_lazy("retrait définitif du service le"), null=True, blank=True,
         help_text=gettext_lazy("Point de départ de la conservation des enregistrements d'état (12 mois, M.A.305(h))"),
     )
-    notes = models.TextField("notes", blank=True)
+    notes = models.TextField(gettext_lazy("notes"), blank=True)
 
     class Meta:
         ordering = ["registration"]
@@ -167,11 +167,11 @@ class UtilisationRecord(TrackedModel):
         gettext_lazy("identifiant externe"), max_length=80, null=True, blank=True, unique=True,
         help_text=gettext_lazy("Identifiant de la saisie dans le système émetteur (vol, CRM) : empêche les doublons en cas de renvoi"),
     )
-    date = models.DateField("date")
+    date = models.DateField(gettext_lazy("date"))
     fh = models.DecimalField(gettext_lazy("heures de vol"), max_digits=7, decimal_places=2)
     fc = models.PositiveIntegerField(gettext_lazy("cycles / atterrissages"))
     reference = models.CharField(gettext_lazy("référence (n° page techlog...)"), max_length=60, blank=True)
-    source = models.CharField("source", max_length=10, choices=SOURCES, default="techlog")
+    source = models.CharField(gettext_lazy("source"), max_length=10, choices=SOURCES, default="techlog")
     fh_after = models.DecimalField(gettext_lazy("total FH après saisie"), max_digits=10, decimal_places=2)
     fc_after = models.PositiveIntegerField(gettext_lazy("total cycles après saisie"))
 
@@ -196,19 +196,19 @@ class PartNumber(TrackedModel):
     ]
     RELEASE_CERTS = ("easa_form1", "faa_8130", "dual", "tcca_one")
 
-    pn = models.CharField("P/N", max_length=60, unique=True)
+    pn = models.CharField(gettext_lazy("P/N"), max_length=60, unique=True)
     category = models.CharField(gettext_lazy("classe (145.A.42)"), max_length=14, choices=CATEGORIES, default="component",
                                 help_text=gettext_lazy("Élément : certificat libératoire (EASA Form 1 ou équivalent) exigé. Pièce standard, "
                                           "matière, consommable : certificat de conformité acceptable."))
     specification = models.CharField(gettext_lazy("norme / spécification"), max_length=80, blank=True,
                                      help_text=gettext_lazy("ex. NAS1611-012, MS20995C32, AMS 4911 – obligatoire pour une pièce standard ou une matière"))
     description = models.CharField(gettext_lazy("désignation"), max_length=150)
-    manufacturer = models.CharField("constructeur", max_length=80, blank=True)
+    manufacturer = models.CharField(gettext_lazy("constructeur"), max_length=80, blank=True)
     ata = models.CharField(gettext_lazy("chapitre ATA"), max_length=10, blank=True)
     is_serialized = models.BooleanField(gettext_lazy("suivi au numéro de série"), default=False)
     is_rotable = models.BooleanField(gettext_lazy("rotable / réparable"), default=False)
     is_llp = models.BooleanField(gettext_lazy("pièce à vie limitée (LLP)"), default=False)
-    is_tool = models.BooleanField("outillage", default=False)
+    is_tool = models.BooleanField(gettext_lazy("outillage"), default=False)
     shelf_life_controlled = models.BooleanField(gettext_lazy("durée de stockage limitée"), default=False)
     unit = models.CharField(gettext_lazy("unité"), max_length=10, default="EA")
     # Limites de vie (LLP) – depuis neuf
@@ -221,7 +221,7 @@ class PartNumber(TrackedModel):
     tbo_days = models.PositiveIntegerField(gettext_lazy("TBO calendaire (jours)"), null=True, blank=True)
     applicable_types = models.ManyToManyField(AircraftType, blank=True, verbose_name=gettext_lazy("types applicables"), related_name="part_numbers")
     alternates = models.ManyToManyField("self", blank=True, verbose_name=gettext_lazy("P/N interchangeables"))
-    notes = models.TextField("notes", blank=True)
+    notes = models.TextField(gettext_lazy("notes"), blank=True)
 
     class Meta:
         ordering = ["pn"]
@@ -264,9 +264,9 @@ class Component(TrackedModel):
     ]
     CONDITIONS = [("new", gettext_lazy("Neuf")), ("overhauled", gettext_lazy("Révisé")), ("repaired", gettext_lazy("Réparé")), ("inspected", gettext_lazy("Inspecté/testé")), ("used", gettext_lazy("Usagé"))]
 
-    part_number = models.ForeignKey(PartNumber, on_delete=models.PROTECT, verbose_name="P/N", related_name="components")
-    serial_number = models.CharField("S/N", max_length=60)
-    status = models.CharField("statut", max_length=14, choices=STATUSES, default="serviceable")
+    part_number = models.ForeignKey(PartNumber, on_delete=models.PROTECT, verbose_name=gettext_lazy("P/N"), related_name="components")
+    serial_number = models.CharField(gettext_lazy("S/N"), max_length=60)
+    status = models.CharField(gettext_lazy("statut"), max_length=14, choices=STATUSES, default="serviceable")
     condition = models.CharField(gettext_lazy("état"), max_length=12, choices=CONDITIONS, default="new")
     manufacture_date = models.DateField(gettext_lazy("date de fabrication"), null=True, blank=True)
     last_overhaul_date = models.DateField(gettext_lazy("date dernière révision"), null=True, blank=True)
@@ -277,11 +277,11 @@ class Component(TrackedModel):
     cso = models.PositiveIntegerField(gettext_lazy("CSO (cycles depuis révision)"), default=0)
     # Localisation
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, null=True, blank=True, related_name="components", verbose_name=gettext_lazy("aéronef"))
-    position = models.CharField("position", max_length=40, blank=True, help_text=gettext_lazy("ex. MOT 1, BTP, MRH, BTA"))
+    position = models.CharField(gettext_lazy("position"), max_length=40, blank=True, help_text=gettext_lazy("ex. MOT 1, BTP, MRH, BTA"))
     location = models.ForeignKey("logistics.StoreLocation", on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("emplacement magasin"), related_name="components")
     reserved_for = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, null=True, blank=True, related_name="reserved_components", verbose_name=gettext_lazy("réservé pour"))
     status_reason = models.CharField(gettext_lazy("motif du statut"), max_length=200, blank=True)
-    notes = models.TextField("notes", blank=True)
+    notes = models.TextField(gettext_lazy("notes"), blank=True)
     # Pièce non récupérable (145.A.42(d), M.A.504(d)) : statut définitif, mutilation avant élimination
     SCRAP_REASONS = [("life_limit", gettext_lazy("Limite de vie atteinte (LLP)")), ("beyond_repair", gettext_lazy("Non réparable / hors tolérances")),
                      ("beyond_economic", gettext_lazy("Réparation non économique")), ("damage", gettext_lazy("Endommagée (accident, incendie, corrosion)")),
@@ -366,9 +366,9 @@ class Component(TrackedModel):
 class InstallationRecord(TrackedModel):
     """Historique de montage / dépose : traçabilité « back-to-birth »."""
 
-    component = models.ForeignKey(Component, on_delete=models.PROTECT, related_name="installations", verbose_name="composant")
+    component = models.ForeignKey(Component, on_delete=models.PROTECT, related_name="installations", verbose_name=gettext_lazy("composant"))
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, related_name="installation_records", verbose_name=gettext_lazy("aéronef"))
-    position = models.CharField("position", max_length=40, blank=True)
+    position = models.CharField(gettext_lazy("position"), max_length=40, blank=True)
     installed_on = models.DateField(gettext_lazy("posé le"))
     ac_fh_at_install = models.DecimalField(gettext_lazy("FH aéronef à la pose"), max_digits=10, decimal_places=2)
     ac_fc_at_install = models.PositiveIntegerField(gettext_lazy("cycles aéronef à la pose"))

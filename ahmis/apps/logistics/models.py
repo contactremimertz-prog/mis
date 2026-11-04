@@ -11,7 +11,7 @@ from django.utils.translation import gettext, gettext_lazy
 
 
 class StoreLocation(TrackedModel):
-    code = models.CharField("code", max_length=30, unique=True)
+    code = models.CharField(gettext_lazy("code"), max_length=30, unique=True)
     name = models.CharField(gettext_lazy("désignation"), max_length=100)
     station = models.CharField(gettext_lazy("base / station"), max_length=60, blank=True)
     is_quarantine = models.BooleanField(gettext_lazy("zone de quarantaine"), default=False)
@@ -38,16 +38,16 @@ class ReleaseCertificate(TrackedModel):
     ]
     STATUSES = [("new", gettext_lazy("Neuf")), ("overhauled", gettext_lazy("Révisé")), ("repaired", gettext_lazy("Réparé")), ("inspected", gettext_lazy("Inspecté / testé")), ("modified", gettext_lazy("Modifié"))]
 
-    cert_type = models.CharField("type", max_length=12, choices=TYPES, default="easa_form1")
+    cert_type = models.CharField(gettext_lazy("type"), max_length=12, choices=TYPES, default="easa_form1")
     tracking_number = models.CharField(gettext_lazy("n° de suivi (case 3)"), max_length=60)
     issuer = models.CharField(gettext_lazy("organisme émetteur"), max_length=120)
     issuer_approval = models.CharField(gettext_lazy("n° d'agrément émetteur"), max_length=60, blank=True)
     issue_date = models.DateField(gettext_lazy("date d'émission"))
     work_status = models.CharField(gettext_lazy("statut / travaux (case 11)"), max_length=12, choices=STATUSES, default="new")
-    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N", related_name="certificates")
+    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name=gettext_lazy("P/N"), related_name="certificates")
     serial_or_batch = models.CharField(gettext_lazy("S/N ou n° de lot"), max_length=60, blank=True)
     quantity = models.DecimalField(gettext_lazy("quantité"), max_digits=10, decimal_places=2, default=Decimal("1"))
-    component = models.ForeignKey("fleet.Component", on_delete=models.PROTECT, null=True, blank=True, related_name="release_certificates", verbose_name="composant")
+    component = models.ForeignKey("fleet.Component", on_delete=models.PROTECT, null=True, blank=True, related_name="release_certificates", verbose_name=gettext_lazy("composant"))
     stock_item = models.ForeignKey("StockItem", on_delete=models.PROTECT, null=True, blank=True, related_name="certificates", verbose_name=gettext_lazy("lot de stock"))
     remarks = models.TextField(gettext_lazy("remarques (case 12)"), blank=True)
     document = models.FileField(gettext_lazy("scan du certificat"), upload_to="certificats/%Y/", blank=True)
@@ -74,16 +74,16 @@ class StockItem(TrackedModel):
 
     STATUSES = [("serviceable", gettext_lazy("Utilisable")), ("quarantine", gettext_lazy("Quarantaine")), ("expired", gettext_lazy("Périmé")), ("scrapped", gettext_lazy("Rebuté"))]
 
-    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N", related_name="stock_items")
+    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name=gettext_lazy("P/N"), related_name="stock_items")
     batch = models.CharField(gettext_lazy("n° de lot"), max_length=60, blank=True)
-    location = models.ForeignKey(StoreLocation, on_delete=models.PROTECT, verbose_name="emplacement", related_name="stock_items")
+    location = models.ForeignKey(StoreLocation, on_delete=models.PROTECT, verbose_name=gettext_lazy("emplacement"), related_name="stock_items")
     quantity = models.DecimalField(gettext_lazy("quantité"), max_digits=10, decimal_places=2, default=Decimal("0"))
     min_quantity = models.DecimalField(gettext_lazy("stock mini"), max_digits=10, decimal_places=2, default=Decimal("0"))
     shelf_life_expiry = models.DateField(gettext_lazy("date de péremption"), null=True, blank=True)
-    status = models.CharField("statut", max_length=12, choices=STATUSES, default="serviceable")
+    status = models.CharField(gettext_lazy("statut"), max_length=12, choices=STATUSES, default="serviceable")
     status_reason = models.CharField(gettext_lazy("motif du statut"), max_length=200, blank=True)
     received_on = models.DateField(gettext_lazy("réceptionné le"), default=timezone.localdate)
-    supplier = models.CharField("fournisseur", max_length=120, blank=True)
+    supplier = models.CharField(gettext_lazy("fournisseur"), max_length=120, blank=True)
 
     class Meta:
         ordering = ["part_number__pn", "shelf_life_expiry"]
@@ -120,12 +120,12 @@ class StockItem(TrackedModel):
 class StockMovement(TrackedModel):
     KINDS = [("receipt", gettext_lazy("Réception")), ("issue", gettext_lazy("Sortie")), ("return", gettext_lazy("Retour")), ("adjust", gettext_lazy("Ajustement inventaire")), ("scrap", gettext_lazy("Rebut"))]
 
-    stock_item = models.ForeignKey(StockItem, on_delete=models.PROTECT, related_name="movements", verbose_name="lot")
-    kind = models.CharField("type", max_length=10, choices=KINDS)
+    stock_item = models.ForeignKey(StockItem, on_delete=models.PROTECT, related_name="movements", verbose_name=gettext_lazy("lot"))
+    kind = models.CharField(gettext_lazy("type"), max_length=10, choices=KINDS)
     quantity = models.DecimalField(gettext_lazy("quantité (+/-)"), max_digits=10, decimal_places=2)
     task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, null=True, blank=True, related_name="stock_movements", verbose_name=gettext_lazy("task card"))
-    note = models.CharField("note", max_length=200, blank=True)
-    date = models.DateTimeField("date", default=timezone.now)
+    note = models.CharField(gettext_lazy("note"), max_length=200, blank=True)
+    date = models.DateTimeField(gettext_lazy("date"), default=timezone.now)
 
     class Meta:
         ordering = ["-date"]
@@ -142,13 +142,13 @@ class PartRequest(TrackedModel):
 
     number = models.CharField(gettext_lazy("n° demande"), max_length=20, unique=True, editable=False)
     task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, related_name="part_requests", verbose_name=gettext_lazy("task card"))
-    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N")
+    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name=gettext_lazy("P/N"))
     quantity = models.DecimalField(gettext_lazy("quantité"), max_digits=10, decimal_places=2, default=Decimal("1"))
     priority = models.CharField(gettext_lazy("priorité"), max_length=8, choices=PRIORITIES, default="routine")
-    status = models.CharField("statut", max_length=10, choices=STATUSES, default="requested")
+    status = models.CharField(gettext_lazy("statut"), max_length=10, choices=STATUSES, default="requested")
     issued_component = models.ForeignKey("fleet.Component", on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("composant délivré"), related_name="part_requests")
     issued_stock = models.ForeignKey(StockItem, on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("lot délivré"), related_name="part_requests")
-    note = models.CharField("note", max_length=200, blank=True)
+    note = models.CharField(gettext_lazy("note"), max_length=200, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -207,9 +207,9 @@ class Tool(TrackedModel):
     reference = models.CharField(gettext_lazy("référence interne"), max_length=40, unique=True)
     description = models.CharField(gettext_lazy("désignation"), max_length=150)
     part_number = models.CharField(gettext_lazy("P/N outillage"), max_length=60, blank=True)
-    serial_number = models.CharField("S/N", max_length=60, blank=True)
-    location = models.ForeignKey(StoreLocation, on_delete=models.PROTECT, null=True, blank=True, verbose_name="emplacement")
-    status = models.CharField("statut", max_length=14, choices=STATUSES, default="available")
+    serial_number = models.CharField(gettext_lazy("S/N"), max_length=60, blank=True)
+    location = models.ForeignKey(StoreLocation, on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("emplacement"))
+    status = models.CharField(gettext_lazy("statut"), max_length=14, choices=STATUSES, default="available")
     calibration_required = models.BooleanField(gettext_lazy("étalonnage requis"), default=True)
     calibration_interval_days = models.PositiveIntegerField(gettext_lazy("périodicité d'étalonnage (jours)"), null=True, blank=True)
     last_calibration = models.DateField(gettext_lazy("dernier étalonnage"), null=True, blank=True)
@@ -267,9 +267,9 @@ class Tool(TrackedModel):
 class ToolUsage(TrackedModel):
     """Traçabilité : quel outil (et dans quel état d'étalonnage) a servi sur quelle task card."""
 
-    tool = models.ForeignKey(Tool, on_delete=models.PROTECT, related_name="usages", verbose_name="outillage")
+    tool = models.ForeignKey(Tool, on_delete=models.PROTECT, related_name="usages", verbose_name=gettext_lazy("outillage"))
     task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, related_name="tool_usages", verbose_name=gettext_lazy("task card"))
-    staff = models.ForeignKey("part145.Staff", on_delete=models.PROTECT, null=True, blank=True, verbose_name="utilisateur")
+    staff = models.ForeignKey("part145.Staff", on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("utilisateur"))
     checked_out_at = models.DateTimeField(gettext_lazy("sorti le"), default=timezone.now)
     returned_at = models.DateTimeField(gettext_lazy("rendu le"), null=True, blank=True)
     calibration_due = models.DateField(gettext_lazy("étalonnage valide jusqu'au"), null=True, blank=True)
@@ -284,9 +284,9 @@ class ToolUsage(TrackedModel):
 
 
 class ToolCalibration(TrackedModel):
-    tool = models.ForeignKey(Tool, on_delete=models.PROTECT, related_name="calibrations", verbose_name="outillage")
+    tool = models.ForeignKey(Tool, on_delete=models.PROTECT, related_name="calibrations", verbose_name=gettext_lazy("outillage"))
     date = models.DateField(gettext_lazy("date d'étalonnage"))
-    provider = models.CharField("laboratoire", max_length=120)
+    provider = models.CharField(gettext_lazy("laboratoire"), max_length=120)
     certificate_ref = models.CharField(gettext_lazy("n° certificat d'étalonnage"), max_length=60)
     result = models.CharField(gettext_lazy("résultat"), max_length=10, choices=[("pass", gettext_lazy("Conforme")), ("fail", gettext_lazy("Non conforme"))], default="pass")
 
@@ -319,11 +319,11 @@ class Supplier(TrackedModel):
              ("distributor", gettext_lazy("Distributeur")), ("other", gettext_lazy("Autre"))]
 
     name = models.CharField(gettext_lazy("raison sociale"), max_length=150, unique=True)
-    kind = models.CharField("type", max_length=12, choices=KINDS, default="distributor")
+    kind = models.CharField(gettext_lazy("type"), max_length=12, choices=KINDS, default="distributor")
     approval_reference = models.CharField(gettext_lazy("n° d'agrément"), max_length=60, blank=True, help_text=gettext_lazy("ex. FR.145.0123, FR.21G.0045"))
     approved = models.BooleanField(gettext_lazy("fournisseur accepté"), default=False)
     evaluated_on = models.DateField(gettext_lazy("évalué le"), null=True, blank=True)
-    contact = models.CharField("contact", max_length=150, blank=True)
+    contact = models.CharField(gettext_lazy("contact"), max_length=150, blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -348,11 +348,11 @@ class PurchaseOrder(TrackedModel):
                 ("cancelled", gettext_lazy("Annulée"))]
 
     number = models.CharField(gettext_lazy("n° de commande"), max_length=20, unique=True, editable=False)
-    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name="orders", verbose_name="fournisseur")
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name="orders", verbose_name=gettext_lazy("fournisseur"))
     ordered_on = models.DateField(gettext_lazy("date de commande"), null=True, blank=True)
     expected_on = models.DateField(gettext_lazy("livraison prévue le"), null=True, blank=True)
-    status = models.CharField("statut", max_length=10, choices=STATUSES, default="draft", editable=False)
-    notes = models.TextField("observations", blank=True)
+    status = models.CharField(gettext_lazy("statut"), max_length=10, choices=STATUSES, default="draft", editable=False)
+    notes = models.TextField(gettext_lazy("observations"), blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -390,8 +390,8 @@ class PurchaseOrder(TrackedModel):
 
 
 class PurchaseOrderLine(TrackedModel):
-    order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, related_name="lines", verbose_name="commande")
-    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N")
+    order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, related_name="lines", verbose_name=gettext_lazy("commande"))
+    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name=gettext_lazy("P/N"))
     quantity = models.DecimalField(gettext_lazy("quantité commandée"), max_digits=10, decimal_places=2, default=Decimal("1"))
     received_quantity = models.DecimalField(gettext_lazy("quantité reçue"), max_digits=10, decimal_places=2, default=Decimal("0"), editable=False)
     part_request = models.ForeignKey(PartRequest, on_delete=models.PROTECT, null=True, blank=True, related_name="po_lines",
@@ -422,7 +422,7 @@ class PurchaseOrderLine(TrackedModel):
 class PurchaseReceipt(TrackedModel):
     """Réception d'une ligne de commande : rattachée au certificat libératoire contrôlé en réception."""
 
-    line = models.ForeignKey(PurchaseOrderLine, on_delete=models.PROTECT, related_name="receipts", verbose_name="ligne")
+    line = models.ForeignKey(PurchaseOrderLine, on_delete=models.PROTECT, related_name="receipts", verbose_name=gettext_lazy("ligne"))
     quantity = models.DecimalField(gettext_lazy("quantité reçue"), max_digits=10, decimal_places=2)
     certificate = models.ForeignKey(ReleaseCertificate, on_delete=models.PROTECT, null=True, blank=True, related_name="po_receipts",
                                     verbose_name=gettext_lazy("certificat libératoire"))
