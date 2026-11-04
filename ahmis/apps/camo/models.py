@@ -3,6 +3,8 @@ from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import models
+
+from apps.core.uploads import scan_validators
 from django.urls import reverse
 from django.utils import timezone
 
@@ -35,7 +37,7 @@ class Directive(TrackedModel):
     is_recurring = models.BooleanField(gettext_lazy("action répétitive"), default=False)
     related_sb = models.CharField(gettext_lazy("SB associé"), max_length=60, blank=True)
     supersedes = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("remplace"), related_name="superseded_by")
-    document = models.FileField(gettext_lazy("document"), upload_to="consignes/", blank=True)
+    document = models.FileField(gettext_lazy("document"), upload_to="consignes/", blank=True, validators=scan_validators())
 
     class Meta:
         ordering = ["-effective_date", "number"]
@@ -551,10 +553,21 @@ class ModificationRepair(TrackedModel):
             self.number = Sequence.next("MR" if self.kind == "repair" else "MOD")
         super().save(*args, **kwargs)
 
+    EMBODIED_LOCKED = ("aircraft_id", "component_id", "kind", "classification", "approval_basis", "approval_reference", "embodied_on",
+                       "design_holder", "design_approval_number", "part21_status", "part21_requested_on", "part21_approved_on",
+                       "part21_reference")
+
     def clean(self):
         errors = {}
+        old = type(self).objects.filter(pk=self.pk).first() if self.pk else None
+        if old and old.status in ("embodied", "removed"):
+            changed = [f for f in self.EMBODIED_LOCKED if getattr(old, f) != getattr(self, f)]
+            if changed:
+                raise ValidationError(gettext("Modification appliquée : sa classification, son approbation et son dossier Part-21 sont "
+                                              "figés. Pour corriger, déposez-la (motif) et créez une nouvelle fiche."))
         if self.classification == "major" and self.approval_basis in ("srm", "cs_stan", "other"):
-            errors["approval_basis"] = gettext("Une modification ou réparation majeure exige une approbation EASA, un STC ou une approbation DOA.")
+            errors["approval_basis"] = gettext("Une modification ou réparation majeure exige des données approuvées par l'EASA, "
+                                               "un STC, une approbation DOA ou un bulletin service approuvé du titulaire.")
         if self.classification == "standard" and self.approval_basis != "cs_stan":
             errors["approval_basis"] = gettext("Un changement standard doit se référer à CS-STAN.")
         if self.status == "embodied":

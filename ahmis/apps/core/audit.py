@@ -36,11 +36,13 @@ def _snapshot(instance):
     from django.utils import translation
 
     data = {}
+    masked = set(getattr(instance, "audit_masked_fields", lambda: ())())
     with translation.override(settings.LANGUAGE_CODE):
         for field in instance._meta.concrete_fields:
             if field.name in IGNORED or field.primary_key:
                 continue
-            data[str(field.verbose_name)] = _value(instance, field)
+            value = _value(instance, field)
+            data[str(field.verbose_name)] = "[confidentiel]" if field.name in masked and value not in (None, "") else value
     return data
 
 

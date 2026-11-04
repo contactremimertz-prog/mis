@@ -237,3 +237,19 @@ class SignaturePin(models.Model):
         from django.contrib.auth.hashers import check_password
 
         return check_password(raw, self.pin_hash)
+
+
+class AuthThrottle(models.Model):
+    """Compteur d'échecs d'authentification (connexion, signature) par clé : compte ou adresse IP."""
+
+    key = models.CharField(max_length=200, unique=True)
+    failures = models.PositiveIntegerField(default=0)
+    first_failure_at = models.DateTimeField(null=True, blank=True)
+    locked_until = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = gettext_lazy("verrou d'authentification")
+        verbose_name_plural = gettext_lazy("verrous d'authentification")
+
+    def __str__(self):
+        return self.key

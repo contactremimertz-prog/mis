@@ -86,6 +86,10 @@ class OccurrenceReport(TrackedModel):
         permissions = [("view_all_occurrences", gettext_lazy("Voir tous les comptes rendus d'événements")),
                        ("view_reporter_identity", gettext_lazy("Voir l'identité des déclarants confidentiels"))]
 
+    def audit_masked_fields(self):
+        """Champs jamais écrits en clair au journal d'audit (culture juste, 376/2014 art. 16)."""
+        return ("reporter_name",) if self.confidential else ()
+
     def __str__(self):
         return f"{self.number} {self.title}"
 

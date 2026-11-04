@@ -1,14 +1,16 @@
 """Parcours de toutes les pages, sur le jeu de démonstration, dans les quatre langues et pour chaque rôle."""
+import tempfile
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 
 from apps.core.demo_accounts import DEMO_ACCOUNTS
 
 from .crawl import crawl, object_urls, static_urls
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp(prefix="ahmis-test-media-"))
 class SmokeCrawlTests(TestCase):
     @classmethod
     def setUpTestData(cls):

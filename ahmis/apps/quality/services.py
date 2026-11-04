@@ -9,6 +9,7 @@ from apps.core.models import SignatureRecord
 
 @transaction.atomic
 def close_finding(finding, user, root_cause, corrective_action):
+    finding = type(finding).objects.select_for_update().get(pk=finding.pk)
     if finding.status == "closed":
         raise ValidationError(_("Ce constat est déjà clôturé."))
     finding.root_cause = root_cause
@@ -24,13 +25,18 @@ def close_finding(finding, user, root_cause, corrective_action):
 
 @transaction.atomic
 def approve_revision(rev, user):
-    doc = rev.document
+    from .models import ControlledDocument
+
+    rev = type(rev).objects.select_for_update().get(pk=rev.pk)
+    doc = ControlledDocument.objects.select_for_update().get(pk=rev.document_id)
     if rev.status != "pending":
         raise ValidationError(_("Seule une révision en attente peut être approuvée."))
     if rev.created_by_id == user.pk:
         raise ValidationError(_("Le rédacteur d'une révision ne peut pas l'approuver (double regard)."))
     if doc.authority_approval and not rev.authority_reference.strip():
         raise ValidationError(_("Ce document exige l'approbation de l'autorité : indiquez sa référence avant d'approuver."))
+    if not rev.file:
+        raise ValidationError(_("Joignez le fichier de la révision avant de l'approuver : le document en vigueur doit être consultable."))
     now = timezone.now()
     doc.revisions.filter(status="approved").update(status="superseded")
     rev.status = "approved"
@@ -48,6 +54,7 @@ def approve_revision(rev, user):
 
 @transaction.atomic
 def reject_revision(rev, user, reason):
+    rev = type(rev).objects.select_for_update().get(pk=rev.pk)
     if rev.status != "pending":
         raise ValidationError(_("Seule une révision en attente peut être refusée."))
     if not reason.strip():

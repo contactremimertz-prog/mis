@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy as _l
+from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 
 from apps.core.crud import AhmisCreateView, AhmisListView, AhmisUpdateView, error_messages
@@ -21,13 +21,13 @@ from .models import AuditFinding, ControlledDocument, DocumentRevision, Internal
 class AuditList(AhmisListView):
     model = InternalAudit
     queryset = InternalAudit.objects.select_related("auditor")
-    columns = [(_l("N°"), "number"), (_l("Objet"), "title"), (_l("Référentiel"), "scope"), (_l("Activité"), "area"),
-               (_l("Date prévue"), "planned_on"), (_l("Auditeur"), "auditor"), (_l("Statut"), "status")]
+    columns = [(gettext_lazy("N°"), "number"), (gettext_lazy("Objet"), "title"), (gettext_lazy("Référentiel"), "scope"), (gettext_lazy("Activité"), "area"),
+               (gettext_lazy("Date prévue"), "planned_on"), (gettext_lazy("Auditeur"), "auditor"), (gettext_lazy("Statut"), "status")]
     search_fields = ["number", "title", "area"]
     filter_fields = ["status", "scope", "kind"]
     create_url = reverse_lazy("quality:audit_create")
-    title = _l("Audits internes")
-    subtitle = _l("Programme d'audits indépendants (145.A.65(c), CAMO.A.200(a)(6)) : constats classés et suivis jusqu'à clôture.")
+    title = gettext_lazy("Audits internes")
+    subtitle = gettext_lazy("Programme d'audits indépendants (145.A.65(c), CAMO.A.200(a)(6)) : constats classés et suivis jusqu'à clôture.")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -38,7 +38,7 @@ class AuditList(AhmisListView):
 class AuditCreate(AhmisCreateView):
     model = InternalAudit
     form_class = AuditForm
-    title = _l("Planifier un audit")
+    title = gettext_lazy("Planifier un audit")
 
     def get_initial(self):
         return {**super().get_initial(), "auditor": self.request.user}
@@ -99,30 +99,30 @@ def finding_close(request, pk):
 class FindingList(AhmisListView):
     model = AuditFinding
     queryset = AuditFinding.objects.select_related("audit")
-    columns = [(_l("N°"), "number"), (_l("Audit"), "audit.number"), (_l("Niveau"), "level"), (_l("Exigence"), "requirement"),
-               (_l("À corriger avant le"), "due_date"), (_l("Statut"), "status")]
+    columns = [(gettext_lazy("N°"), "number"), (gettext_lazy("Audit"), "audit.number"), (gettext_lazy("Niveau"), "level"), (gettext_lazy("Exigence"), "requirement"),
+               (gettext_lazy("À corriger avant le"), "due_date"), (gettext_lazy("Statut"), "status")]
     search_fields = ["number", "requirement", "description", "audit__number"]
     filter_fields = ["status", "level"]
-    title = _l("Constats d'audit")
-    subtitle = _l("Niveau 1 : action immédiate. Niveau 2 : correction sous 3 mois au plus. Observation : 30 jours.")
+    title = gettext_lazy("Constats d'audit")
+    subtitle = gettext_lazy("Niveau 1 : action immédiate. Niveau 2 : correction sous 3 mois au plus. Observation : 30 jours.")
 
 
 # ---------------------------------------------------------------- Documents maîtrisés
 class DocumentList(AhmisListView):
     model = ControlledDocument
-    columns = [(_l("Référence"), "reference"), (_l("Intitulé"), "title"), (_l("Type"), "doc_type"),
-               (_l("Révision en vigueur"), "current_revision"), (_l("En vigueur depuis"), "current_since"), (_l("Statut"), "status")]
+    columns = [(gettext_lazy("Référence"), "reference"), (gettext_lazy("Intitulé"), "title"), (gettext_lazy("Type"), "doc_type"),
+               (gettext_lazy("Révision en vigueur"), "current_revision"), (gettext_lazy("En vigueur depuis"), "current_since"), (gettext_lazy("Statut"), "status")]
     search_fields = ["reference", "title", "owner"]
     filter_fields = ["doc_type", "status"]
     create_url = reverse_lazy("quality:doc_create")
-    title = _l("Documents maîtrisés")
-    subtitle = _l("Une révision n'entre en vigueur qu'après approbation signée par une autre personne que son rédacteur.")
+    title = gettext_lazy("Documents maîtrisés")
+    subtitle = gettext_lazy("Une révision n'entre en vigueur qu'après approbation signée par une autre personne que son rédacteur.")
 
 
 class DocumentCreate(AhmisCreateView):
     model = ControlledDocument
     form_class = DocumentForm
-    title = _l("Nouveau document maîtrisé")
+    title = gettext_lazy("Nouveau document maîtrisé")
 
 
 class DocumentUpdate(AhmisUpdateView):

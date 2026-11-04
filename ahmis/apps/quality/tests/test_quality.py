@@ -1,7 +1,10 @@
+import tempfile
+
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.core.files.base import ContentFile
+from django.test import TestCase, override_settings
 
 from apps.core.middleware import set_current_user
 from apps.core.models import SignatureRecord
@@ -84,6 +87,7 @@ class AuditTests(TestCase):
             AuditFinding(audit=a, level="level2", requirement="x", description="x").full_clean()
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp(prefix="ahmis-test-media-"))
 class DocumentTests(TestCase):
     def setUp(self):
         self.w = make_world()
@@ -92,6 +96,7 @@ class DocumentTests(TestCase):
     def _rev(self, author, **kw):
         set_current_user(author)
         try:
+            kw.setdefault("file", ContentFile(b"%PDF-1.4 test", name="rev.pdf"))
             return DocumentRevision.objects.create(document=self.doc, revision=kw.pop("revision", "A"), change_summary="x", **kw)
         finally:
             set_current_user(None)

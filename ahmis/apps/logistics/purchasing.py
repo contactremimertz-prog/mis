@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy as _l
+from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 
 from apps.core.crud import AhmisCreateView, AhmisListView, AhmisModelForm, AhmisUpdateView, error_messages
@@ -21,6 +21,7 @@ from .models import PurchaseOrder, PurchaseOrderLine, PurchaseReceipt, ReleaseCe
 # ---------------------------------------------------------------- règles
 @transaction.atomic
 def send_order(po):
+    po = PurchaseOrder.objects.select_for_update().select_related("supplier").get(pk=po.pk)
     if po.status != "draft":
         raise ValidationError(_("Seule une commande en brouillon peut être émise."))
     if not po.supplier.approved:
@@ -35,6 +36,7 @@ def send_order(po):
 
 @transaction.atomic
 def cancel_order(po):
+    po = PurchaseOrder.objects.select_for_update().get(pk=po.pk)
     if po.status in ("received", "cancelled"):
         raise ValidationError(_("Cette commande ne peut plus être annulée."))
     if PurchaseReceipt.objects.filter(line__order=po).exists():
@@ -50,6 +52,8 @@ def receive_line(line, quantity, certificate=None, received_on=None):
     line = PurchaseOrderLine.objects.select_for_update().get(pk=line.pk)
     if po.status not in ("sent", "partial"):
         raise ValidationError(_("La commande doit être émise pour enregistrer une réception."))
+    if not po.supplier.approved:
+        raise ValidationError(_("Le fournisseur n'est plus accepté : réception bloquée, informez la qualité (145.A.42)."))
     if quantity is None or quantity <= 0:
         raise ValidationError(_("La quantité reçue doit être positive."))
     if quantity > line.remaining:
@@ -57,6 +61,7 @@ def receive_line(line, quantity, certificate=None, received_on=None):
     if line.part_number.requires_release_certificate and certificate is None:
         raise ValidationError(_("Élément : un certificat libératoire (EASA Form 1 ou équivalent) accepté en réception est obligatoire."))
     if certificate is not None:
+        certificate = ReleaseCertificate.objects.select_for_update().get(pk=certificate.pk)
         if certificate.part_number_id != line.part_number_id:
             raise ValidationError(_("Le certificat porte sur un autre P/N."))
         if line.part_number.requires_release_certificate and certificate.cert_type == "coc":
@@ -66,6 +71,8 @@ def receive_line(line, quantity, certificate=None, received_on=None):
         used = sum((r.quantity for r in certificate.po_receipts.all()), Decimal("0"))
         if used + quantity > certificate.quantity:
             raise ValidationError(_("La quantité dépasse celle couverte par le certificat."))
+    if received_on and received_on > timezone.localdate():
+        raise ValidationError(_("Date de réception dans le futur."))
     receipt = PurchaseReceipt.objects.create(line=line, quantity=quantity, certificate=certificate,
                                              received_on=received_on or timezone.localdate())
     line.received_quantity += quantity
@@ -100,9 +107,9 @@ class LineForm(AhmisModelForm):
 
 
 class ReceiveForm(forms.Form):
-    quantity = forms.DecimalField(label=_l("Quantité reçue"), min_value=Decimal("0.01"), max_digits=10, decimal_places=2)
-    certificate = forms.ModelChoiceField(label=_l("Certificat libératoire"), required=False, queryset=ReleaseCertificate.objects.none())
-    received_on = forms.DateField(label=_l("Reçu le"), widget=forms.DateInput(attrs={"type": "date"}), required=False)
+    quantity = forms.DecimalField(label=gettext_lazy("Quantité reçue"), min_value=Decimal("0.01"), max_digits=10, decimal_places=2)
+    certificate = forms.ModelChoiceField(label=gettext_lazy("Certificat libératoire"), required=False, queryset=ReleaseCertificate.objects.none())
+    received_on = forms.DateField(label=gettext_lazy("Reçu le"), widget=forms.DateInput(attrs={"type": "date"}), required=False)
 
     def __init__(self, line=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -113,13 +120,13 @@ class ReceiveForm(forms.Form):
 # ---------------------------------------------------------------- vues
 class SupplierList(AhmisListView):
     model = Supplier
-    columns = [(_l("Fournisseur"), "name"), (_l("Type"), "kind"), (_l("N° d'agrément"), "approval_reference"),
-               (_l("Accepté"), "approved"), (_l("Évalué le"), "evaluated_on")]
+    columns = [(gettext_lazy("Fournisseur"), "name"), (gettext_lazy("Type"), "kind"), (gettext_lazy("N° d'agrément"), "approval_reference"),
+               (gettext_lazy("Accepté"), "approved"), (gettext_lazy("Évalué le"), "evaluated_on")]
     search_fields = ["name", "approval_reference"]
     filter_fields = ["kind", "approved"]
     create_url = reverse_lazy("logistics:supplier_create")
-    title = _l("Fournisseurs")
-    subtitle = _l("Seuls les fournisseurs acceptés après évaluation peuvent recevoir une commande.")
+    title = gettext_lazy("Fournisseurs")
+    subtitle = gettext_lazy("Seuls les fournisseurs acceptés après évaluation peuvent recevoir une commande.")
 
 
 class SupplierCreate(AhmisCreateView):
@@ -135,13 +142,13 @@ class SupplierUpdate(AhmisUpdateView):
 class OrderList(AhmisListView):
     model = PurchaseOrder
     queryset = PurchaseOrder.objects.select_related("supplier")
-    columns = [(_l("N°"), "number"), (_l("Fournisseur"), "supplier"), (_l("Commandée le"), "ordered_on"),
-               (_l("Livraison prévue"), "expected_on"), (_l("Statut"), "status")]
+    columns = [(gettext_lazy("N°"), "number"), (gettext_lazy("Fournisseur"), "supplier"), (gettext_lazy("Commandée le"), "ordered_on"),
+               (gettext_lazy("Livraison prévue"), "expected_on"), (gettext_lazy("Statut"), "status")]
     search_fields = ["number", "supplier__name", "notes", "lines__part_number__pn"]
     filter_fields = ["status", "supplier"]
     create_url = reverse_lazy("logistics:po_create")
-    title = _l("Commandes d'achat")
-    subtitle = _l("Commande à un fournisseur accepté, réception rattachée au certificat libératoire contrôlé.")
+    title = gettext_lazy("Commandes d'achat")
+    subtitle = gettext_lazy("Commande à un fournisseur accepté, réception rattachée au certificat libératoire contrôlé.")
 
     def get_queryset(self):
         return super().get_queryset().distinct()
@@ -155,7 +162,7 @@ class OrderList(AhmisListView):
 class OrderCreate(AhmisCreateView):
     model = PurchaseOrder
     form_class = OrderForm
-    title = _l("Nouvelle commande d'achat")
+    title = gettext_lazy("Nouvelle commande d'achat")
 
 
 class OrderUpdate(AhmisUpdateView):

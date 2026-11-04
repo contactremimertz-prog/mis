@@ -26,6 +26,22 @@ DOCS_DIR = Path(settings.BASE_DIR) / "docs" / "tutoriels"
 
 
 class LoginView(auth_views.LoginView):
+    def post(self, request, *args, **kwargs):
+        from . import throttle
+
+        username = (request.POST.get("username") or "").strip().lower()[:150]
+        keys = [f"login:user:{username}", f"login:ip:{throttle.client_ip(request)}"]
+        if any(throttle.is_locked(k) for k in keys):
+            request.ahmis_auth_error = gettext("Trop de tentatives échouées : réessayez dans 15 minutes.")
+            return self.form_invalid(self.get_form())
+        response = super().post(request, *args, **kwargs)
+        if request.user.is_authenticated:
+            throttle.reset(keys[0])
+        else:
+            throttle.register_failure(keys[0])
+            throttle.register_failure(keys[1], limit=throttle.IP_MAX_FAILURES)
+        return response
+
     def get(self, request, *args, **kwargs):
         auth = settings.AHMIS_AUTH
         if auth["OIDC_ENABLED"] and auth["OIDC_AUTO_REDIRECT"] and "local" not in request.GET and "sso" not in request.GET:
@@ -83,8 +99,11 @@ def my_account(request):
     pin = SignaturePin.objects.filter(user=user).first()
     if request.method == "POST":
         new, confirm = request.POST.get("pin", ""), request.POST.get("pin_confirm", "")
+        current = request.POST.get("current", "")
         if not fresh:
             messages.error(request, gettext("Pour des raisons de sécurité, reconnectez-vous avant de modifier votre code de signature."))
+        elif pin and not (pin.check_pin(current) or (user.has_usable_password() and user.check_password(current))):
+            messages.error(request, gettext("Code de signature actuel (ou mot de passe) incorrect."))
         elif len(new) < 6 or len(set(new)) < 3:
             messages.error(request, gettext("Le code doit contenir au moins 6 caractères, dont 3 différents."))
         elif new != confirm:
@@ -242,23 +261,42 @@ def help_page(request, slug):
 
 
 def protected_media(request, path):
-    """Sert un fichier joint uniquement à un utilisateur connecté (jamais d'accès anonyme)."""
+    """Sert un fichier joint à un utilisateur connecté qui a le droit de consulter l'objet propriétaire.
+
+    Seuls les dossiers listés dans MEDIA_PERMISSIONS sont servis ; tout autre chemin (dont les
+    dossiers de transfert, servis par leur vue dédiée) répond 404. Le fichier est servi avec une
+    CSP « sandbox » : un contenu actif téléversé ne peut pas s'exécuter sur l'origine de l'application.
+    """
+    from django.core.exceptions import PermissionDenied
     from django.http import FileResponse
     from django.utils._os import safe_join
 
+    parts = Path(path).parts
+    folder = parts[0].lower() if parts else ""
+    if "~" in path or "\\" in path or folder not in MEDIA_PERMISSIONS:
+        raise Http404
+    if not request.user.has_perm(MEDIA_PERMISSIONS[folder]):
+        raise PermissionDenied
     try:
         full = Path(safe_join(settings.MEDIA_ROOT, path))
     except Exception:
         raise Http404
     if not full.is_file():
         raise Http404
-    # Dossiers de transfert : servis uniquement par leur vue dédiée (permission CAMO)
-    if Path(path).parts and Path(path).parts[0] in RESTRICTED_MEDIA:
-        raise Http404
-    return FileResponse(open(full, "rb"), as_attachment=request.GET.get("dl") == "1", filename=full.name)
+    inline = full.suffix.lower() in INLINE_MEDIA and request.GET.get("dl") != "1"
+    response = FileResponse(open(full, "rb"), as_attachment=not inline, filename=full.name)
+    response["Content-Security-Policy"] = "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox"
+    response["X-Content-Type-Options"] = "nosniff"
+    return response
 
 
-RESTRICTED_MEDIA = {"transferts"}
+# Dossier de MEDIA_ROOT -> permission requise. Les transferts n'y figurent pas : vue dédiée.
+MEDIA_PERMISSIONS = {
+    "consignes": "camo.view_directive",
+    "certificats": "logistics.view_releasecertificate",
+    "documents": "quality.view_controlleddocument",
+}
+INLINE_MEDIA = {".pdf", ".png", ".jpg", ".jpeg"}
 
 
 # ---------------------------------------------------------------- Conservation des enregistrements
@@ -298,5 +336,8 @@ def retention_csv(request, key):
     w.writerow(["id", "enregistrement", gettext("conserver jusqu'au"), gettext("état")])
     for obj, until in items:
         state = gettext("sans échéance") if until is None else (gettext("échue – archivable") if until <= today else gettext("en cours"))
-        w.writerow([obj.pk, str(obj), until.isoformat() if until else "", state])
+        label = str(obj)
+        if label[:1] in ("=", "+", "-", "@", "\t", "\r"):
+            label = "'" + label
+        w.writerow([obj.pk, label, until.isoformat() if until else "", state])
     return resp

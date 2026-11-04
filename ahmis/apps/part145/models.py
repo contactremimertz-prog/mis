@@ -347,6 +347,10 @@ class WorkPackage(TrackedModel):
             problems.append(gettext("Outillage {reference} non restitué (task card {number}).").format(reference=t.reference, number=t.checked_out_to.number))
         for comp in Component.objects.filter(reserved_for__work_package=self, status="reserved"):
             problems.append(gettext("Pièce {comp} réservée non posée ni retournée au magasin.").format(comp=comp))
+        for d in self.aircraft.defects.filter(status="deferred"):
+            if d.deferral_expired:
+                problems.append(gettext("Défaut {number} : limite de report dépassée, rectification ou prorogation requise "
+                                        "avant remise en service.").format(number=d.number))
         return problems
 
 
@@ -511,6 +515,16 @@ class Defect(TrackedModel):
         super().save(*args, **kwargs)
 
     EXTENDABLE_CATEGORIES = ("B", "C")
+
+    @property
+    def deferral_expired(self):
+        """Report échu : date dépassée, ou FH / cycles de l'aéronef atteints."""
+        if self.status != "deferred":
+            return False
+        ac = self.aircraft
+        return bool((self.deferral_limit_date and timezone.localdate() > self.deferral_limit_date)
+                    or (self.deferral_limit_fh is not None and ac.total_fh >= self.deferral_limit_fh)
+                    or (self.deferral_limit_fc is not None and ac.total_fc >= self.deferral_limit_fc))
 
     def extension_blockers(self, new_date=None, new_fh=None, new_fc=None, on_date=None, check_values=True):
         """Conditions d'une prorogation (RIE) : catégorie B ou C, une seule fois, demandée avant l'échéance,

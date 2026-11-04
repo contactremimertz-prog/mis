@@ -2,11 +2,13 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 
 from apps.core.models import TrackedModel
+from apps.core.uploads import scan_validators
 from django.utils.translation import gettext, gettext_lazy
 
 
@@ -50,7 +52,7 @@ class ReleaseCertificate(TrackedModel):
     component = models.ForeignKey("fleet.Component", on_delete=models.PROTECT, null=True, blank=True, related_name="release_certificates", verbose_name=gettext_lazy("composant"))
     stock_item = models.ForeignKey("StockItem", on_delete=models.PROTECT, null=True, blank=True, related_name="certificates", verbose_name=gettext_lazy("lot de stock"))
     remarks = models.TextField(gettext_lazy("remarques (case 12)"), blank=True)
-    document = models.FileField(gettext_lazy("scan du certificat"), upload_to="certificats/%Y/", blank=True)
+    document = models.FileField(gettext_lazy("scan du certificat"), upload_to="certificats/%Y/", blank=True, validators=scan_validators())
     is_valid = models.BooleanField(gettext_lazy("accepté en réception"), default=True)
     rejection_reason = models.CharField(gettext_lazy("motif de rejet"), max_length=200, blank=True)
 
@@ -392,7 +394,8 @@ class PurchaseOrder(TrackedModel):
 class PurchaseOrderLine(TrackedModel):
     order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, related_name="lines", verbose_name=gettext_lazy("commande"))
     part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name=gettext_lazy("P/N"))
-    quantity = models.DecimalField(gettext_lazy("quantité commandée"), max_digits=10, decimal_places=2, default=Decimal("1"))
+    quantity = models.DecimalField(gettext_lazy("quantité commandée"), max_digits=10, decimal_places=2, default=Decimal("1"),
+                                   validators=[MinValueValidator(Decimal("0.01"))])
     received_quantity = models.DecimalField(gettext_lazy("quantité reçue"), max_digits=10, decimal_places=2, default=Decimal("0"), editable=False)
     part_request = models.ForeignKey(PartRequest, on_delete=models.PROTECT, null=True, blank=True, related_name="po_lines",
                                      verbose_name=gettext_lazy("demande de pièce liée"))

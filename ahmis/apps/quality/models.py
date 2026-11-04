@@ -11,11 +11,12 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator
 from django.db import models
+
+from apps.core.uploads import doc_validators
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _g
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TrackedModel
@@ -74,22 +75,30 @@ class InternalAudit(TrackedModel):
     def overdue(self):
         return self.status == "planned" and self.planned_on < timezone.localdate()
 
+    LOCKED_FIELDS = ("title", "scope", "kind", "area", "planned_on", "performed_on", "auditor", "auditor_independent", "summary")
+
     def clean(self):
         errors = {}
+        old = type(self).objects.filter(pk=self.pk).first() if self.pk else None
+        if old and old.status in ("closed", "cancelled"):
+            raise ValidationError(gettext("Audit clôturé ou annulé : il ne peut plus être modifié."))
+        if old and old.status == "reported":
+            if any(getattr(old, f) != getattr(self, f) for f in self.LOCKED_FIELDS) or self.status not in ("reported", "closed"):
+                raise ValidationError(gettext("Rapport émis : seule la clôture de l'audit est encore possible."))
         if self.status in ("in_progress", "reported", "closed") and not self.auditor_independent:
-            errors["auditor_independent"] = _g("Un audit ne peut démarrer que si l'auditeur est indépendant de l'activité auditée.")
+            errors["auditor_independent"] = gettext("Un audit ne peut démarrer que si l'auditeur est indépendant de l'activité auditée.")
         if self.status in ("reported", "closed"):
             if not self.performed_on:
-                errors["performed_on"] = _g("Indiquez la date de réalisation.")
+                errors["performed_on"] = gettext("Indiquez la date de réalisation.")
             if not self.summary.strip():
-                errors["summary"] = _g("La synthèse du rapport est obligatoire.")
+                errors["summary"] = gettext("La synthèse du rapport est obligatoire.")
         if self.performed_on and self.performed_on > timezone.localdate():
-            errors["performed_on"] = _g("Date dans le futur.")
+            errors["performed_on"] = gettext("Date dans le futur.")
         if self.status == "closed":
             if not self.closed_on:
-                errors["closed_on"] = _g("Date de clôture obligatoire.")
+                errors["closed_on"] = gettext("Date de clôture obligatoire.")
             if self.pk and self.open_findings.exists():
-                errors["status"] = _g("Clôture impossible : des constats sont encore ouverts.")
+                errors["status"] = gettext("Clôture impossible : des constats sont encore ouverts.")
         if errors:
             raise ValidationError(errors)
 
@@ -141,12 +150,17 @@ class AuditFinding(TrackedModel):
     def clean(self):
         errors = {}
         if self.audit_id and self.audit.status in ("closed", "cancelled") and self._state.adding:
-            errors["audit"] = _g("Cet audit est clôturé ou annulé.")
+            errors["audit"] = gettext("Cet audit est clôturé ou annulé.")
+        if self.due_date and self.audit_id and not self.pk:
+            base = self.audit.performed_on or timezone.localdate()
+            limit = base + timedelta(days=FINDING_DAYS.get(self.level, 30))
+            if self.due_date > limit:
+                errors["due_date"] = gettext("Échéance au-delà du délai maximal du niveau (au plus le %(d)s).") % {"d": limit.strftime("%d/%m/%Y")}
         if self.status == "closed":
             if len(self.root_cause.strip()) < 5:
-                errors["root_cause"] = _g("Décrivez la cause racine avant clôture.")
+                errors["root_cause"] = gettext("Décrivez la cause racine avant clôture.")
             if len(self.corrective_action.strip()) < 5:
-                errors["corrective_action"] = _g("Décrivez l'action corrective avant clôture.")
+                errors["corrective_action"] = gettext("Décrivez l'action corrective avant clôture.")
         if errors:
             raise ValidationError(errors)
 
@@ -191,6 +205,14 @@ class ControlledDocument(TrackedModel):
     def get_absolute_url(self):
         return reverse("quality:doc_detail", args=[self.pk])
 
+    AUTHORITY_TYPES = ("moe", "came")
+
+    def save(self, *args, **kwargs):
+        # 145.A.70 / CAMO.A.300 : le MOE et la CAME sont approuvés par l'autorité compétente.
+        if self.doc_type in self.AUTHORITY_TYPES:
+            self.authority_approval = True
+        super().save(*args, **kwargs)
+
     @property
     def pending_revision(self):
         return self.revisions.filter(status="pending").first()
@@ -223,7 +245,7 @@ class DocumentRevision(TrackedModel):
     revision = models.CharField(_("révision"), max_length=20)
     change_summary = models.TextField(_("objet de la révision"))
     file = models.FileField(_("fichier"), upload_to="documents/%Y/", blank=True,
-                            validators=[FileExtensionValidator(["pdf", "docx", "xlsx", "odt", "ods"])])
+                            validators=doc_validators())
     authority_reference = models.CharField(_("référence d'approbation de l'autorité"), max_length=80, blank=True)
     status = models.CharField(_("statut"), max_length=10, choices=STATUSES, default="pending", editable=False)
     approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+",
@@ -246,4 +268,4 @@ class DocumentRevision(TrackedModel):
 
     def clean(self):
         if self._state.adding and self.document_id and self.document.revisions.filter(status="pending").exists():
-            raise ValidationError(_g("Une révision est déjà en attente d'approbation pour ce document."))
+            raise ValidationError(gettext("Une révision est déjà en attente d'approbation pour ce document."))

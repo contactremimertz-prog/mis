@@ -1,4 +1,6 @@
 from django import forms
+
+from apps.core.uploads import scan_validators
 from django.utils import timezone
 
 from apps.core.crud import AhmisModelForm
@@ -31,7 +33,7 @@ class ReceiveForm(forms.Form):
     issuer_approval = forms.CharField(label=gettext_lazy("N° d'agrément émetteur"), max_length=60, required=False)
     issue_date = forms.DateField(label=gettext_lazy("Date du certificat"), widget=forms.DateInput(attrs={"type": "date"}))
     work_status = forms.ChoiceField(label=gettext_lazy("Statut / travaux (case 11)"), choices=ReleaseCertificate.STATUSES)
-    document = forms.FileField(label=gettext_lazy("Scan du certificat"), required=False)
+    document = forms.FileField(label=gettext_lazy("Scan du certificat"), required=False, validators=scan_validators())
     # Contrôle à réception
     check_identity = forms.BooleanField(label=gettext_lazy("P/N, S/N / lot et quantité conformes au certificat"), required=False)
     check_certificate = forms.BooleanField(label=gettext_lazy("Certificat complet, signé, émetteur agréé"), required=False)

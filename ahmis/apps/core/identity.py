@@ -139,9 +139,20 @@ def signature_methods(user):
 
 
 def verify_signature_secret(user, secret):
-    """Revérifie l'identité au moment d'une signature : mot de passe local, mot de passe AD ou code de signature."""
-    if not secret:
+    """Revérifie l'identité au moment d'une signature ; 5 échecs en 15 minutes bloquent la signature 15 minutes."""
+    from . import throttle
+
+    key = f"sign:{user.pk}"
+    if not secret or throttle.is_locked(key):
         return False
+    if _verify_signature_secret(user, secret):
+        throttle.reset(key)
+        return True
+    throttle.register_failure(key)
+    return False
+
+
+def _verify_signature_secret(user, secret):
     if user.has_usable_password() and user.check_password(secret):
         return True
     if auth_settings()["LDAP_ENABLED"]:
@@ -154,16 +165,18 @@ def verify_signature_secret(user, secret):
                     return True
             except Exception:  # annuaire injoignable : on tente le code de signature
                 log.exception("Vérification AD impossible pour %s", user.username)
-    pin = SignaturePin.objects.filter(user=user).first()
-    if pin:
-        if pin.failed_attempts >= 5:
-            log.warning("Code de signature bloqué pour %s", user.username)
-            return False
-        if pin.check_pin(secret):
-            if pin.failed_attempts:
-                pin.failed_attempts = 0
-                pin.save(update_fields=["failed_attempts"])
-            return True
-        pin.failed_attempts += 1
-        pin.save(update_fields=["failed_attempts"])
+    from django.db import transaction
+    from django.db.models import F
+
+    with transaction.atomic():
+        pin = SignaturePin.objects.select_for_update().filter(user=user).first()
+        if pin:
+            if pin.failed_attempts >= 5:
+                log.warning("Code de signature bloqué pour %s", user.username)
+                return False
+            if pin.check_pin(secret):
+                if pin.failed_attempts:
+                    SignaturePin.objects.filter(pk=pin.pk).update(failed_attempts=0)
+                return True
+            SignaturePin.objects.filter(pk=pin.pk).update(failed_attempts=F("failed_attempts") + 1)
     return False

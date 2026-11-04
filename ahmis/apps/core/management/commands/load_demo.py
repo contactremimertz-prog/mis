@@ -44,24 +44,21 @@ class Command(BaseCommand):
             return
         random.seed(145)
         self.today = timezone.localdate()
-        with transaction.atomic():
-            self.users()
-            self.stores()
-            self.types_and_parts()
-            self.staff()
-            self.programme()
-            self.fleet()
-            self.utilisation()
-            self.directives()
-            self.history()
-            self.logistics()
-            self.workpackages()
-            self.quality_and_purchasing()
+        try:
+            self._load()
+        finally:
+            set_current_user(None)
         self.stdout.write(self.style.SUCCESS(
             f"Données de démonstration chargées : {Aircraft.objects.exclude(status='retired').count()} aéronefs (+ 1 retiré), "
             f"{MaintenanceTask.objects.count()} tâches, {Component.objects.count()} composants. "
             f"Comptes : {', '.join(a[0] for a in DEMO_ACCOUNTS)} – mot de passe {DEMO_PASSWORD}"
         ))
+
+    @transaction.atomic
+    def _load(self):
+        for step in (self.users, self.stores, self.types_and_parts, self.staff, self.programme, self.fleet, self.utilisation,
+                     self.directives, self.history, self.logistics, self.workpackages, self.quality_and_purchasing):
+            step()
 
     # ------------------------------------------------------------------ utilisateurs
     def users(self):
@@ -704,12 +701,17 @@ class Command(BaseCommand):
         proc = ControlledDocument.objects.create(reference="PRO-STO-01", title="Réception et stockage des pièces",
                                                  doc_type="procedure", owner="Magasin", review_months=24)
         self.as_user("magasin")
-        r1 = DocumentRevision.objects.create(document=proc, revision="A", change_summary="Édition initiale.")
+        from django.core.files.base import ContentFile
+
+        def pdf(name):
+            return ContentFile(b"%PDF-1.4\n% document de demonstration AHMIS\n%%EOF\n", name=name)
+
+        r1 = DocumentRevision.objects.create(document=proc, revision="A", change_summary="Édition initiale.", file=pdf("pro-sto-01-a.pdf"))
         self.as_user("qualite")
         approve_revision(r1, self.u["qualite"])
         DocumentRevision.objects.create(document=proc, revision="B", change_summary="Ajout de l'étiquetage du statut des pièces.")
         r_moe = DocumentRevision.objects.create(document=moe, revision="12", change_summary="Mise à jour de la liste du personnel d'encadrement.",
-                                                authority_reference="DSAC/NO-2026-118")
+                                                authority_reference="DSAC/NO-2026-118", file=pdf("moe-12.pdf"))
         self.as_user("admin")
         approve_revision(r_moe, self.u["admin"])
 
