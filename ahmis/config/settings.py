@@ -170,7 +170,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "fr"
-LANGUAGES = [("fr", "Français"), ("en", "English")]
+LANGUAGES = [("fr", "Français"), ("en", "English"), ("es", "Español"), ("de", "Deutsch")]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = os.environ.get("AHMIS_TIME_ZONE", "Europe/Paris")
 USE_I18N = True

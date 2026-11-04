@@ -1,30 +1,30 @@
-{% extends "base.html" %}{% load ahmis %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ r }}{% endblock %}
 {% block content %}
 <div class="page-head">
   <div><h1>{{ r }}</h1>
     <div class="sub"><a href="{{ r.aircraft_type.get_absolute_url }}">{{ r.aircraft_type }}</a> · {{ r.amp_reference }} · {{ r.get_outcome_display }}</div></div>
   <div class="actions">
-    {% if perms.camo.add_ampreview %}<a class="btn" href="{% url 'camo:amp_review_create' %}?aircraft_type={{ r.aircraft_type.pk }}">Nouvelle revue</a>{% endif %}
-    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'camo.ampreview' r.pk %}">Historique</a>{% endif %}
+    {% if perms.camo.add_ampreview %}<a class="btn" href="{% url 'camo:amp_review_create' %}?aircraft_type={{ r.aircraft_type.pk }}">{% trans "Nouvelle revue" %}</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'camo.ampreview' r.pk %}">{% trans "Historique" %}</a>{% endif %}
   </div>
 </div>
 <div class="grid grid-2">
-  <div class="card"><h2>Revue</h2><dl class="dl">
-    <div><dt>Date</dt><dd>{{ r.review_date|date:"d/m/Y" }}</dd></div>
-    <div><dt>Réalisée par</dt><dd>{{ r.reviewer }}</dd></div>
-    <div><dt>Révision examinée</dt><dd>{{ r.revision_before }}</dd></div>
-    <div><dt>Fiabilité analysée</dt><dd>{% yesno_badge r.reliability_reviewed %}</dd></div>
-    <div><dt>Nouvelles instructions examinées</dt><dd>{% yesno_badge r.instructions_reviewed %}</dd></div>
-    <div><dt>Prochaine revue avant le</dt><dd>{{ r.next_review_due|date:"d/m/Y" }}</dd></div>
-  </dl>{% if r.findings %}<h3>Constatations</h3><p class="small">{{ r.findings|linebreaksbr }}</p>{% endif %}</div>
-  <div class="card"><h2>Résultat</h2><dl class="dl">
-    <div><dt>Résultat</dt><dd>{{ r.get_outcome_display }}</dd></div>
-    <div><dt>Nouvelle révision</dt><dd>{{ r.revision_after|default:"—" }}</dd></div>
-    <div><dt>Approbation</dt><dd>{% if r.approval_type %}{{ r.get_approval_type_display }} – {{ r.approval_reference }}{% if r.approval_date %} ({{ r.approval_date|date:"d/m/Y" }}){% endif %}{% else %}—{% endif %}</dd></div>
-  </dl>{% if r.changes %}<h3>Changements</h3><p class="small">{{ r.changes|linebreaksbr }}</p>{% endif %}</div>
+  <div class="card"><h2>{% trans "Revue" %}</h2><dl class="dl">
+    <div><dt>{% trans "Date" %}</dt><dd>{{ r.review_date|date:"d/m/Y" }}</dd></div>
+    <div><dt>{% trans "Réalisée par" %}</dt><dd>{{ r.reviewer }}</dd></div>
+    <div><dt>{% trans "Révision examinée" %}</dt><dd>{{ r.revision_before }}</dd></div>
+    <div><dt>{% trans "Fiabilité analysée" %}</dt><dd>{% yesno_badge r.reliability_reviewed %}</dd></div>
+    <div><dt>{% trans "Nouvelles instructions examinées" %}</dt><dd>{% yesno_badge r.instructions_reviewed %}</dd></div>
+    <div><dt>{% trans "Prochaine revue avant le" %}</dt><dd>{{ r.next_review_due|date:"d/m/Y" }}</dd></div>
+  </dl>{% if r.findings %}<h3>{% trans "Constatations" %}</h3><p class="small">{{ r.findings|linebreaksbr }}</p>{% endif %}</div>
+  <div class="card"><h2>{% trans "Résultat" %}</h2><dl class="dl">
+    <div><dt>{% trans "Résultat" %}</dt><dd>{{ r.get_outcome_display }}</dd></div>
+    <div><dt>{% trans "Nouvelle révision" %}</dt><dd>{{ r.revision_after|default:"—" }}</dd></div>
+    <div><dt>{% trans "Approbation" %}</dt><dd>{% if r.approval_type %}{{ r.get_approval_type_display }} – {{ r.approval_reference }}{% if r.approval_date %} ({{ r.approval_date|date:"d/m/Y" }}){% endif %}{% else %}—{% endif %}</dd></div>
+  </dl>{% if r.changes %}<h3>{% trans "Changements" %}</h3><p class="small">{{ r.changes|linebreaksbr }}</p>{% endif %}</div>
 </div>
-<div class="card"><h2>Revues précédentes du type</h2><table class="data"><tbody>
+<div class="card"><h2>{% trans "Revues précédentes du type" %}</h2><table class="data"><tbody>
   {% for x in history %}<tr><td><a href="{{ x.get_absolute_url }}">{{ x.review_date|date:"d/m/Y" }}</a></td><td>{{ x.revision_before }}{% if x.revision_after %} → {{ x.revision_after }}{% endif %}</td><td>{{ x.get_outcome_display }}</td><td class="small">{{ x.reviewer }}</td></tr>
-  {% empty %}<tr><td class="empty">Aucune.</td></tr>{% endfor %}</tbody></table></div>
+  {% empty %}<tr><td class="empty">{% trans "Aucune." %}</td></tr>{% endfor %}</tbody></table></div>
 {% endblock %}

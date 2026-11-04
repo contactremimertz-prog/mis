@@ -1,9 +1,9 @@
-{% extends "base.html" %}
-{% block title %}Tutoriels{% endblock %}
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% trans "Tutoriels" %}{% endblock %}
 {% block content %}
 <div class="grid" style="grid-template-columns:260px minmax(0,1fr);align-items:start">
   <div class="card help-nav" style="position:sticky;top:12px">
-    <h2>Tutoriels</h2>
+    <h2>{% trans "Tutoriels" %}</h2>
     {% for t in tutorials %}<a href="{% url 'help_page' t.slug %}" {% if t.slug == slug %}style="font-weight:700"{% endif %}>{{ t.title }}</a>{% endfor %}
   </div>
   <div class="card help-content">

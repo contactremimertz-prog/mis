@@ -1,26 +1,26 @@
-{% extends "base.html" %}{% load ahmis %}
-{% block title %}Revue du programme d'entretien{% endblock %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{% trans "Revue du programme d'entretien" %}{% endblock %}
 {% block content %}
 <div class="page-head">
-  <div><h1>Revue du programme d'entretien</h1>
-    <div class="sub">M.A.302(g) : chaque programme est revu périodiquement (au moins tous les {{ AHMIS.AMP_REVIEW_MONTHS }} mois) et amendé si nécessaire.</div></div>
-  <div class="actions">{% if perms.camo.add_ampreview %}<a class="btn" href="{% url 'camo:amp_review_create' %}">Enregistrer une revue</a>{% endif %}</div>
+  <div><h1>{% trans "Revue du programme d'entretien" %}</h1>
+    <div class="sub">{% blocktrans with AMP_REVIEW_MONTHS=AHMIS.AMP_REVIEW_MONTHS %}M.A.302(g) : chaque programme est revu périodiquement (au moins tous les {{ AMP_REVIEW_MONTHS }} mois) et amendé si nécessaire.{% endblocktrans %}</div></div>
+  <div class="actions">{% if perms.camo.add_ampreview %}<a class="btn" href="{% url 'camo:amp_review_create' %}">{% trans "Enregistrer une revue" %}</a>{% endif %}</div>
 </div>
-<div class="card"><h2>État par type exploité</h2>
-  <table class="data"><thead><tr><th>Type</th><th>Programme</th><th>Révision en vigueur</th><th>Dernière revue</th><th>État</th><th></th></tr></thead><tbody>
+<div class="card"><h2>{% trans "État par type exploité" %}</h2>
+  <table class="data"><thead><tr><th>{% trans "Type" %}</th><th>{% trans "Programme" %}</th><th>{% trans "Révision en vigueur" %}</th><th>{% trans "Dernière revue" %}</th><th>{% trans "État" %}</th><th></th></tr></thead><tbody>
   {% for r in rows %}<tr><td><a href="{{ r.type.get_absolute_url }}">{{ r.type.code }}</a></td>
     <td>{{ r.last.amp_reference|default:"—" }}</td>
     <td>{% if r.last %}{{ r.last.revision_after|default:r.last.revision_before }}{% else %}—{% endif %}</td>
     <td>{% if r.last %}<a href="{{ r.last.get_absolute_url }}">{{ r.last.review_date|date:"d/m/Y" }}</a>{% else %}—{% endif %}</td>
     <td>{% with st=r %}{% include "camo/_amp_status.html" %}{% endwith %}</td>
-    <td>{% if perms.camo.add_ampreview %}<a class="btn small" href="{% url 'camo:amp_review_create' %}?aircraft_type={{ r.type.pk }}">Nouvelle revue</a>{% endif %}</td></tr>
-  {% empty %}<tr><td colspan="6" class="empty">Aucun type exploité.</td></tr>{% endfor %}</tbody></table>
+    <td>{% if perms.camo.add_ampreview %}<a class="btn small" href="{% url 'camo:amp_review_create' %}?aircraft_type={{ r.type.pk }}">{% trans "Nouvelle revue" %}</a>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">{% trans "Aucun type exploité." %}</td></tr>{% endfor %}</tbody></table>
 </div>
-<div class="card"><h2>Historique des revues</h2>
-  <table class="data"><thead><tr><th>Date</th><th>Type</th><th>Programme</th><th>Révision</th><th>Résultat</th><th>Approbation</th><th>Par</th></tr></thead><tbody>
+<div class="card"><h2>{% trans "Historique des revues" %}</h2>
+  <table class="data"><thead><tr><th>{% trans "Date" %}</th><th>{% trans "Type" %}</th><th>{% trans "Programme" %}</th><th>{% trans "Révision" %}</th><th>{% trans "Résultat" %}</th><th>{% trans "Approbation" %}</th><th>{% trans "Par" %}</th></tr></thead><tbody>
   {% for x in reviews %}<tr><td><a href="{{ x.get_absolute_url }}">{{ x.review_date|date:"d/m/Y" }}</a></td><td>{{ x.aircraft_type.code }}</td><td>{{ x.amp_reference }}</td>
     <td>{{ x.revision_before }}{% if x.revision_after %} → {{ x.revision_after }}{% endif %}</td><td>{{ x.get_outcome_display }}</td>
     <td class="small">{{ x.approval_reference|default:"—" }}</td><td class="small">{{ x.reviewer }}</td></tr>
-  {% empty %}<tr><td colspan="7" class="empty">Aucune revue.</td></tr>{% endfor %}</tbody></table>
+  {% empty %}<tr><td colspan="7" class="empty">{% trans "Aucune revue." %}</td></tr>{% endfor %}</tbody></table>
 </div>
 {% endblock %}

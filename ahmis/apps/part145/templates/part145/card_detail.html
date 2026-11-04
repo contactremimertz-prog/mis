@@ -1,120 +1,120 @@
-{% extends "base.html" %}{% load ahmis %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ card.number }}{% endblock %}
 {% block content %}
 <div class="page-head">
-  <div><h1>{{ card.number }} {% badge card %}{% if card.requires_independent_inspection %} <span class="badge warn">Contrôle indépendant requis</span>{% endif %}</h1>
-    <div class="sub">{{ card.title }}<br><a href="{{ card.work_package.get_absolute_url }}">{{ card.work_package.number }}</a> · <a href="{{ card.aircraft.get_absolute_url }}">{{ card.aircraft.registration }}</a> ({{ card.aircraft.aircraft_type.code }}) · ATA {{ card.ata|default:"—" }} · {{ card.get_origin_display }}</div></div>
+  <div><h1>{{ card.number }} {% badge card %}{% if card.requires_independent_inspection %} <span class="badge warn">{% trans "Contrôle indépendant requis" %}</span>{% endif %}</h1>
+    <div class="sub">{{ card.title }}<br><a href="{{ card.work_package.get_absolute_url }}">{{ card.work_package.number }}</a> · <a href="{{ card.aircraft.get_absolute_url }}">{{ card.aircraft.registration }}</a> {% blocktrans with code=card.aircraft.aircraft_type.code ata=card.ata|default:"—" %}({{ code }}) · ATA {{ ata }} ·{% endblocktrans %} {{ card.get_origin_display }}</div></div>
   <div class="actions">
-    <a class="btn" href="{% url 'part145:card_print' card.pk %}" target="_blank">Imprimer</a>
-    {% if perms.safety.add_occurrencereport %}<a class="btn" href="{% url 'safety:create' %}?task_card={{ card.pk }}">Déclarer un événement</a>{% endif %}
-    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'part145.taskcard' card.pk %}">Historique</a>{% endif %}
+    <a class="btn" href="{% url 'part145:card_print' card.pk %}" target="_blank">{% trans "Imprimer" %}</a>
+    {% if perms.safety.add_occurrencereport %}<a class="btn" href="{% url 'safety:create' %}?task_card={{ card.pk }}">{% trans "Déclarer un événement" %}</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'part145.taskcard' card.pk %}">{% trans "Historique" %}</a>{% endif %}
   </div>
 </div>
 
-{% if not staff %}<div class="alert warn">Votre compte n'est rattaché à aucune fiche personnel : vous pouvez consulter mais pas signer.</div>
-{% elif card.is_editable and perform_blockers %}<div class="alert warn"><strong>Signature impossible :</strong><ul>{% for p in perform_blockers %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+{% if not staff %}<div class="alert warn">{% trans "Votre compte n'est rattaché à aucune fiche personnel : vous pouvez consulter mais pas signer." %}</div>
+{% elif card.is_editable and perform_blockers %}<div class="alert warn"><strong>{% trans "Signature impossible :" %}</strong><ul>{% for p in perform_blockers %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
 
 <div class="grid grid-2">
-  <div class="card"><h2>Instructions</h2>
+  <div class="card"><h2>{% trans "Instructions" %}</h2>
     <dl class="dl">
-      <div><dt>Qualification</dt><dd>{{ card.get_skill_display }}</dd></div>
-      <div><dt>Zone / accès</dt><dd>{{ card.zone|default:"—" }} · {{ card.access|default:"—" }}</dd></div>
-      <div><dt>Charge estimée</dt><dd>{{ card.estimated_mh|fmt }} h.h</dd></div>
-      <div><dt>Tâche AMP</dt><dd>{% if card.task %}<a href="{{ card.task.get_absolute_url }}">{{ card.task.reference }}</a>{% else %}—{% endif %}</dd></div>
-      <div><dt>Composant</dt><dd>{% if card.component %}<a href="{{ card.component.get_absolute_url }}">{{ card.component }}</a>{% else %}—{% endif %}</dd></div>
-      <div><dt>Défaut</dt><dd>{% if card.defect %}<a href="{{ card.defect.get_absolute_url }}">{{ card.defect.number }}</a>{% else %}—{% endif %}</dd></div>
-      {% if card.parent %}<div><dt>Constatée sur</dt><dd><a href="{{ card.parent.get_absolute_url }}">{{ card.parent.number }}</a></dd></div>{% endif %}
+      <div><dt>{% trans "Qualification" %}</dt><dd>{{ card.get_skill_display }}</dd></div>
+      <div><dt>{% trans "Zone / accès" %}</dt><dd>{{ card.zone|default:"—" }} · {{ card.access|default:"—" }}</dd></div>
+      <div><dt>{% trans "Charge estimée" %}</dt><dd>{{ card.estimated_mh|fmt }} h.h</dd></div>
+      <div><dt>{% trans "Tâche AMP" %}</dt><dd>{% if card.task %}<a href="{{ card.task.get_absolute_url }}">{{ card.task.reference }}</a>{% else %}—{% endif %}</dd></div>
+      <div><dt>{% trans "Composant" %}</dt><dd>{% if card.component %}<a href="{{ card.component.get_absolute_url }}">{{ card.component }}</a>{% else %}—{% endif %}</dd></div>
+      <div><dt>{% trans "Défaut" %}</dt><dd>{% if card.defect %}<a href="{{ card.defect.get_absolute_url }}">{{ card.defect.number }}</a>{% else %}—{% endif %}</dd></div>
+      {% if card.parent %}<div><dt>{% trans "Constatée sur" %}</dt><dd><a href="{{ card.parent.get_absolute_url }}">{{ card.parent.number }}</a></dd></div>{% endif %}
     </dl>
     {% if card.instructions %}<p class="small" style="white-space:pre-line">{{ card.instructions }}</p>{% endif %}
   </div>
-  <div class="card"><h2>Exécution</h2>
+  <div class="card"><h2>{% trans "Exécution" %}</h2>
     {% if card.status == "open" and card.is_editable %}
-      <p>La task card est ouverte. Démarrez-la pour signer les étapes{% if perms.logistics.add_partrequest %}, demander des pièces{% endif %} et sortir l'outillage.</p>
-      {% if can_perform %}<form method="post" action="{% url 'part145:card_action' card.pk 'start' %}">{% csrf_token %}<button class="btn primary" type="submit">Démarrer la task card</button></form>{% endif %}
+      <p>{% trans "La task card est ouverte. Démarrez-la pour signer les étapes" %}{% if perms.logistics.add_partrequest %}{% trans ", demander des pièces" %}{% endif %} {% trans "et sortir l'outillage." %}</p>
+      {% if can_perform %}<form method="post" action="{% url 'part145:card_action' card.pk 'start' %}">{% csrf_token %}<button class="btn primary" type="submit">{% trans "Démarrer la task card" %}</button></form>{% endif %}
     {% elif card.status == "in_progress" %}
       {% if can_perform %}
       <form method="post" action="{% url 'part145:card_action' card.pk 'perform' %}" class="sign-box stacked">{% csrf_token %}
-        <strong>Signer l'exécution des travaux</strong>
+        <strong>{% trans "Signer l'exécution des travaux" %}</strong>
         <div class="form-grid">{% for f in perform_form %}{% field f %}{% endfor %}</div>
-        <button class="btn primary" type="submit">Signer les travaux</button>
-        <div class="small muted">{% if card.requires_independent_inspection %}La task card passera en attente de contrôle indépendant.{% else %}La task card sera clôturée et l'échéance recalculée.{% endif %}</div>
+        <button class="btn primary" type="submit">{% trans "Signer les travaux" %}</button>
+        <div class="small muted">{% if card.requires_independent_inspection %}{% trans "La task card passera en attente de contrôle indépendant." %}{% else %}{% trans "La task card sera clôturée et l'échéance recalculée." %}{% endif %}</div>
       </form>{% endif %}
     {% elif card.status == "performed" %}
-      <div class="alert warn">Travaux exécutés par {{ card.performed_by.full_name }} le {{ card.performed_at|date:"d/m/Y H:i" }} – en attente de contrôle indépendant par une autre personne certifiante.</div>
+      <div class="alert warn">{% blocktrans with full_name=card.performed_by.full_name performed_at=card.performed_at|date:"d/m/Y H:i" %}Travaux exécutés par {{ full_name }} le {{ performed_at }} – en attente de contrôle indépendant par une autre personne certifiante.{% endblocktrans %}</div>
       {% if can_certify and perms.part145.certify_taskcard and staff.pk != card.performed_by_id %}
       <form method="post" action="{% url 'part145:card_action' card.pk 'inspect' %}" class="sign-box stacked">{% csrf_token %}
-        <strong>Contrôle indépendant</strong>
-        <div class="form-grid">{% for f in reason_form %}{% if f.name == "reason" %}<div class="field wide"><label for="insp-r">Observations</label><input id="insp-r" name="reason" value="Conforme" maxlength="200"></div>{% else %}{% field f %}{% endif %}{% endfor %}</div>
-        <button class="btn primary" type="submit">Signer le contrôle</button>
-      </form>{% elif staff and staff.pk == card.performed_by_id %}<p class="small muted">Vous avez exécuté ces travaux : le contrôle doit être signé par une autre personne.</p>{% endif %}
+        <strong>{% trans "Contrôle indépendant" %}</strong>
+        <div class="form-grid">{% for f in reason_form %}{% if f.name == "reason" %}<div class="field wide"><label for="insp-r">{% trans "Observations" %}</label><input id="insp-r" name="reason" value="Conforme" maxlength="200"></div>{% else %}{% field f %}{% endif %}{% endfor %}</div>
+        <button class="btn primary" type="submit">{% trans "Signer le contrôle" %}</button>
+      </form>{% elif staff and staff.pk == card.performed_by_id %}<p class="small muted">{% trans "Vous avez exécuté ces travaux : le contrôle doit être signé par une autre personne." %}</p>{% endif %}
     {% else %}
       <p>{% badge card %}{% if card.deferral_reason %} – {{ card.deferral_reason }}{% endif %}</p>
     {% endif %}
-    {% if card.work_done %}<h3>Compte rendu</h3><p class="small">{{ card.work_done|linebreaksbr }}</p>{% endif %}
+    {% if card.work_done %}<h3>{% trans "Compte rendu" %}</h3><p class="small">{{ card.work_done|linebreaksbr }}</p>{% endif %}
     {% for s in signatures %}{% if s.action == "perform" or s.action == "inspect" or s.action == "defer" %}{% signature s s.get_action_display %}{% endif %}{% endfor %}
   </div>
 </div>
 
-<div class="card"><h2>Étapes <span class="small muted">{{ card.steps_progress }}</span></h2>
-  <table class="data"><thead><tr><th>N°</th><th>Étape</th><th>Valeur relevée</th><th>Signature</th></tr></thead><tbody>
+<div class="card"><h2>{% trans "Étapes" %} <span class="small muted">{{ card.steps_progress }}</span></h2>
+  <table class="data"><thead><tr><th>N°</th><th>{% trans "Étape" %}</th><th>{% trans "Valeur relevée" %}</th><th>{% trans "Signature" %}</th></tr></thead><tbody>
   {% for s in steps %}<tr id="step-{{ s.pk }}"><td>{{ s.order }}</td><td>{{ s.text }}</td><td>{{ s.measured_value|default:"" }}{% if s.not_applicable %} <span class="badge">N/A</span>{% endif %}</td>
     <td>{% if s.done_at %}<span class="sig"><strong>{{ s.done_by.full_name }}</strong> {% if s.done_by.stamp %}[{{ s.done_by.stamp }}]{% endif %} – {{ s.done_at|date:"d/m/Y H:i" }}</span>
     {% elif card.status == "in_progress" and can_perform %}
       <form method="post" action="{% url 'part145:step_sign' s.pk %}" class="inline-form">{% csrf_token %}
-        <div class="field"><label for="mv-{{ s.pk }}">Valeur</label><input id="mv-{{ s.pk }}" name="measured_value" maxlength="100" style="width:110px"></div>
+        <div class="field"><label for="mv-{{ s.pk }}">{% trans "Valeur" %}</label><input id="mv-{{ s.pk }}" name="measured_value" maxlength="100" style="width:110px"></div>
         <div class="field checkbox-field"><input type="checkbox" id="na-{{ s.pk }}" name="not_applicable"><label for="na-{{ s.pk }}">N/A</label></div>
         {% include "core/_sign_form.html" with id=s.pk %}
-        <button class="btn small primary" type="submit">Signer</button>
-      </form>{% else %}<span class="muted small">à faire</span>{% endif %}</td></tr>
-  {% empty %}<tr><td colspan="4" class="empty">Pas d'étape détaillée : le compte rendu fait foi.</td></tr>{% endfor %}</tbody></table>
+        <button class="btn small primary" type="submit">{% trans "Signer" %}</button>
+      </form>{% else %}<span class="muted small">{% trans "à faire" %}</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="4" class="empty">{% trans "Pas d'étape détaillée : le compte rendu fait foi." %}</td></tr>{% endfor %}</tbody></table>
 </div>
 
 <div class="grid grid-2">
-  <div class="card"><h2>Pièces</h2>
-    <table class="data"><thead><tr><th>Demande</th><th>P/N</th><th class="num">Qté</th><th>Statut</th><th>Délivré</th></tr></thead><tbody>
+  <div class="card"><h2>{% trans "Pièces" %}</h2>
+    <table class="data"><thead><tr><th>{% trans "Demande" %}</th><th>P/N</th><th class="num">{% trans "Qté" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Délivré" %}</th></tr></thead><tbody>
     {% for r in requests %}<tr><td><a href="{% url 'logistics:request_detail' r.pk %}">{{ r.number }}</a></td><td>{{ r.part_number.pn }}</td><td class="num">{{ r.quantity|fmt }}</td><td>{% badge r %}</td><td class="small">{{ r.issued_component|default:"" }}{{ r.issued_stock|default:"" }}</td></tr>
-    {% empty %}<tr><td colspan="5" class="empty">Aucune demande.</td></tr>{% endfor %}</tbody></table>
-    {% for m in stock_movements %}<div class="small muted">Consommé : {{ m.stock_item.part_number.pn }} lot {{ m.stock_item.batch }} × {{ m.quantity|absval|fmt }}</div>{% endfor %}
+    {% empty %}<tr><td colspan="5" class="empty">{% trans "Aucune demande." %}</td></tr>{% endfor %}</tbody></table>
+    {% for m in stock_movements %}<div class="small muted">{% blocktrans with pn=m.stock_item.part_number.pn batch=m.stock_item.batch %}Consommé : {{ pn }} lot {{ batch }} ×{% endblocktrans %} {{ m.quantity|absval|fmt }}</div>{% endfor %}
     {% if card.is_editable and perms.logistics.add_partrequest %}
-    <h3>Demander une pièce</h3>
-    <form method="post" action="{% url 'logistics:request_create' card.pk %}" class="inline-form">{% csrf_token %}{% for f in request_form %}{% field f %}{% endfor %}<button class="btn" type="submit">Demander</button></form>{% endif %}
+    <h3>{% trans "Demander une pièce" %}</h3>
+    <form method="post" action="{% url 'logistics:request_create' card.pk %}" class="inline-form">{% csrf_token %}{% for f in request_form %}{% field f %}{% endfor %}<button class="btn" type="submit">{% trans "Demander" %}</button></form>{% endif %}
   </div>
-  <div class="card"><h2>Outillage</h2>
-    <table class="data"><thead><tr><th>Outil</th><th>Sorti par</th><th>Étalonné jusqu'au</th><th>Rendu</th><th></th></tr></thead><tbody>
+  <div class="card"><h2>{% trans "Outillage" %}</h2>
+    <table class="data"><thead><tr><th>{% trans "Outil" %}</th><th>{% trans "Sorti par" %}</th><th>{% trans "Étalonné jusqu'au" %}</th><th>{% trans "Rendu" %}</th><th></th></tr></thead><tbody>
     {% for u in tool_usages %}<tr><td><a href="{{ u.tool.get_absolute_url }}">{{ u.tool.reference }}</a> <span class="small muted">{{ u.tool.description }}</span></td><td class="small">{{ u.staff.full_name|default:"—" }}</td><td class="small">{{ u.calibration_due|date:"d/m/Y"|default:"n/a" }}</td><td class="small">{{ u.returned_at|date:"d/m H:i"|default:"—" }}</td>
-      <td>{% if not u.returned_at %}<form method="post" action="{% url 'logistics:tool_checkin' u.tool.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn small" type="submit">Restituer</button></form>{% endif %}</td></tr>
-    {% empty %}<tr><td colspan="5" class="empty">Aucun outillage sorti.</td></tr>{% endfor %}</tbody></table>
+      <td>{% if not u.returned_at %}<form method="post" action="{% url 'logistics:tool_checkin' u.tool.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn small" type="submit">{% trans "Restituer" %}</button></form>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="5" class="empty">{% trans "Aucun outillage sorti." %}</td></tr>{% endfor %}</tbody></table>
     {% if card.status == "in_progress" and can_perform %}
-    <form method="post" action="{% url 'logistics:tool_checkout' card.pk %}" class="inline-form" style="margin-top:10px">{% csrf_token %}{% for f in tool_form %}{% field f %}{% endfor %}<button class="btn" type="submit">Sortir l'outil</button></form>
-    <p class="small muted">Un outil dont l'étalonnage est échu ne peut pas être sorti.</p>{% endif %}
+    <form method="post" action="{% url 'logistics:tool_checkout' card.pk %}" class="inline-form" style="margin-top:10px">{% csrf_token %}{% for f in tool_form %}{% field f %}{% endfor %}<button class="btn" type="submit">{% trans "Sortir l'outil" %}</button></form>
+    <p class="small muted">{% trans "Un outil dont l'étalonnage est échu ne peut pas être sorti." %}</p>{% endif %}
   </div>
 </div>
 
 {% if card.status == "in_progress" and can_perform %}
-<div class="card"><h2>Changement de composant</h2>
-  <p class="small muted">Dépose et/ou pose d'un composant sérialisé. AHMIS vérifie le statut, le certificat libératoire, le potentiel restant et l'applicabilité du P/N, puis met à jour la configuration et l'historique « back-to-birth ».</p>
+<div class="card"><h2>{% trans "Changement de composant" %}</h2>
+  <p class="small muted">{% trans "Dépose et/ou pose d'un composant sérialisé. AHMIS vérifie le statut, le certificat libératoire, le potentiel restant et l'applicabilité du P/N, puis met à jour la configuration et l'historique « back-to-birth »." %}</p>
   <form method="post" action="{% url 'part145:card_component_change' card.pk %}" class="stacked sign-box">{% csrf_token %}
     <div class="form-grid">{% for f in change_form %}{% if f.name != "password" %}{% field f %}{% endif %}{% endfor %}</div>
-    <div class="inline-form">{% include "core/_sign_form.html" with id="chg" %}<button class="btn primary" type="submit">Enregistrer le changement</button></div>
+    <div class="inline-form">{% include "core/_sign_form.html" with id="chg" %}<button class="btn primary" type="submit">{% trans "Enregistrer le changement" %}</button></div>
   </form>
 </div>{% endif %}
-{% if perms.camo.add_modificationrepair and card.status != "cancelled" %}<p class="small"><a href="{% url 'camo:mod_create' %}?task_card={{ card.pk }}">+ Enregistrer une modification ou une réparation réalisée sur cette task card</a></p>{% endif %}
-{% if installs %}<div class="card"><h2>Mouvements de composants de cette task card</h2><table class="data"><tbody>
-{% for r in installs %}<tr><td><a href="{{ r.component.get_absolute_url }}">{{ r.component }}</a></td><td>{{ r.position }}</td><td class="small">posé le {{ r.installed_on|date:"d/m/Y" }}{% if r.removed_on %}, déposé le {{ r.removed_on|date:"d/m/Y" }} ({{ r.removal_reason }}){% endif %}</td></tr>{% endfor %}
+{% if perms.camo.add_modificationrepair and card.status != "cancelled" %}<p class="small"><a href="{% url 'camo:mod_create' %}?task_card={{ card.pk }}">{% trans "+ Enregistrer une modification ou une réparation réalisée sur cette task card" %}</a></p>{% endif %}
+{% if installs %}<div class="card"><h2>{% trans "Mouvements de composants de cette task card" %}</h2><table class="data"><tbody>
+{% for r in installs %}<tr><td><a href="{{ r.component.get_absolute_url }}">{{ r.component }}</a></td><td>{{ r.position }}</td><td class="small">{% trans "posé le" %} {{ r.installed_on|date:"d/m/Y" }}{% if r.removed_on %}{% blocktrans with removed_on=r.removed_on|date:"d/m/Y" removal_reason=r.removal_reason %}, déposé le {{ removed_on }} ({{ removal_reason }}){% endblocktrans %}{% endif %}</td></tr>{% endfor %}
 </tbody></table></div>{% endif %}
 
 {% if card.is_editable %}
 <div class="grid grid-2">
-  {% if perms.part145.add_taskcard %}<div class="card"><h2>Signaler une constatation</h2>
+  {% if perms.part145.add_taskcard %}<div class="card"><h2>{% trans "Signaler une constatation" %}</h2>
     <form method="post" action="{% url 'part145:card_finding' card.pk %}" class="stacked">{% csrf_token %}
-      <div class="field wide"><label for="fd">Description de la constatation</label><textarea id="fd" name="description" rows="2" required></textarea></div>
-      <button class="btn" type="submit">Créer défaut + task card</button></form>
+      <div class="field wide"><label for="fd">{% trans "Description de la constatation" %}</label><textarea id="fd" name="description" rows="2" required></textarea></div>
+      <button class="btn" type="submit">{% trans "Créer défaut + task card" %}</button></form>
     {% for f in findings %}<div class="small"><a href="{{ f.get_absolute_url }}">{{ f.number }}</a> {{ f.title|truncatechars:60 }} {% badge f %}</div>{% endfor %}
   </div>{% endif %}
-  {% if staff %}<div class="card"><h2>Reporter / annuler</h2>
-    <form method="post" action="{% url 'part145:card_action' card.pk 'defer' %}" class="inline-form">{% csrf_token %}{% for f in reason_form %}{% field f %}{% endfor %}<button class="btn" type="submit">Reporter</button></form>
-    <form method="post" action="{% url 'part145:card_action' card.pk 'cancel' %}" class="inline-form" style="margin-top:10px">{% csrf_token %}{% for f in reason_form %}{% field f %}{% endfor %}<button class="btn danger" type="submit">Annuler</button></form>
-    <p class="small muted">Un report apparaît dans le CRS. Une annulation n'est possible que si aucune étape n'est signée.</p>
+  {% if staff %}<div class="card"><h2>{% trans "Reporter / annuler" %}</h2>
+    <form method="post" action="{% url 'part145:card_action' card.pk 'defer' %}" class="inline-form">{% csrf_token %}{% for f in reason_form %}{% field f %}{% endfor %}<button class="btn" type="submit">{% trans "Reporter" %}</button></form>
+    <form method="post" action="{% url 'part145:card_action' card.pk 'cancel' %}" class="inline-form" style="margin-top:10px">{% csrf_token %}{% for f in reason_form %}{% field f %}{% endfor %}<button class="btn danger" type="submit">{% trans "Annuler" %}</button></form>
+    <p class="small muted">{% trans "Un report apparaît dans le CRS. Une annulation n'est possible que si aucune étape n'est signée." %}</p>
   </div>{% endif %}
 </div>{% endif %}
 {% endblock %}

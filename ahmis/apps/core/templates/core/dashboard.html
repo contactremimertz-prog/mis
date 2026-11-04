@@ -1,22 +1,22 @@
 {% extends "base.html" %}{% load i18n ahmis %}
-{% block title %}Tableau de bord{% endblock %}
+{% block title %}{% trans "Tableau de bord" %}{% endblock %}
 {% block content %}
 <div class="page-head">
-  <div><h1>{% trans "Tableau de bord" %}</h1><div class="sub">{{ AHMIS.ORGANISATION }} · situation au {{ today|date:"l d F Y" }}</div></div>
+  <div><h1>{% trans "Tableau de bord" %}</h1><div class="sub">{{ AHMIS.ORGANISATION }} {% trans "· situation au" %} {{ today|date:"l d F Y" }}</div></div>
   <div class="actions"><a class="btn" href="{% url 'camo:due' %}">{% trans "Toutes les échéances" %}</a><a class="btn primary" href="{% url 'fleet:utilisation_create' %}">{% trans "Saisir des heures de vol" %}</a></div>
 </div>
 <div class="grid grid-4" style="margin-bottom:18px">
-  <a class="kpi {% if kpi.overdue %}bad{% else %}ok{% endif %}" href="{% url 'camo:due' %}?status=overdue"><div class="label">{% trans "Échéances dépassées" %}</div><div class="value">{{ kpi.overdue }}</div><div class="small muted">{% trans "dont {{ kpi.tolerance }} en tolérance" %}</div></a>
-  <a class="kpi {% if kpi.due_soon %}warn{% endif %}" href="{% url 'camo:due' %}?status=due_soon"><div class="label">{% trans "À planifier (≤ {{ AHMIS.ALERT_DAYS }} j)" %}</div><div class="value">{{ kpi.due_soon }}</div></a>
-  <a class="kpi {% if kpi.open_defects %}bad{% endif %}" href="{% url 'part145:defect_list' %}?status=open"><div class="label">{% trans "Défauts ouverts" %}</div><div class="value">{{ kpi.open_defects }}</div><div class="small muted">{{ kpi.deferred }} reporté(s){% if kpi.deferred_overdue %}, <span style="color:var(--bad)">{{ kpi.deferred_overdue }} hors délai</span>{% endif %}</div></a>
+  <a class="kpi {% if kpi.overdue %}bad{% else %}ok{% endif %}" href="{% url 'camo:due' %}?status=overdue"><div class="label">{% trans "Échéances dépassées" %}</div><div class="value">{{ kpi.overdue }}</div><div class="small muted">{% blocktrans with tolerance=kpi.tolerance %}dont {{ tolerance }} en tolérance{% endblocktrans %}</div></a>
+  <a class="kpi {% if kpi.due_soon %}warn{% endif %}" href="{% url 'camo:due' %}?status=due_soon"><div class="label">{% blocktrans with ALERT_DAYS=AHMIS.ALERT_DAYS %}À planifier (≤ {{ ALERT_DAYS }} j){% endblocktrans %}</div><div class="value">{{ kpi.due_soon }}</div></a>
+  <a class="kpi {% if kpi.open_defects %}bad{% endif %}" href="{% url 'part145:defect_list' %}?status=open"><div class="label">{% trans "Défauts ouverts" %}</div><div class="value">{{ kpi.open_defects }}</div><div class="small muted">{{ kpi.deferred }} {% trans "reporté(s)" %}{% if kpi.deferred_overdue %}, <span style="color:var(--bad)">{{ kpi.deferred_overdue }} {% trans "hors délai" %}</span>{% endif %}</div></a>
   <a class="kpi {% if kpi.ad_to_assess %}bad{% endif %}" href="{% url 'camo:directive_status_list' %}?status=to_assess"><div class="label">{% trans "AD / SB à évaluer" %}</div><div class="value">{{ kpi.ad_to_assess }}</div></a>
-  <a class="kpi" href="{% url 'part145:wp_list' %}"><div class="label">{% trans "Work packages actifs" %}</div><div class="value">{{ kpi.wp_active }}</div><div class="small muted">{{ kpi.cards_waiting_inspection }} task card(s) en attente de contrôle</div></a>
+  <a class="kpi" href="{% url 'part145:wp_list' %}"><div class="label">{% trans "Work packages actifs" %}</div><div class="value">{{ kpi.wp_active }}</div><div class="small muted">{{ kpi.cards_waiting_inspection }} {% trans "task card(s) en attente de contrôle" %}</div></a>
   <a class="kpi {% if kpi.requests %}warn{% endif %}" href="{% url 'logistics:request_list' %}?status=requested"><div class="label">{% trans "Demandes de pièces" %}</div><div class="value">{{ kpi.requests }}</div></a>
   <a class="kpi {% if kpi.quarantine %}warn{% endif %}" href="{% url 'logistics:quarantine' %}"><div class="label">{% trans "En quarantaine" %}</div><div class="value">{{ kpi.quarantine }}</div></a>
-  <a class="kpi {% if kpi.tools_expired or kpi.auth_expiring %}warn{% endif %}" href="{% url 'logistics:tool_list' %}"><div class="label">{% trans "Outillage hors étalonnage" %}</div><div class="value">{{ kpi.tools_expired }}</div><div class="small muted">{{ kpi.auth_expiring }} autorisation(s) expirant sous 60 j</div></a>
+  <a class="kpi {% if kpi.tools_expired or kpi.auth_expiring %}warn{% endif %}" href="{% url 'logistics:tool_list' %}"><div class="label">{% trans "Outillage hors étalonnage" %}</div><div class="value">{{ kpi.tools_expired }}</div><div class="small muted">{{ kpi.auth_expiring }} {% trans "autorisation(s) expirant sous 60 j" %}</div></a>
 </div>
 {% if occ.open %}<div class="alert {% if not occ.overdue %}warn{% endif %}"><strong>{% trans "Comptes rendus d'événements :" %}</strong>
-  <a href="{% url 'safety:list' %}">{{ occ.open }} ouvert(s)</a>, dont {{ occ.to_notify }} à notifier{% if occ.overdue %} – <strong>{{ occ.overdue }} hors délai (72 h / 30 j)</strong>{% endif %}.</div>{% endif %}
+  <a href="{% url 'safety:list' %}">{{ occ.open }} {% trans "ouvert(s)" %}</a>{% blocktrans with to_notify=occ.to_notify %}, dont {{ to_notify }} à notifier{% endblocktrans %}{% if occ.overdue %} – <strong>{{ occ.overdue }} {% trans "hors délai (72 h / 30 j)" %}</strong>{% endif %}.</div>{% endif %}
 {% if amp_alerts %}<div class="alert warn"><strong>{% trans "Revue du programme d'entretien (M.A.302(g)) :" %}</strong>
   {% for r in amp_alerts %}<a href="{% url 'camo:amp_review_list' %}">{{ r.type.code }}</a> {% with st=r %}{% include "camo/_amp_status.html" %}{% endwith %}{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}
 

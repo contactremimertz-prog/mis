@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}AHMIS{% endblock %} · AHMIS</title>
+  <title>{% block title %}AHMIS{% endblock %} {% trans "· AHMIS" %}</title>
   <link rel="stylesheet" href="{% static 'ahmis/ahmis.css' %}">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f2238'/%3E%3Cpath d='M6 18h20M16 8v18M9 12l7-4 7 4' stroke='%235aa0ff' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
 <div class="layout">
-  <nav class="sidebar" aria-label="Navigation principale">
+  <nav class="sidebar" aria-label="{% trans 'Navigation principale' %}">
     <a class="brand" href="{% url 'dashboard' %}" style="border:0;padding:0 18px 16px">
       <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1f3a5c"/><path d="M6 18h20M16 8v18M9 12l7-4 7 4" stroke="#5aa0ff" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
-      <span>AHMIS<small>Maintenance Information System</small></span>
+      <span>AHMIS<small>{% trans "Maintenance Information System" %}</small></span>
     </a>
     {% with ns=request.resolver_match.namespace un=request.resolver_match.url_name %}
     <a href="{% url 'dashboard' %}" class="{% if un == 'dashboard' %}active{% endif %}">{% trans "Tableau de bord" %}</a>
@@ -66,21 +66,21 @@
   </nav>
   <div class="main">
     <header class="topbar">
-      <button class="btn small menu-toggle" type="button" onclick="document.body.classList.toggle('nav-open')" aria-label="Menu">☰ Menu</button>
+      <button class="btn small menu-toggle" type="button" onclick="document.body.classList.toggle('nav-open')" aria-label="{% trans 'Menu' %}">{% trans "☰ Menu" %}</button>
       <form method="get" action="{% url 'search' %}" style="flex:1;max-width:380px">
-        <input type="search" name="q" placeholder="Rechercher immatriculation, P/N, S/N, WP, task card…" value="{{ request.GET.q|default:'' }}" aria-label="Recherche globale">
+        <input type="search" name="q" placeholder="{% trans 'Rechercher immatriculation, P/N, S/N, WP, task card…' %}" value="{{ request.GET.q|default:'' }}" aria-label="{% trans 'Recherche globale' %}">
       </form>
       <form method="post" action="{% url 'set_language' %}" style="display:inline">{% csrf_token %}
         <input type="hidden" name="next" value="{{ request.path }}">
-        <select name="language" aria-label="Langue" onchange="this.form.submit()">
+        <select name="language" aria-label="{% trans 'Langue' %}" onchange="this.form.submit()">
           {% get_available_languages as LANGS %}{% get_current_language as LANG %}
           {% for code, name in LANGS %}<option value="{{ code }}"{% if code == LANG %} selected{% endif %}>{{ name }}</option>{% endfor %}
         </select>
       </form>
       <div class="who">
-        <a href="{% url 'my_account' %}" title="Mon compte">{% with st=user.staff %}{% if st %}{{ st.full_name }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}{% endwith %}</a>
-        · <span class="muted">{{ user.groups.all|join:", "|default:"administrateur" }}</span>
-        · <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="linklike" type="submit">Déconnexion</button></form>
+        <a href="{% url 'my_account' %}" title="{% trans 'Mon compte' %}">{% with st=user.staff %}{% if st %}{{ st.full_name }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}{% endwith %}</a>
+        · <span class="muted">{{ user.groups.all|join:", "|default:_("administrateur") }}</span>
+        · <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="linklike" type="submit">{% trans "Déconnexion" %}</button></form>
       </div>
     </header>
     <main class="content">

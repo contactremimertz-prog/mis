@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><title>Dossier {{ ac.registration }} – {{ generated|date:"d/m/Y" }}</title>
+{% load i18n %}<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>{% blocktrans with registration=ac.registration %}Dossier {{ registration }} –{% endblocktrans %} {{ generated|date:"d/m/Y" }}</title>
 <style>
 body{font:13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#1b2430;margin:24px auto;max-width:1100px;padding:0 16px}
 h1{font-size:22px;margin:0 0 4px}h2{font-size:15px;margin:22px 0 6px;border-bottom:2px solid #1b2430;padding-bottom:3px}
@@ -7,54 +7,54 @@ table{border-collapse:collapse;width:100%;margin-bottom:8px}th,td{border:1px sol
 th{background:#eef2f6}.num{text-align:right}.muted{color:#5c6773}.bad{color:#b42318;font-weight:600}.warn{color:#9a6700;font-weight:600}
 .box{border:1px solid #c9d1db;padding:8px 12px;background:#f8fafc}@media print{body{margin:0}h2{break-after:avoid}}
 </style></head><body>
-<h1>Dossier de maintien de la navigabilité – {{ ac.registration }}</h1>
-<div class="muted">{{ ac.aircraft_type }} · MSN {{ ac.msn }} · établi le {{ generated|date:"d/m/Y H:i" }} par {{ organisation }} ({{ approval }}){% if recipient %} · destinataire : {{ recipient }}{% endif %}</div>
-{% if purpose %}<p><strong>Objet :</strong> {{ purpose }}</p>{% endif %}
-<div class="box">Ce dossier est établi au titre de M.A.307 / CAMO.A.315 (transfert des enregistrements). Le détail complet figure dans
-<code>dossier.json</code> et <code>csv/</code> ; l'intégrité de chaque fichier est vérifiable par les empreintes SHA-256 de <code>manifest.json</code>.
-{% if signatures_broken %}<br><span class="bad">Attention : {{ signatures_broken }} signature(s) électronique(s) dont l'empreinte ne correspond plus.</span>{% endif %}</div>
+<h1>{% trans "Dossier de maintien de la navigabilité –" %} {{ ac.registration }}</h1>
+<div class="muted">{{ ac.aircraft_type }} {% blocktrans with msn=ac.msn generated=generated|date:"d/m/Y H:i" organisation=organisation approval=approval %}· MSN {{ msn }} · établi le {{ generated }} par {{ organisation }} ({{ approval }}){% endblocktrans %}{% if recipient %} {% trans "· destinataire :" %} {{ recipient }}{% endif %}</div>
+{% if purpose %}<p><strong>{% trans "Objet :" %}</strong> {{ purpose }}</p>{% endif %}
+<div class="box">{% trans "Ce dossier est établi au titre de M.A.307 / CAMO.A.315 (transfert des enregistrements). Le détail complet figure dans" %}
+<code>{% trans "dossier.json" %}</code> {% trans "et" %} <code>{% trans "csv/" %}</code> {% trans "; l'intégrité de chaque fichier est vérifiable par les empreintes SHA-256 de" %} <code>{% trans "manifest.json" %}</code>.
+{% if signatures_broken %}<br><span class="bad">{% blocktrans with signatures_broken=signatures_broken %}Attention : {{ signatures_broken }} signature(s) électronique(s) dont l'empreinte ne correspond plus.{% endblocktrans %}</span>{% endif %}</div>
 
-<h2>Temps totaux et statut</h2>
-<table><tr><th>Heures cellule</th><td class="num">{{ ac.total_fh }}</td><th>{{ ac.aircraft_type.cycle_label }}</th><td class="num">{{ ac.total_fc }}</td>
-<th>Compteurs au</th><td>{{ ac.counters_date|date:"d/m/Y" }}</td></tr>
-<tr><th>Statut</th><td>{{ ac.get_status_display }}</td><th>ARC valable jusqu'au</th><td>{{ ac.arc_expiry|date:"d/m/Y"|default:"—" }}</td><th>Certificat de navigabilité</th><td>{{ ac.cofa_number|default:"—" }}</td></tr></table>
+<h2>{% trans "Temps totaux et statut" %}</h2>
+<table><tr><th>{% trans "Heures cellule" %}</th><td class="num">{{ ac.total_fh }}</td><th>{{ ac.aircraft_type.cycle_label }}</th><td class="num">{{ ac.total_fc }}</td>
+<th>{% trans "Compteurs au" %}</th><td>{{ ac.counters_date|date:"d/m/Y" }}</td></tr>
+<tr><th>{% trans "Statut" %}</th><td>{{ ac.get_status_display }}</td><th>{% trans "ARC valable jusqu'au" %}</th><td>{{ ac.arc_expiry|date:"d/m/Y"|default:"—" }}</td><th>{% trans "Certificat de navigabilité" %}</th><td>{{ ac.cofa_number|default:"—" }}</td></tr></table>
 
-<h2>Échéances non soldées ({{ due_alerts|length }})</h2>
-<table><tr><th>Nature</th><th>Référence</th><th>Libellé</th><th>Échéance</th><th>Reste</th><th>Statut</th></tr>
+<h2>{% blocktrans with due_alerts=due_alerts|length %}Échéances non soldées ({{ due_alerts }}){% endblocktrans %}</h2>
+<table><tr><th>{% trans "Nature" %}</th><th>{% trans "Référence" %}</th><th>{% trans "Libellé" %}</th><th>{% trans "Échéance" %}</th><th>{% trans "Reste" %}</th><th>{% trans "Statut" %}</th></tr>
 {% for i in due_alerts %}<tr><td>{{ i.kind_label }}</td><td>{{ i.reference }}</td><td>{{ i.label }}</td>
-<td>{% if i.due_fh is not None %}{{ i.due_fh }} FH {% endif %}{% if i.due_fc is not None %}{{ i.due_fc }} cy {% endif %}{{ i.due_date|date:"d/m/Y" }}</td>
-<td>{% if i.remaining_fh is not None %}{{ i.remaining_fh }} FH {% endif %}{% if i.remaining_fc is not None %}{{ i.remaining_fc }} cy {% endif %}{% if i.remaining_days is not None %}{{ i.remaining_days }} j{% endif %}</td>
+<td>{% if i.due_fh is not None %}{{ i.due_fh }} FH {% endif %}{% if i.due_fc is not None %}{{ i.due_fc }} {% trans "cy" %} {% endif %}{{ i.due_date|date:"d/m/Y" }}</td>
+<td>{% if i.remaining_fh is not None %}{{ i.remaining_fh }} FH {% endif %}{% if i.remaining_fc is not None %}{{ i.remaining_fc }} {% trans "cy" %} {% endif %}{% if i.remaining_days is not None %}{{ i.remaining_days }} j{% endif %}</td>
 <td class="{% if i.status == 'overdue' %}bad{% else %}warn{% endif %}">{{ i.status_label }}</td></tr>
-{% empty %}<tr><td colspan="6" class="muted">Aucune échéance dépassée ou à planifier.</td></tr>{% endfor %}</table>
+{% empty %}<tr><td colspan="6" class="muted">{% trans "Aucune échéance dépassée ou à planifier." %}</td></tr>{% endfor %}</table>
 
-<h2>Composants installés</h2>
-<table><tr><th>Position</th><th>P/N</th><th>Désignation</th><th>S/N</th><th class="num">TSN</th><th class="num">CSN</th><th class="num">TSO</th></tr>
+<h2>{% trans "Composants installés" %}</h2>
+<table><tr><th>{% trans "Position" %}</th><th>P/N</th><th>{% trans "Désignation" %}</th><th>S/N</th><th class="num">{% trans "TSN" %}</th><th class="num">{% trans "CSN" %}</th><th class="num">{% trans "TSO" %}</th></tr>
 {% for c in components %}<tr><td>{{ c.position }}</td><td>{{ c.part_number.pn }}</td><td>{{ c.part_number.description }}</td><td>{{ c.serial_number }}</td>
 <td class="num">{{ c.tsn_fh }}</td><td class="num">{{ c.csn }}</td><td class="num">{{ c.tso_fh }}</td></tr>{% endfor %}</table>
 
-<h2>Pièces à durée de vie limitée et potentiels</h2>
-<table><tr><th>Composant</th><th>Limite</th><th>Reste</th><th>Statut</th></tr>
-{% for i in llp %}<tr><td>{{ i.label }}</td><td>{% if i.due_fh is not None %}{{ i.due_fh }} FH {% endif %}{% if i.due_fc is not None %}{{ i.due_fc }} cy{% endif %}</td>
-<td>{% if i.remaining_fh is not None %}{{ i.remaining_fh }} FH {% endif %}{% if i.remaining_fc is not None %}{{ i.remaining_fc }} cy{% endif %}</td><td>{{ i.status_label }}</td></tr>
-{% empty %}<tr><td colspan="4" class="muted">Aucune.</td></tr>{% endfor %}</table>
+<h2>{% trans "Pièces à durée de vie limitée et potentiels" %}</h2>
+<table><tr><th>{% trans "Composant" %}</th><th>{% trans "Limite" %}</th><th>{% trans "Reste" %}</th><th>{% trans "Statut" %}</th></tr>
+{% for i in llp %}<tr><td>{{ i.label }}</td><td>{% if i.due_fh is not None %}{{ i.due_fh }} FH {% endif %}{% if i.due_fc is not None %}{{ i.due_fc }} {% trans "cy" %}{% endif %}</td>
+<td>{% if i.remaining_fh is not None %}{{ i.remaining_fh }} FH {% endif %}{% if i.remaining_fc is not None %}{{ i.remaining_fc }} {% trans "cy" %}{% endif %}</td><td>{{ i.status_label }}</td></tr>
+{% empty %}<tr><td colspan="4" class="muted">{% trans "Aucune." %}</td></tr>{% endfor %}</table>
 
-<h2>Consignes de navigabilité</h2>
-<table><tr><th>AD / SB</th><th>Titre</th><th>Statut</th><th>Conformité</th><th>Justification</th></tr>
+<h2>{% trans "Consignes de navigabilité" %}</h2>
+<table><tr><th>{% trans "AD / SB" %}</th><th>{% trans "Titre" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Conformité" %}</th><th>{% trans "Justification" %}</th></tr>
 {% for d in directives %}<tr><td>{{ d.directive.number }}</td><td>{{ d.directive.title }}</td><td>{{ d.get_status_display }}</td>
-<td>{{ d.compliance_date|date:"d/m/Y"|default:"" }}{% if d.compliance_fh %} – {{ d.compliance_fh }} FH{% endif %}</td><td>{{ d.justification }}</td></tr>
-{% empty %}<tr><td colspan="5" class="muted">Aucune.</td></tr>{% endfor %}</table>
+<td>{{ d.compliance_date|date:"d/m/Y"|default:"" }}{% if d.compliance_fh %} {% blocktrans with compliance_fh=d.compliance_fh %}– {{ compliance_fh }} FH{% endblocktrans %}{% endif %}</td><td>{{ d.justification }}</td></tr>
+{% empty %}<tr><td colspan="5" class="muted">{% trans "Aucune." %}</td></tr>{% endfor %}</table>
 
-<h2>Modifications et réparations</h2>
-<table><tr><th>N°</th><th>Nature</th><th>Intitulé</th><th>Approbation</th><th>Statut</th><th>Appliquée le</th></tr>
+<h2>{% trans "Modifications et réparations" %}</h2>
+<table><tr><th>N°</th><th>{% trans "Nature" %}</th><th>{% trans "Intitulé" %}</th><th>{% trans "Approbation" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Appliquée le" %}</th></tr>
 {% for m in mods %}<tr><td>{{ m.number }}</td><td>{{ m.get_kind_display }} {{ m.get_classification_display|lower }}</td><td>{{ m.title }}</td>
 <td>{{ m.get_approval_basis_display }} {{ m.approval_reference }}</td><td>{{ m.get_status_display }}</td><td>{{ m.embodied_on|date:"d/m/Y" }}</td></tr>
-{% empty %}<tr><td colspan="6" class="muted">Aucune.</td></tr>{% endfor %}</table>
+{% empty %}<tr><td colspan="6" class="muted">{% trans "Aucune." %}</td></tr>{% endfor %}</table>
 
-<h2>Défauts ouverts ou reportés</h2>
-<table><tr><th>N°</th><th>Signalé le</th><th>Description</th><th>Statut</th><th>Limite</th></tr>
+<h2>{% trans "Défauts ouverts ou reportés" %}</h2>
+<table><tr><th>N°</th><th>{% trans "Signalé le" %}</th><th>{% trans "Description" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Limite" %}</th></tr>
 {% for d in deferred %}<tr><td>{{ d.number }}</td><td>{{ d.reported_on|date:"d/m/Y" }}</td><td>{{ d.description }}</td><td>{{ d.get_status_display }}{% if d.mel_reference %} ({{ d.mel_reference }}){% endif %}</td>
-<td>{{ d.deferral_limit_date|date:"d/m/Y" }}</td></tr>{% empty %}<tr><td colspan="5" class="muted">Aucun.</td></tr>{% endfor %}</table>
+<td>{{ d.deferral_limit_date|date:"d/m/Y" }}</td></tr>{% empty %}<tr><td colspan="5" class="muted">{% trans "Aucun." %}</td></tr>{% endfor %}</table>
 
-<h2>Contenu de l'archive</h2>
-<table><tr><th>Section</th><th class="num">Enregistrements</th></tr>{% for k, v in counts.items %}<tr><td>{{ k }}</td><td class="num">{{ v }}</td></tr>{% endfor %}</table>
+<h2>{% trans "Contenu de l'archive" %}</h2>
+<table><tr><th>{% trans "Section" %}</th><th class="num">{% trans "Enregistrements" %}</th></tr>{% for k, v in counts.items %}<tr><td>{{ k }}</td><td class="num">{{ v }}</td></tr>{% endfor %}</table>
 </body></html>
