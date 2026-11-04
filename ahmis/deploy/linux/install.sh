@@ -245,6 +245,7 @@ location $URL_PREFIX/static/ {
     access_log off;
 }
 location $URL_PREFIX/ {
+$( [ -f /etc/nginx/ahmis.htpasswd ] && printf '    auth_basic "AHMIS";\n    auth_basic_user_file /etc/nginx/ahmis.htpasswd;' )
     client_max_body_size 25m;
     proxy_pass http://$BIND/;
     proxy_set_header Host \$host;
