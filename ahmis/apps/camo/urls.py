@@ -22,6 +22,7 @@ urlpatterns = [
     path("consignes/statuts/", v.ApplicabilityList.as_view(), name="directive_status_list"),
     path("consignes/statuts/<int:pk>/", v.applicability_update, name="applicability_update"),
     path("modifications/", v.ModificationList.as_view(), name="mod_list"),
+    path("part-21/", v.Part21List.as_view(), name="part21_list"),
     path("modifications/nouvelle/", v.ModificationCreate.as_view(), name="mod_create"),
     path("modifications/<int:pk>/", v.mod_detail, name="mod_detail"),
     path("modifications/<int:pk>/modifier/", v.ModificationUpdate.as_view(), name="mod_update"),

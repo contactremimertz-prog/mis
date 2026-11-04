@@ -1,23 +1,23 @@
-{% load static %}<!doctype html>
+{% load i18n %}{% load static %}<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Connexion · AHMIS</title><link rel="stylesheet" href="{% static 'ahmis/ahmis.css' %}"></head>
+<title>{% trans "Connexion · AHMIS" %}</title><link rel="stylesheet" href="{% static 'ahmis/ahmis.css' %}"></head>
 <body><div class="login-wrap"><div class="login-card">
   <div class="brand"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0f2238"/><path d="M6 18h20M16 8v18M9 12l7-4 7 4" stroke="#5aa0ff" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
-    <span>AHMIS<small style="color:var(--ink-3)">Maintenance Information System</small></span></div>
-  <p class="muted small" style="margin-top:0">CAMO · Part-145 · Logistique</p>
-  {% if auth_error %}<div class="alert">{{ auth_error }}</div>{% elif form.errors %}<div class="alert">Identifiant ou mot de passe incorrect.</div>{% endif %}
+    <span>AHMIS<small style="color:var(--ink-3)">{% trans "Maintenance Information System" %}</small></span></div>
+  <p class="muted small" style="margin-top:0">{% trans "CAMO · Part-145 · Logistique" %}</p>
+  {% if auth_error %}<div class="alert">{{ auth_error }}</div>{% elif form.errors %}<div class="alert">{% trans "Identifiant ou mot de passe incorrect." %}</div>{% endif %}
   {% if oidc_enabled %}
   <a class="btn primary" href="{% url 'oidc_authentication_init' %}{% if next %}?next={{ next|urlencode }}{% endif %}" style="width:100%;justify-content:center;margin-bottom:14px">{{ oidc_label }}</a>
-  <div class="small muted" style="text-align:center;margin:-4px 0 12px">ou avec un identifiant et un mot de passe</div>
+  <div class="small muted" style="text-align:center;margin:-4px 0 12px">{% trans "ou avec un identifiant et un mot de passe" %}</div>
   {% endif %}
   <form method="post" class="stacked">{% csrf_token %}
-    <div class="field"><label for="id_username">Identifiant{% if ldap_enabled %} Windows{% endif %}</label><input type="text" name="username" id="id_username" {% if not oidc_enabled %}autofocus{% endif %} required autocomplete="username" placeholder="{% if ldap_enabled %}identifiant ou {{ ldap_domain|default:'DOMAINE' }}\identifiant{% endif %}"></div>
-    <div class="field"><label for="id_password">Mot de passe</label><input type="password" name="password" id="id_password" required autocomplete="current-password"></div>
+    <div class="field"><label for="id_username">{% trans "Identifiant" %}{% if ldap_enabled %} {% trans "Windows" %}{% endif %}</label><input type="text" name="username" id="id_username" {% if not oidc_enabled %}autofocus{% endif %} required autocomplete="username" placeholder="{% if ldap_enabled %}identifiant ou {{ ldap_domain|default:'DOMAINE' }}\identifiant{% endif %}"></div>
+    <div class="field"><label for="id_password">{% trans "Mot de passe" %}</label><input type="password" name="password" id="id_password" required autocomplete="current-password"></div>
     <input type="hidden" name="next" value="{{ next }}">
-    <button class="btn primary" type="submit" style="width:100%;justify-content:center">Se connecter</button>
+    <button class="btn primary" type="submit" style="width:100%;justify-content:center">{% trans "Se connecter" %}</button>
   </form>
   {% if demo_accounts %}
-  <div class="demo-accounts"><strong>Comptes de démonstration</strong> (mot de passe : <code>{{ demo_password }}</code>)
+  <div class="demo-accounts"><strong>{% trans "Comptes de démonstration" %}</strong> {% trans "(mot de passe :" %} <code>{{ demo_password }}</code>)
     <table>{% for u, role in demo_accounts %}<tr><td><code>{{ u }}</code></td><td>{{ role }}</td></tr>{% endfor %}</table>
   </div>{% endif %}
 </div></div></body></html>

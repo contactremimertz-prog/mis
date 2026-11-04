@@ -1,38 +1,38 @@
-{% extends "base.html" %}{% load ahmis %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ d.number }}{% endblock %}
 {% block content %}
 <div class="page-head">
-  <div><h1>{{ d.number }}{% if d.revision %} rév. {{ d.revision }}{% endif %} <span class="badge {% if d.kind == 'AD' or d.kind == 'EAD' %}bad{% else %}info{% endif %}">{{ d.get_kind_display }}</span></h1>
-    <div class="sub">{{ d.title }} · {{ d.get_authority_display }} · en vigueur le {{ d.effective_date|date:"d/m/Y" }}</div></div>
+  <div><h1>{{ d.number }}{% if d.revision %} {% trans "rév." %} {{ d.revision }}{% endif %} <span class="badge {% if d.kind == 'AD' or d.kind == 'EAD' %}bad{% else %}info{% endif %}">{{ d.get_kind_display }}</span></h1>
+    <div class="sub">{{ d.title }} {% blocktrans with authority=d.get_authority_display %}· {{ authority }} · en vigueur le{% endblocktrans %} {{ d.effective_date|date:"d/m/Y" }}</div></div>
   <div class="actions">
-    {% if perms.camo.add_maintenancetask %}{% for t in d.aircraft_types.all %}<a class="btn primary" href="{% url 'camo:task_create' %}?directive={{ d.pk }}&aircraft_type={{ t.pk }}">Créer la tâche de suivi ({{ t.code }})</a>{% endfor %}{% endif %}
-    {% if perms.camo.change_directive %}<a class="btn" href="{% url 'camo:directive_update' d.pk %}">Modifier</a>{% endif %}
+    {% if perms.camo.add_maintenancetask %}{% for t in d.aircraft_types.all %}<a class="btn primary" href="{% url 'camo:task_create' %}?directive={{ d.pk }}&aircraft_type={{ t.pk }}">{% blocktrans with code=t.code %}Créer la tâche de suivi ({{ code }}){% endblocktrans %}</a>{% endfor %}{% endif %}
+    {% if perms.camo.change_directive %}<a class="btn" href="{% url 'camo:directive_update' d.pk %}">{% trans "Modifier" %}</a>{% endif %}
   </div>
 </div>
 <div class="grid grid-2">
-  <div class="card"><h2>Contenu</h2>
+  <div class="card"><h2>{% trans "Contenu" %}</h2>
     <dl class="dl">
-      <div><dt>Types concernés</dt><dd>{{ d.aircraft_types.all|join:", "|default:"—" }}</dd></div>
-      <div><dt>P/N concernés</dt><dd>{% for p in d.part_numbers.all %}<a href="{{ p.get_absolute_url }}">{{ p.pn }}</a> {% empty %}—{% endfor %}</dd></div>
-      <div><dt>Répétitive</dt><dd>{% yesno_badge d.is_recurring %}</dd></div>
-      <div><dt>SB associé</dt><dd>{{ d.related_sb|default:"—" }}</dd></div>
-      <div><dt>Remplace</dt><dd>{% if d.supersedes %}<a href="{{ d.supersedes.get_absolute_url }}">{{ d.supersedes.number }}</a>{% else %}—{% endif %}</dd></div>
-      <div><dt>Document</dt><dd>{% if d.document %}<a href="{{ d.document.url }}">Télécharger</a>{% else %}—{% endif %}</dd></div>
+      <div><dt>{% trans "Types concernés" %}</dt><dd>{{ d.aircraft_types.all|join:", "|default:"—" }}</dd></div>
+      <div><dt>{% trans "P/N concernés" %}</dt><dd>{% for p in d.part_numbers.all %}<a href="{{ p.get_absolute_url }}">{{ p.pn }}</a> {% empty %}—{% endfor %}</dd></div>
+      <div><dt>{% trans "Répétitive" %}</dt><dd>{% yesno_badge d.is_recurring %}</dd></div>
+      <div><dt>{% trans "SB associé" %}</dt><dd>{{ d.related_sb|default:"—" }}</dd></div>
+      <div><dt>{% trans "Remplace" %}</dt><dd>{% if d.supersedes %}<a href="{{ d.supersedes.get_absolute_url }}">{{ d.supersedes.number }}</a>{% else %}—{% endif %}</dd></div>
+      <div><dt>{% trans "Document" %}</dt><dd>{% if d.document %}<a href="{{ d.document.url }}">{% trans "Télécharger" %}</a>{% else %}—{% endif %}</dd></div>
     </dl>
-    <h3>Applicabilité</h3><p class="small">{{ d.applicability_text|linebreaksbr|default:"—" }}</p>
-    <h3>Action requise</h3><p class="small">{{ d.required_action|linebreaksbr|default:"—" }}</p>
+    <h3>{% trans "Applicabilité" %}</h3><p class="small">{{ d.applicability_text|linebreaksbr|default:"—" }}</p>
+    <h3>{% trans "Action requise" %}</h3><p class="small">{{ d.required_action|linebreaksbr|default:"—" }}</p>
   </div>
-  <div class="card"><h2>Tâches de suivi</h2>
-    <table class="data"><tbody>{% for t in tasks %}<tr><td><a href="{{ t.get_absolute_url }}">{{ t.reference }}</a></td><td>{{ t.aircraft_type.code }}</td><td class="small">{{ t.interval_display }}{% if t.threshold_display %} · seuil {{ t.threshold_display }}{% endif %}</td></tr>
-    {% empty %}<tr><td class="empty">Aucune tâche : une consigne applicable doit être suivie par une tâche pour apparaître dans les échéances.</td></tr>{% endfor %}</tbody></table>
+  <div class="card"><h2>{% trans "Tâches de suivi" %}</h2>
+    <table class="data"><tbody>{% for t in tasks %}<tr><td><a href="{{ t.get_absolute_url }}">{{ t.reference }}</a></td><td>{{ t.aircraft_type.code }}</td><td class="small">{{ t.interval_display }}{% if t.threshold_display %} {% trans "· seuil" %} {{ t.threshold_display }}{% endif %}</td></tr>
+    {% empty %}<tr><td class="empty">{% trans "Aucune tâche : une consigne applicable doit être suivie par une tâche pour apparaître dans les échéances." %}</td></tr>{% endfor %}</tbody></table>
   </div>
 </div>
-<div class="card"><h2>Évaluation par aéronef</h2>
-  <div class="table-wrap"><table class="data"><thead><tr><th>Aéronef</th><th>Type</th><th>Statut</th><th>Justification / méthode</th><th>Conformité</th><th>Évalué par</th><th></th></tr></thead><tbody>
+<div class="card"><h2>{% trans "Évaluation par aéronef" %}</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>{% trans "Aéronef" %}</th><th>{% trans "Type" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Justification / méthode" %}</th><th>{% trans "Conformité" %}</th><th>{% trans "Évalué par" %}</th><th></th></tr></thead><tbody>
   {% for a in apps %}<tr><td><a href="{{ a.aircraft.get_absolute_url }}">{{ a.aircraft.registration }}</a></td><td>{{ a.aircraft.aircraft_type.code }}</td><td>{% badge a %}</td>
-    <td class="small">{{ a.justification|linebreaksbr|default:"—" }}</td><td class="small">{% if a.compliance_date %}{{ a.compliance_date|date:"d/m/Y" }} ({{ a.compliance_fh|hours }} FH){% else %}—{% endif %}</td>
+    <td class="small">{{ a.justification|linebreaksbr|default:"—" }}</td><td class="small">{% if a.compliance_date %}{{ a.compliance_date|date:"d/m/Y" }} {% blocktrans with compliance_fh=a.compliance_fh|hours %}({{ compliance_fh }} FH){% endblocktrans %}{% else %}—{% endif %}</td>
     <td class="small">{{ a.reviewed_by|default:"—" }} {{ a.reviewed_on|date:"d/m/Y" }}</td>
-    <td>{% if perms.camo.change_directiveapplicability %}<a class="btn small" href="{% url 'camo:applicability_update' a.pk %}">Évaluer</a>{% endif %}</td></tr>
-  {% empty %}<tr><td colspan="7" class="empty">Aucun aéronef potentiellement concerné (vérifiez les types / P/N concernés).</td></tr>{% endfor %}</tbody></table></div>
+    <td>{% if perms.camo.change_directiveapplicability %}<a class="btn small" href="{% url 'camo:applicability_update' a.pk %}">{% trans "Évaluer" %}</a>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">{% trans "Aucun aéronef potentiellement concerné (vérifiez les types / P/N concernés)." %}</td></tr>{% endfor %}</tbody></table></div>
 </div>
 {% endblock %}

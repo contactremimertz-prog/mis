@@ -27,6 +27,8 @@ urlpatterns = [
     path("part145/", include("apps.part145.urls")),
     path("logistique/", include("apps.logistics.urls")),
     path("evenements/", include("apps.safety.urls")),
+    path("qualite/", include("apps.quality.urls")),
+    path("assistant/", include("apps.assistant.urls")),
     path("admin/", admin.site.urls),
     # Pièces jointes (scans de certificats, consignes) : réservées aux utilisateurs connectés
     path("media/<path:path>", core.protected_media, name="protected_media"),

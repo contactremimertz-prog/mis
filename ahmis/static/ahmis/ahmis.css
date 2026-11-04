@@ -238,3 +238,21 @@ td.reg, .reg { white-space: nowrap; }
 .gantt .bar .lbl { position: absolute; left: 4px; top: 3px; line-height: 22px; z-index: 2; color: #fff; font-weight: 600; pointer-events: none; text-shadow: 0 0 2px rgba(0,0,0,.35); }
 .gantt .bar .lbl { color: var(--ink); background: rgba(255,255,255,.92); border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; line-height: 18px; top: 2px; font-size: 10.5px; text-shadow: none; white-space: nowrap; }
 .gantt th .small { font-size: 10.5px; }
+
+/* Assistant (bouton « ? » en bas de page) */
+.assistant { position: fixed; right: 18px; bottom: 18px; z-index: 50; }
+.assistant-toggle { width: 46px; height: 46px; border-radius: 50%; border: 0; background: var(--accent, #1f6feb); color: #fff;
+  font-size: 22px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.assistant-toggle:focus-visible { outline: 3px solid #5aa0ff; outline-offset: 2px; }
+.assistant-panel { position: absolute; right: 0; bottom: 58px; width: min(380px, calc(100vw - 36px)); max-height: 70vh; overflow: auto;
+  background: var(--surface, #fff); color: inherit; border: 1px solid var(--line, #d0d7de); border-radius: 10px; padding: 14px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.25); }
+.assistant-panel h2 { margin: 0 0 4px; font-size: 16px; }
+.assistant-panel form { display: flex; gap: 6px; margin: 8px 0; }
+.assistant-panel input { flex: 1; }
+.assistant-answer { border-left: 3px solid var(--accent, #1f6feb); padding: 4px 10px; margin: 8px 0; }
+.assistant-answer.refusal { border-left-color: var(--warn, #d4a72c); }
+.assistant-answer p { margin: 6px 0; }
+.assistant-list { list-style: none; padding: 0; margin: 6px 0 0; }
+.assistant-list li { margin: 4px 0; }
+.assistant-list .linklike { text-align: left; }

@@ -96,11 +96,14 @@ INSTALLED_APPS = [
     "apps.logistics",
     "apps.api",
     "apps.safety",
+    "apps.quality",
+    "apps.assistant",
     "rest_framework",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "apps.core.middleware.SecurityHeadersMiddleware",
     *(["whitenoise.middleware.WhiteNoiseMiddleware"] if HAS_WHITENOISE and not DEBUG else []),
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -123,6 +126,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.ahmis",
@@ -168,17 +172,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "fr"
-LANGUAGES = [("fr", "Français"), ("en", "English")]
+LANGUAGES = [("fr", "Français"), ("en", "English"), ("es", "Español"), ("de", "Deutsch")]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = os.environ.get("AHMIS_TIME_ZONE", "Europe/Paris")
 USE_I18N = True
 USE_TZ = True
 USE_THOUSAND_SEPARATOR = False
 
-STATIC_URL = "static/"
+# Publication sous un sous-chemin (ex. AHMIS_URL_PREFIX=/ahmis derrière nginx, qui retire le préfixe)
+URL_PREFIX = "/" + env("AHMIS_URL_PREFIX", "").strip("/") if env("AHMIS_URL_PREFIX", "").strip("/") else ""
+if URL_PREFIX:
+    FORCE_SCRIPT_NAME = URL_PREFIX
+    SESSION_COOKIE_PATH = CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = URL_PREFIX + "/"
+STATIC_URL = f"{URL_PREFIX}/static/" if URL_PREFIX else "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = Path(env("AHMIS_STATIC_ROOT", str(BASE_DIR / "staticfiles")))
-MEDIA_URL = "media/"
+MEDIA_URL = f"{URL_PREFIX}/media/" if URL_PREFIX else "media/"
 MEDIA_ROOT = DATA_DIR / "media"
 if HAS_WHITENOISE and not DEBUG:
     STORAGES = {
@@ -191,6 +200,7 @@ if env("AHMIS_HTTPS", "0") == "1":
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_HSTS_SECONDS = int(env("AHMIS_HSTS_SECONDS", "31536000"))
 SESSION_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -347,7 +357,7 @@ if AHMIS_AUTH["OIDC_ENABLED"]:
     OIDC_OP_JWKS_ENDPOINT = env("AHMIS_OIDC_JWKS_ENDPOINT", _defaults["jwks"])
     if not all([OIDC_RP_CLIENT_ID, OIDC_OP_AUTHORIZATION_ENDPOINT, OIDC_OP_TOKEN_ENDPOINT, OIDC_OP_JWKS_ENDPOINT]):
         raise ImproperlyConfigured("SSO activé mais incomplet : AHMIS_OIDC_CLIENT_ID et les points de terminaison (ou AHMIS_OIDC_PROVIDER + TENANT/ADFS_HOST) sont requis.")
-    LOGIN_REDIRECT_URL_FAILURE = "/connexion/?sso=echec"
+    LOGIN_REDIRECT_URL_FAILURE = f"{URL_PREFIX}/connexion/?sso=echec"
     OIDC_USE_NONCE = True
     OIDC_STORE_ID_TOKEN = False
     OIDC_TIMEOUT = 10

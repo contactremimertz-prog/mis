@@ -4,6 +4,7 @@ from django.utils import timezone
 from apps.core.crud import AhmisModelForm
 
 from .models import Aircraft, AircraftType, Component, PartNumber
+from django.utils.translation import gettext, gettext_lazy
 
 
 class AircraftTypeForm(AhmisModelForm):
@@ -21,8 +22,8 @@ class AircraftForm(AhmisModelForm):
             "planned_daily_fh", "planned_daily_fc", "cofa_number", "withdrawn_on", "notes",
         ]
         help_texts = {
-            "total_fh": "Heures cellule à la date « compteurs à jour au ». Ensuite, utilisez la saisie des heures de vol.",
-            "planned_daily_fh": "Sert au calcul des dates prévisionnelles et au forecast.",
+            "total_fh": gettext_lazy("Heures cellule à la date « compteurs à jour au ». Ensuite, utilisez la saisie des heures de vol."),
+            "planned_daily_fh": gettext_lazy("Sert au calcul des dates prévisionnelles et au forecast."),
         }
 
     def __init__(self, *args, **kwargs):
@@ -31,22 +32,22 @@ class AircraftForm(AhmisModelForm):
             # Les compteurs ne se modifient plus directement : traçabilité via les saisies d'utilisation.
             for f in ("total_fh", "total_fc", "counters_date"):
                 self.fields[f].disabled = True
-                self.fields[f].help_text = "Modifiable uniquement par une saisie d'heures de vol."
+                self.fields[f].help_text = gettext("Modifiable uniquement par une saisie d'heures de vol.")
 
 
 class UtilisationForm(forms.Form):
-    aircraft = forms.ModelChoiceField(Aircraft.objects.exclude(status="retired"), label="Aéronef")
-    date = forms.DateField(label="Date", widget=forms.DateInput(attrs={"type": "date"}), initial=timezone.localdate)
+    aircraft = forms.ModelChoiceField(Aircraft.objects.exclude(status="retired"), label=gettext_lazy("Aéronef"))
+    date = forms.DateField(label=gettext_lazy("Date"), widget=forms.DateInput(attrs={"type": "date"}), initial=timezone.localdate)
     fh = forms.DecimalField(label="Heures de vol (décimal, ex. 1.5 = 1 h 30)", min_value=0, max_digits=7, decimal_places=2)
-    fc = forms.IntegerField(label="Cycles / atterrissages", min_value=0)
-    reference = forms.CharField(label="Référence (page techlog, CRM…)", required=False, max_length=60)
+    fc = forms.IntegerField(label=gettext_lazy("Cycles / atterrissages"), min_value=0)
+    reference = forms.CharField(label=gettext_lazy("Référence (page techlog, CRM…)"), required=False, max_length=60)
 
     def clean(self):
         data = super().clean()
         if data.get("fh") is not None and data["fh"] > 24:
-            self.add_error("fh", "Plus de 24 h sur une journée : vérifiez la saisie.")
+            self.add_error("fh", gettext("Plus de 24 h sur une journée : vérifiez la saisie."))
         if data.get("date") and data["date"] > timezone.localdate():
-            self.add_error("date", "La date ne peut pas être dans le futur.")
+            self.add_error("date", gettext("La date ne peut pas être dans le futur."))
         return data
 
 
@@ -68,7 +69,7 @@ class ComponentForm(AhmisModelForm):
             "part_number", "serial_number", "condition", "manufacture_date", "last_overhaul_date",
             "tsn_fh", "csn", "tso_fh", "cso", "location", "notes",
         ]
-        help_texts = {"location": "Les composants sont créés en stock. La pose se fait depuis une task card (changement de composant)."}
+        help_texts = {"location": gettext_lazy("Les composants sont créés en stock. La pose se fait depuis une task card (changement de composant).")}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -82,7 +83,7 @@ class ComponentForm(AhmisModelForm):
         if not obj.pk:
             obj.status = "quarantine" if not obj.location_id else "serviceable"
             if obj.status == "quarantine":
-                obj.status_reason = "Création sans emplacement : en attente de réception"
+                obj.status_reason = gettext("Création sans emplacement : en attente de réception")
         if commit:
             obj.save()
             self.save_m2m()

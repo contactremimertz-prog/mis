@@ -1,25 +1,25 @@
-{% extends "base.html" %}{% load ahmis %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ t.reference }}{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>{{ t.reference }} {% badge t %}</h1><div class="sub">{{ t.description }} · P/N {{ t.part_number|default:"—" }} · S/N {{ t.serial_number|default:"—" }} · {{ t.location|default:"emplacement non renseigné" }}</div></div>
-  <div class="actions">{% if perms.logistics.change_tool %}<a class="btn" href="{% url 'logistics:tool_update' t.pk %}">Modifier</a>{% endif %}</div></div>
+<div class="page-head"><div><h1>{{ t.reference }} {% badge t %}</h1><div class="sub">{{ t.description }} · P/N {{ t.part_number|default:"—" }} · S/N {{ t.serial_number|default:"—" }} · {{ t.location|default:_("emplacement non renseigné") }}</div></div>
+  <div class="actions">{% if perms.logistics.change_tool %}<a class="btn" href="{% url 'logistics:tool_update' t.pk %}">{% trans "Modifier" %}</a>{% endif %}</div></div>
 <div class="grid grid-2">
-  <div class="card"><h2>Étalonnage</h2>
+  <div class="card"><h2>{% trans "Étalonnage" %}</h2>
     {% if t.calibration_required %}
-    <dl class="dl"><div><dt>Périodicité</dt><dd>{{ t.calibration_interval_days|fmt }} jours</dd></div><div><dt>Dernier</dt><dd>{{ t.last_calibration|date:"d/m/Y"|default:"—" }}</dd></div>
-      <div><dt>Échéance</dt><dd>{% if t.calibration_ok %}<span class="badge ok">{{ t.calibration_due|date:"d/m/Y" }}</span>{% else %}<span class="badge bad">{{ t.calibration_due|date:"d/m/Y"|default:"non renseignée" }} – sortie bloquée</span>{% endif %}</dd></div></dl>
-    {% else %}<p class="muted">Pas d'étalonnage requis.</p>{% endif %}
-    {% if t.checked_out_to %}<div class="alert warn" style="margin-top:12px">Sorti pour <a href="{{ t.checked_out_to.get_absolute_url }}">{{ t.checked_out_to.number }}</a> par {{ t.checked_out_by.full_name|default:"—" }}</div>{% endif %}
-    {% if perms.logistics.add_toolcalibration %}<h3>Enregistrer un étalonnage</h3>
-    <form method="post" class="stacked">{% csrf_token %}<div class="form-grid">{% for f in form %}{% field f %}{% endfor %}</div><button class="btn" type="submit">Enregistrer</button></form>{% endif %}
+    <dl class="dl"><div><dt>{% trans "Périodicité" %}</dt><dd>{{ t.calibration_interval_days|fmt }} {% trans "jours" %}</dd></div><div><dt>{% trans "Dernier" %}</dt><dd>{{ t.last_calibration|date:"d/m/Y"|default:"—" }}</dd></div>
+      <div><dt>{% trans "Échéance" %}</dt><dd>{% if t.calibration_ok %}<span class="badge ok">{{ t.calibration_due|date:"d/m/Y" }}</span>{% else %}<span class="badge bad">{{ t.calibration_due|date:"d/m/Y"|default:_("non renseignée") }} {% trans "– sortie bloquée" %}</span>{% endif %}</dd></div></dl>
+    {% else %}<p class="muted">{% trans "Pas d'étalonnage requis." %}</p>{% endif %}
+    {% if t.checked_out_to %}<div class="alert warn" style="margin-top:12px">{% trans "Sorti pour" %} <a href="{{ t.checked_out_to.get_absolute_url }}">{{ t.checked_out_to.number }}</a> {% trans "par" %} {{ t.checked_out_by.full_name|default:"—" }}</div>{% endif %}
+    {% if perms.logistics.add_toolcalibration %}<h3>{% trans "Enregistrer un étalonnage" %}</h3>
+    <form method="post" class="stacked">{% csrf_token %}<div class="form-grid">{% for f in form %}{% field f %}{% endfor %}</div><button class="btn" type="submit">{% trans "Enregistrer" %}</button></form>{% endif %}
   </div>
-  <div class="card"><h2>Historique des étalonnages</h2><table class="data"><thead><tr><th>Date</th><th>Laboratoire</th><th>Certificat</th><th>Résultat</th></tr></thead><tbody>
+  <div class="card"><h2>{% trans "Historique des étalonnages" %}</h2><table class="data"><thead><tr><th>{% trans "Date" %}</th><th>{% trans "Laboratoire" %}</th><th>{% trans "Certificat" %}</th><th>{% trans "Résultat" %}</th></tr></thead><tbody>
     {% for c in calibrations %}<tr><td>{{ c.date|date:"d/m/Y" }}</td><td>{{ c.provider }}</td><td>{{ c.certificate_ref }}</td><td><span class="badge {% if c.result == 'pass' %}ok{% else %}bad{% endif %}">{{ c.get_result_display }}</span></td></tr>
-    {% empty %}<tr><td colspan="4" class="empty">Aucun.</td></tr>{% endfor %}</tbody></table></div>
+    {% empty %}<tr><td colspan="4" class="empty">{% trans "Aucun." %}</td></tr>{% endfor %}</tbody></table></div>
 </div>
-<div class="card"><h2>Utilisations (traçabilité)</h2><table class="data"><thead><tr><th>Task card</th><th>Utilisateur</th><th>Sorti</th><th>Rendu</th><th>Étalonné jusqu'au</th></tr></thead><tbody>
+<div class="card"><h2>{% trans "Utilisations (traçabilité)" %}</h2><table class="data"><thead><tr><th>{% trans "Task card" %}</th><th>{% trans "Utilisateur" %}</th><th>{% trans "Sorti" %}</th><th>{% trans "Rendu" %}</th><th>{% trans "Étalonné jusqu'au" %}</th></tr></thead><tbody>
   {% for u in usages %}<tr><td><a href="{{ u.task_card.get_absolute_url }}">{{ u.task_card.number }}</a></td><td>{{ u.staff.full_name|default:"—" }}</td><td>{{ u.checked_out_at|date:"d/m/Y H:i" }}</td><td>{{ u.returned_at|date:"d/m/Y H:i"|default:"—" }}</td><td>{{ u.calibration_due|date:"d/m/Y"|default:"n/a" }}</td></tr>
-  {% empty %}<tr><td colspan="5" class="empty">Aucune.</td></tr>{% endfor %}</tbody></table>
-  <p class="small muted">En cas d'étalonnage non conforme, cette liste identifie les travaux réalisés avec l'outil depuis le dernier étalonnage valide.</p>
+  {% empty %}<tr><td colspan="5" class="empty">{% trans "Aucune." %}</td></tr>{% endfor %}</tbody></table>
+  <p class="small muted">{% trans "En cas d'étalonnage non conforme, cette liste identifie les travaux réalisés avec l'outil depuis le dernier étalonnage valide." %}</p>
 </div>
 {% endblock %}

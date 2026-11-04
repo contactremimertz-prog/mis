@@ -44,23 +44,21 @@ class Command(BaseCommand):
             return
         random.seed(145)
         self.today = timezone.localdate()
-        with transaction.atomic():
-            self.users()
-            self.stores()
-            self.types_and_parts()
-            self.staff()
-            self.programme()
-            self.fleet()
-            self.utilisation()
-            self.directives()
-            self.history()
-            self.logistics()
-            self.workpackages()
+        try:
+            self._load()
+        finally:
+            set_current_user(None)
         self.stdout.write(self.style.SUCCESS(
             f"Données de démonstration chargées : {Aircraft.objects.exclude(status='retired').count()} aéronefs (+ 1 retiré), "
             f"{MaintenanceTask.objects.count()} tâches, {Component.objects.count()} composants. "
             f"Comptes : {', '.join(a[0] for a in DEMO_ACCOUNTS)} – mot de passe {DEMO_PASSWORD}"
         ))
+
+    @transaction.atomic
+    def _load(self):
+        for step in (self.users, self.stores, self.types_and_parts, self.staff, self.programme, self.fleet, self.utilisation,
+                     self.directives, self.history, self.logistics, self.workpackages, self.quality_and_purchasing):
+            step()
 
     # ------------------------------------------------------------------ utilisateurs
     def users(self):
@@ -676,3 +674,60 @@ class Command(BaseCommand):
             corrective_actions="Contrôle documentaire renforcé en réception ; fournisseur placé sous surveillance.",
             closed_on=(now - timedelta(days=90)).date())
 
+
+    # ------------------------------------------------------------------ qualité, achats, Part-21
+    def quality_and_purchasing(self):
+        from apps.camo.models import ModificationRepair
+        from apps.logistics.models import PurchaseOrder, PurchaseOrderLine, Supplier
+        from apps.logistics.purchasing import receive_line, send_order
+        from apps.quality.models import AuditFinding, ControlledDocument, DocumentRevision, InternalAudit
+        from apps.quality.services import approve_revision
+
+        t = self.today
+        self.as_user("qualite")
+        a1 = InternalAudit.objects.create(
+            title="Réception et magasinage des pièces", scope="part145", kind="process", area="Magasin principal",
+            planned_on=t - timedelta(days=40), performed_on=t - timedelta(days=38), auditor=self.u["qualite"],
+            auditor_independent=True, status="reported", summary="Réception conforme dans l'ensemble ; deux écarts relevés.")
+        AuditFinding.objects.create(audit=a1, level="level2", requirement="145.A.42(a)",
+                                    description="Deux pièces stockées sans étiquette de statut (servicable / non servicable).")
+        AuditFinding.objects.create(audit=a1, level="observation", requirement="MOE 2.3",
+                                    description="Procédure de contrôle des températures de stockage à préciser.")
+        InternalAudit.objects.create(
+            title="Facteurs humains et formation continue", scope="part145", kind="process", area="Atelier",
+            planned_on=t + timedelta(days=20), auditor=self.u["qualite"], auditor_independent=True)
+        moe = ControlledDocument.objects.create(reference="MOE", title="Manuel des spécifications de l'organisme (MOE)",
+                                                doc_type="moe", owner="Qualité", authority_approval=True, review_months=12)
+        proc = ControlledDocument.objects.create(reference="PRO-STO-01", title="Réception et stockage des pièces",
+                                                 doc_type="procedure", owner="Magasin", review_months=24)
+        self.as_user("magasin")
+        from django.core.files.base import ContentFile
+
+        def pdf(name):
+            return ContentFile(b"%PDF-1.4\n% document de demonstration AHMIS\n%%EOF\n", name=name)
+
+        r1 = DocumentRevision.objects.create(document=proc, revision="A", change_summary="Édition initiale.", file=pdf("pro-sto-01-a.pdf"))
+        self.as_user("qualite")
+        approve_revision(r1, self.u["qualite"])
+        DocumentRevision.objects.create(document=proc, revision="B", change_summary="Ajout de l'étiquetage du statut des pièces.")
+        r_moe = DocumentRevision.objects.create(document=moe, revision="12", change_summary="Mise à jour de la liste du personnel d'encadrement.",
+                                                authority_reference="DSAC/NO-2026-118", file=pdf("moe-12.pdf"))
+        self.as_user("admin")
+        approve_revision(r_moe, self.u["admin"])
+
+        self.as_user("magasin")
+        sup = Supplier.objects.create(name="Héli Pièces Distribution", kind="part145", approval_reference="FR.145.DEMO",
+                                      approved=True, evaluated_on=t - timedelta(days=200), contact="commandes@exemple.invalid")
+        Supplier.objects.create(name="Atelier non évalué", kind="other")
+        po = PurchaseOrder.objects.create(supplier=sup, expected_on=t + timedelta(days=10))
+        line_oil = PurchaseOrderLine.objects.create(order=po, part_number=self.pn["OIL"], quantity=D("6"))
+        PurchaseOrderLine.objects.create(order=po, part_number=self.pn["CHIP"], quantity=D("2"))
+        send_order(po)
+        receive_line(line_oil, D("4"))
+        PurchaseOrder.objects.create(supplier=sup, notes="Commande en préparation.")
+
+        self.as_user("camo")
+        ModificationRepair.objects.create(
+            aircraft=self.ac["MC"], kind="mod", classification="major", approval_basis="stc",
+            title="Installation d'un treuil de sauvetage", design_holder="Bureau d'études DEMO",
+            design_approval_number="EASA.21J.DEMO", part21_status="requested", part21_requested_on=t - timedelta(days=15))

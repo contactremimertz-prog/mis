@@ -24,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.translation import gettext
 
 FORMAT_VERSION = "1.0"
 SKIP_FIELDS = {"created_by", "updated_by"}
@@ -41,7 +42,7 @@ def _value(obj, f):
     if isinstance(v, models.fields.files.FieldFile):
         return v.name or ""
     if f.choices:
-        return getattr(obj, f"get_{f.name}_display")()
+        return str(getattr(obj, f"get_{f.name}_display")())
     return v
 
 
@@ -139,7 +140,7 @@ def build_archive(aircraft, user=None, recipient="", purpose=""):
     generated = timezone.now().replace(microsecond=0)
     files = {
         "dossier.json": json.dumps({"format": "AHMIS-dossier", "version": FORMAT_VERSION, "sections": data},
-                                   ensure_ascii=False, indent=1).encode("utf-8"),
+                                   ensure_ascii=False, indent=1, default=str).encode("utf-8"),
     }
     for name, rows in data.items():
         files[f"csv/{name}.csv"] = _csv(rows)
@@ -165,7 +166,7 @@ def build_archive(aircraft, user=None, recipient="", purpose=""):
     }
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False, indent=1))
+        z.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False, indent=1, default=str))
         for name, content in files.items():
             z.writestr(name, content)
     raw = buf.getvalue()
@@ -178,29 +179,29 @@ def verify_archive(fileobj):
     try:
         z = zipfile.ZipFile(fileobj)
     except zipfile.BadZipFile:
-        return None, ["Fichier illisible : ce n'est pas une archive ZIP."]
+        return None, [gettext("Fichier illisible : ce n'est pas une archive ZIP.")]
     with z:
         names = set(z.namelist())
         if "manifest.json" not in names:
-            return None, ["manifest.json absent : archive non conforme au format AHMIS."]
+            return None, [gettext("manifest.json absent : archive non conforme au format AHMIS.")]
         try:
             manifest = json.loads(z.read("manifest.json").decode("utf-8"))
         except (ValueError, UnicodeDecodeError):
-            return None, ["manifest.json illisible."]
+            return None, [gettext("manifest.json illisible.")]
         declared = manifest.get("fichiers", {})
         if not isinstance(declared, dict):
-            return None, ["manifest.json : liste des fichiers invalide."]
+            return None, [gettext("manifest.json : liste des fichiers invalide.")]
         for name, digest in declared.items():
             if name not in names:
-                problems.append(f"Fichier manquant : {name}")
+                problems.append(gettext("Fichier manquant : {name}").format(name=name))
                 continue
             info = z.getinfo(name)
             if info.file_size > 500 * 1024 * 1024:
-                problems.append(f"Fichier anormalement volumineux : {name}")
+                problems.append(gettext("Fichier anormalement volumineux : {name}").format(name=name))
                 continue
             if hashlib.sha256(z.read(name)).hexdigest() != digest:
-                problems.append(f"Empreinte SHA-256 différente (fichier altéré) : {name}")
+                problems.append(gettext("Empreinte SHA-256 différente (fichier altéré) : {name}").format(name=name))
         extra = names - set(declared) - {"manifest.json"}
         for name in sorted(extra):
-            problems.append(f"Fichier non déclaré dans le manifeste : {name}")
+            problems.append(gettext("Fichier non déclaré dans le manifeste : {name}").format(name=name))
     return manifest, problems

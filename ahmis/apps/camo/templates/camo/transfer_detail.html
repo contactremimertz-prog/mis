@@ -1,36 +1,36 @@
-{% extends "base.html" %}{% load ahmis %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ t.number }}{% endblock %}
 {% block content %}
 <div class="page-head">
   <div><h1>{{ t.number }} <span class="badge info">{{ t.get_direction_display }}</span></h1>
     <div class="sub"><a href="{{ t.aircraft.get_absolute_url }}">{{ t.aircraft.registration }}</a> · {{ t.counterparty }}{% if t.counterparty_approval %} ({{ t.counterparty_approval }}){% endif %} · {{ t.transfer_date|date:"d/m/Y" }}</div></div>
   <div class="actions">
-    {% if t.archive %}<a class="btn primary" href="{% url 'camo:transfer_download' t.pk %}">Télécharger l'archive</a>{% endif %}
-    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'camo.transferrecord' t.pk %}">Historique</a>{% endif %}
+    {% if t.archive %}<a class="btn primary" href="{% url 'camo:transfer_download' t.pk %}">{% trans "Télécharger l'archive" %}</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'camo.transferrecord' t.pk %}">{% trans "Historique" %}</a>{% endif %}
   </div>
 </div>
 {% if t.verification %}<div class="alert {% if t.integrity_ok %}ok{% else %}warn{% endif %}">{{ t.verification }}</div>{% endif %}
 <div class="grid grid-2">
-  <div class="card"><h2>Transfert</h2><dl class="dl">
-    <div><dt>Sens</dt><dd>{{ t.get_direction_display }}</dd></div>
-    <div><dt>Organisme</dt><dd>{{ t.counterparty }}{% if t.counterparty_approval %} – {{ t.counterparty_approval }}{% endif %}</dd></div>
-    <div><dt>Date</dt><dd>{{ t.transfer_date|date:"d/m/Y" }}</dd></div>
-    <div><dt>Archive</dt><dd>{% if t.archive %}{{ t.archive_size|filesizeformat }}{% else %}—{% endif %}</dd></div>
-    <div><dt>SHA-256</dt><dd class="small" style="word-break:break-all">{{ t.archive_sha256|default:"—" }}</dd></div>
-    {% if t.direction != "in" %}<div><dt>Réception confirmée</dt><dd>{% if t.acknowledged_on %}<span class="badge ok">{{ t.acknowledged_on|date:"d/m/Y" }}</span> {{ t.acknowledged_by }}{% else %}<span class="badge warn">En attente</span>{% endif %}</dd></div>{% endif %}
-  </dl>{% if t.reason %}<h3>Motif</h3><p class="small">{{ t.reason|linebreaksbr }}</p>{% endif %}{% if t.notes %}<h3>Notes</h3><p class="small">{{ t.notes|linebreaksbr }}</p>{% endif %}
+  <div class="card"><h2>{% trans "Transfert" %}</h2><dl class="dl">
+    <div><dt>{% trans "Sens" %}</dt><dd>{{ t.get_direction_display }}</dd></div>
+    <div><dt>{% trans "Organisme" %}</dt><dd>{{ t.counterparty }}{% if t.counterparty_approval %} – {{ t.counterparty_approval }}{% endif %}</dd></div>
+    <div><dt>{% trans "Date" %}</dt><dd>{{ t.transfer_date|date:"d/m/Y" }}</dd></div>
+    <div><dt>{% trans "Archive" %}</dt><dd>{% if t.archive %}{{ t.archive_size|filesizeformat }}{% else %}—{% endif %}</dd></div>
+    <div><dt>{% trans "SHA-256" %}</dt><dd class="small" style="word-break:break-all">{{ t.archive_sha256|default:"—" }}</dd></div>
+    {% if t.direction != "in" %}<div><dt>{% trans "Réception confirmée" %}</dt><dd>{% if t.acknowledged_on %}<span class="badge ok">{{ t.acknowledged_on|date:"d/m/Y" }}</span> {{ t.acknowledged_by }}{% else %}<span class="badge warn">{% trans "En attente" %}</span>{% endif %}</dd></div>{% endif %}
+  </dl>{% if t.reason %}<h3>{% trans "Motif" %}</h3><p class="small">{{ t.reason|linebreaksbr }}</p>{% endif %}{% if t.notes %}<h3>{% trans "Notes" %}</h3><p class="small">{{ t.notes|linebreaksbr }}</p>{% endif %}
   {% if t.direction != "in" and not t.acknowledged_on and perms.camo.change_transferrecord %}
-  <h3>Enregistrer l'accusé de réception</h3>
-  <form method="post" class="inline-form">{% csrf_token %}{% for f in ack_form %}{% field f %}{% endfor %}<button class="btn" type="submit">Enregistrer</button></form>{% endif %}
+  <h3>{% trans "Enregistrer l'accusé de réception" %}</h3>
+  <form method="post" class="inline-form">{% csrf_token %}{% for f in ack_form %}{% field f %}{% endfor %}<button class="btn" type="submit">{% trans "Enregistrer" %}</button></form>{% endif %}
   </div>
-  <div class="card"><h2>Contenu (manifeste)</h2>
+  <div class="card"><h2>{% trans "Contenu (manifeste)" %}</h2>
   {% if t.manifest %}<dl class="dl">
-    <div><dt>Émetteur</dt><dd>{{ t.manifest.emetteur.organisme }} {{ t.manifest.emetteur.agrement }}</dd></div>
-    <div><dt>Généré le</dt><dd>{{ t.manifest.genere_le }}</dd></div>
-    <div><dt>Aéronef</dt><dd>{{ t.manifest.aeronef.immatriculation }} – MSN {{ t.manifest.aeronef.msn }} – {{ t.manifest.aeronef.type }}</dd></div>
+    <div><dt>{% trans "Émetteur" %}</dt><dd>{{ t.manifest.emetteur.organisme }} {{ t.manifest.emetteur.agrement }}</dd></div>
+    <div><dt>{% trans "Généré le" %}</dt><dd>{{ t.manifest.genere_le }}</dd></div>
+    <div><dt>{% trans "Aéronef" %}</dt><dd>{{ t.manifest.aeronef.immatriculation }} {% blocktrans with msn=t.manifest.aeronef.msn %}– MSN {{ msn }} –{% endblocktrans %} {{ t.manifest.aeronef.type }}</dd></div>
   </dl>
-  <table class="data"><thead><tr><th>Section</th><th class="num">Enregistrements</th></tr></thead><tbody>
+  <table class="data"><thead><tr><th>{% trans "Section" %}</th><th class="num">{% trans "Enregistrements" %}</th></tr></thead><tbody>
   {% for k, v in t.manifest.effectifs.items %}<tr><td>{{ k }}</td><td class="num">{{ v }}</td></tr>{% endfor %}</tbody></table>
-  {% else %}<p class="muted">Aucun manifeste AHMIS : dossier à contrôler manuellement.</p>{% endif %}</div>
+  {% else %}<p class="muted">{% trans "Aucun manifeste AHMIS : dossier à contrôler manuellement." %}</p>{% endif %}</div>
 </div>
 {% endblock %}

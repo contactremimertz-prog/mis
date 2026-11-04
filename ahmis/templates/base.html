@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}AHMIS{% endblock %} · AHMIS</title>
+  <title>{% block title %}AHMIS{% endblock %} {% trans "· AHMIS" %}</title>
   <link rel="stylesheet" href="{% static 'ahmis/ahmis.css' %}">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f2238'/%3E%3Cpath d='M6 18h20M16 8v18M9 12l7-4 7 4' stroke='%235aa0ff' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
 <div class="layout">
-  <nav class="sidebar" aria-label="Navigation principale">
+  <nav class="sidebar" aria-label="{% trans 'Navigation principale' %}">
     <a class="brand" href="{% url 'dashboard' %}" style="border:0;padding:0 18px 16px">
       <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1f3a5c"/><path d="M6 18h20M16 8v18M9 12l7-4 7 4" stroke="#5aa0ff" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
-      <span>AHMIS<small>Maintenance Information System</small></span>
+      <span>AHMIS<small>{% trans "Maintenance Information System" %}</small></span>
     </a>
     {% with ns=request.resolver_match.namespace un=request.resolver_match.url_name %}
     <a href="{% url 'dashboard' %}" class="{% if un == 'dashboard' %}active{% endif %}">{% trans "Tableau de bord" %}</a>
@@ -25,6 +25,7 @@
     <a href="{% url 'camo:directive_list' %}" class="{% if ns == 'camo' and 'directive' in un %}active{% endif %}">{% trans "AD / SB" %}</a>
     <a href="{% url 'fleet:utilisation_list' %}" class="{% if 'utilisation' in un %}active{% endif %}">{% trans "Heures de vol" %}</a>
     <a href="{% url 'camo:mod_list' %}" class="{% if 'mod_' in un %}active{% endif %}">{% trans "Modifications &amp; réparations" %}</a>
+    <a href="{% url 'camo:part21_list' %}" class="{% if un == 'part21_list' %}active{% endif %}">{% trans "Dossiers Part-21" %}</a>
     <a href="{% url 'camo:amp_review_list' %}" class="{% if 'amp_review' in un %}active{% endif %}">{% trans "Revue du programme" %}</a>
     {% if perms.camo.view_transferrecord %}<a href="{% url 'camo:transfer_list' %}" class="{% if 'transfer' in un %}active{% endif %}">{% trans "Transferts de dossiers" %}</a>{% endif %}
     <a href="{% url 'camo:arc_list' %}" class="{% if 'arc' in un %}active{% endif %}">{% trans "Examens de navigabilité" %}</a>
@@ -46,9 +47,12 @@
     <a href="{% url 'logistics:quarantine' %}" class="{% if un == 'quarantine' %}active{% endif %}">{% trans "Quarantaine" %}</a>
     <a href="{% url 'logistics:certificate_list' %}" class="{% if 'certificate' in un %}active{% endif %}">{% trans "Certificats libératoires" %}</a>
     <a href="{% url 'logistics:tool_list' %}" class="{% if 'tool' in un %}active{% endif %}">{% trans "Outillage" %}</a>
+    <a href="{% url 'logistics:po_list' %}" class="{% if 'po_' in un or 'supplier' in un %}active{% endif %}">{% trans "Commandes d'achat" %}</a>
     <a href="{% url 'logistics:store_list' %}" class="{% if 'store' in un %}active{% endif %}">{% trans "Magasins" %}</a>
 
     <div class="nav-section">{% trans "Qualité" %}</div>
+    <a href="{% url 'quality:audit_list' %}" class="{% if ns == 'quality' and 'audit' in un or ns == 'quality' and 'finding' in un %}active{% endif %}">{% trans "Audits internes" %}</a>
+    <a href="{% url 'quality:doc_list' %}" class="{% if ns == 'quality' and 'doc' in un %}active{% endif %}">{% trans "Documents maîtrisés" %}</a>
     <a href="{% url 'safety:list' %}" class="{% if request.resolver_match.namespace == 'safety' %}active{% endif %}">{% trans "Comptes rendus d'événements" %}</a>
     <a href="{% url 'audit_list' %}" class="{% if un == 'audit_list' %}active{% endif %}">{% trans "Journal d'audit" %}</a>
     <a href="{% url 'signature_list' %}" class="{% if un == 'signature_list' %}active{% endif %}">{% trans "Signatures électroniques" %}</a>
@@ -62,21 +66,21 @@
   </nav>
   <div class="main">
     <header class="topbar">
-      <button class="btn small menu-toggle" type="button" onclick="document.body.classList.toggle('nav-open')" aria-label="Menu">☰ Menu</button>
+      <button class="btn small menu-toggle" type="button" onclick="document.body.classList.toggle('nav-open')" aria-label="{% trans 'Menu' %}">{% trans "☰ Menu" %}</button>
       <form method="get" action="{% url 'search' %}" style="flex:1;max-width:380px">
-        <input type="search" name="q" placeholder="Rechercher immatriculation, P/N, S/N, WP, task card…" value="{{ request.GET.q|default:'' }}" aria-label="Recherche globale">
+        <input type="search" name="q" placeholder="{% trans 'Rechercher immatriculation, P/N, S/N, WP, task card…' %}" value="{{ request.GET.q|default:'' }}" aria-label="{% trans 'Recherche globale' %}">
       </form>
       <form method="post" action="{% url 'set_language' %}" style="display:inline">{% csrf_token %}
         <input type="hidden" name="next" value="{{ request.path }}">
-        <select name="language" aria-label="Langue" onchange="this.form.submit()">
+        <select name="language" aria-label="{% trans 'Langue' %}" onchange="this.form.submit()">
           {% get_available_languages as LANGS %}{% get_current_language as LANG %}
           {% for code, name in LANGS %}<option value="{{ code }}"{% if code == LANG %} selected{% endif %}>{{ name }}</option>{% endfor %}
         </select>
       </form>
       <div class="who">
-        <a href="{% url 'my_account' %}" title="Mon compte">{% with st=user.staff %}{% if st %}{{ st.full_name }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}{% endwith %}</a>
-        · <span class="muted">{{ user.groups.all|join:", "|default:"administrateur" }}</span>
-        · <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="linklike" type="submit">Déconnexion</button></form>
+        <a href="{% url 'my_account' %}" title="{% trans 'Mon compte' %}">{% with st=user.staff %}{% if st %}{{ st.full_name }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}{% endwith %}</a>
+        · <span class="muted">{{ user.groups.all|join:", "|default:_("administrateur") }}</span>
+        · <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="linklike" type="submit">{% trans "Déconnexion" %}</button></form>
       </div>
     </header>
     <main class="content">
@@ -85,6 +89,16 @@
     </main>
   </div>
 </div>
+<div id="assistant" class="assistant" data-url="{% url 'assistant:ask' %}" data-l-open="{% trans 'Ouvrir l’écran' %}" data-l-tuto="{% trans 'Tutoriel' %}" data-l-more="{% trans 'Questions fréquentes' %}" data-l-error="{% trans 'Assistant indisponible.' %}">
+  <div id="assistant-panel" class="assistant-panel" hidden role="dialog" aria-labelledby="assistant-title">
+    <h2 id="assistant-title">{% trans "Assistant" %}</h2>
+    <p class="small muted">{% trans "Réponses validées sur l'utilisation d'AHMIS. L'assistant ne modifie aucune donnée." %}</p>
+    <form id="assistant-form" role="search"><input id="assistant-q" type="search" maxlength="300" autocomplete="off" aria-label="{% trans 'Votre question' %}" placeholder="{% trans 'Votre question' %}"><button class="btn small primary" type="submit">{% trans "Poser la question" %}</button></form>
+    <div id="assistant-out" aria-live="polite"></div>
+  </div>
+  <button id="assistant-toggle" class="assistant-toggle" type="button" aria-controls="assistant-panel" aria-expanded="false" title="{% trans 'Aide' %}">?</button>
+</div>
+<script src="{% static 'ahmis/assistant.js' %}" defer></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

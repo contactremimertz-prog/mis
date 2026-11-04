@@ -1,11 +1,12 @@
-{% extends "base.html" %}
-{% block title %}Tutoriels{% endblock %}
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% trans "Tutoriels" %}{% endblock %}
 {% block content %}
 <div class="grid" style="grid-template-columns:260px minmax(0,1fr);align-items:start">
   <div class="card help-nav" style="position:sticky;top:12px">
-    <h2>Tutoriels</h2>
+    <h2>{% trans "Tutoriels" %}</h2>
     {% for t in tutorials %}<a href="{% url 'help_page' t.slug %}" {% if t.slug == slug %}style="font-weight:700"{% endif %}>{{ t.title }}</a>{% endfor %}
   </div>
+  {% get_current_language as LC %}{% if LC != "fr" %}<div class="alert warn">{% trans "Les tutoriels sont rédigés en français." %}</div>{% endif %}
   <div class="card help-content">
     {{ content|safe }}
     <div class="actions" style="margin-top:28px;justify-content:space-between">
