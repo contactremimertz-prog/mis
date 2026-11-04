@@ -165,30 +165,16 @@ def dashboard(request):
 
 
 def search(request):
-    q = request.GET.get("q", "").strip()
-    results = []
-    if q:
-        for ac in Aircraft.objects.filter(Q(registration__icontains=q) | Q(msn__icontains=q))[:10]:
-            results.append(("Aéronef", ac, ac.get_absolute_url()))
-        for c in Component.objects.filter(Q(serial_number__icontains=q) | Q(part_number__pn__icontains=q)).select_related("part_number")[:20]:
-            results.append(("Composant", c, c.get_absolute_url()))
-        for p in PartNumber.objects.filter(Q(pn__icontains=q) | Q(description__icontains=q))[:10]:
-            results.append(("Référence P/N", p, p.get_absolute_url()))
-        for w in WorkPackage.objects.filter(Q(number__icontains=q) | Q(title__icontains=q))[:10]:
-            results.append(("Work package", w, w.get_absolute_url()))
-        for t in TaskCard.objects.filter(Q(number__icontains=q) | Q(title__icontains=q))[:10]:
-            results.append(("Task card", t, t.get_absolute_url()))
-        for d in Defect.objects.filter(Q(number__icontains=q) | Q(description__icontains=q))[:10]:
-            results.append(("Défaut", d, d.get_absolute_url()))
-        from apps.camo.models import Directive, MaintenanceTask
+    from .search import MIN_LENGTH, global_search
 
-        for d in Directive.objects.filter(Q(number__icontains=q) | Q(title__icontains=q))[:10]:
-            results.append(("AD / SB", d, d.get_absolute_url()))
-        for t in MaintenanceTask.objects.filter(Q(reference__icontains=q) | Q(title__icontains=q))[:10]:
-            results.append(("Tâche programme", t, t.get_absolute_url()))
+    q = request.GET.get("q", "").strip()
+    results = global_search(request.user, q)
     if len(results) == 1:
         return redirect(results[0][2])
-    return render(request, "core/search.html", {"q": q, "results": results})
+    groups = {}
+    for kind, obj, url in results:
+        groups.setdefault(str(kind), []).append((obj, url))
+    return render(request, "core/search.html", {"q": q, "results": results, "groups": groups.items(), "too_short": 0 < len(q) < MIN_LENGTH})
 
 
 @permission_required("core.view_auditlog", raise_exception=True)

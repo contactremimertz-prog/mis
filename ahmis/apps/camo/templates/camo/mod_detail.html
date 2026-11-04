@@ -15,7 +15,13 @@
     <div><dt>Base</dt><dd>{{ m.get_approval_basis_display }}</dd></div>
     <div><dt>Référence</dt><dd>{{ m.approval_reference }}</dd></div>
     <div><dt>SB / AD liée</dt><dd>{% if m.directive %}<a href="{{ m.directive.get_absolute_url }}">{{ m.directive.number }}</a>{% else %}—{% endif %}</dd></div>
-  </dl>{% if m.description %}<p class="small">{{ m.description|linebreaksbr }}</p>{% endif %}</div>
+  </dl>
+  {% if m.needs_part21 %}<h3>Dossier Part-21</h3><dl class="dl">
+    <div><dt>Statut du dossier</dt><dd><span class="badge {% if m.part21_status == 'approved' %}ok{% elif m.part21_status == 'refused' %}bad{% else %}warn{% endif %}">{{ m.get_part21_status_display }}</span></dd></div>
+    <div><dt>Titulaire de la conception</dt><dd>{{ m.design_holder|default:"—" }}{% if m.design_approval_number %} ({{ m.design_approval_number }}){% endif %}</dd></div>
+    <div><dt>Demande transmise le</dt><dd>{{ m.part21_requested_on|date:"d/m/Y"|default:"—" }}</dd></div>
+    <div><dt>Approbation obtenue le</dt><dd>{{ m.part21_approved_on|date:"d/m/Y"|default:"—" }}{% if m.part21_reference %} – {{ m.part21_reference }}{% endif %}</dd></div>
+  </dl>{% endif %}{% if m.description %}<p class="small">{{ m.description|linebreaksbr }}</p>{% endif %}</div>
   <div class="card"><h2>Application</h2><dl class="dl">
     <div><dt>Appliquée le</dt><dd>{{ m.embodied_on|date:"d/m/Y"|default:"—" }}</dd></div>
     <div><dt>Compteurs</dt><dd>{{ m.fh_at_embodiment|hours }} FH / {{ m.fc_at_embodiment|fmt }} cyc</dd></div>

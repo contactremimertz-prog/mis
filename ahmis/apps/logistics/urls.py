@@ -1,5 +1,6 @@
 from django.urls import path
 
+from . import purchasing as po
 from . import views as v
 
 app_name = "logistics"
@@ -25,4 +26,14 @@ urlpatterns = [
     path("outillage/<int:pk>/restituer/", v.tool_checkin, name="tool_checkin"),
     path("magasins/", v.StoreList.as_view(), name="store_list"),
     path("magasins/nouveau/", v.StoreCreate.as_view(), name="store_create"),
+    path("fournisseurs/", po.SupplierList.as_view(), name="supplier_list"),
+    path("fournisseurs/nouveau/", po.SupplierCreate.as_view(), name="supplier_create"),
+    path("fournisseurs/<int:pk>/modifier/", po.SupplierUpdate.as_view(), name="supplier_update"),
+    path("commandes/", po.OrderList.as_view(), name="po_list"),
+    path("commandes/nouvelle/", po.OrderCreate.as_view(), name="po_create"),
+    path("commandes/<int:pk>/", po.po_detail, name="po_detail"),
+    path("commandes/<int:pk>/modifier/", po.OrderUpdate.as_view(), name="po_update"),
+    path("commandes/<int:pk>/ligne/", po.po_line_add, name="po_line_add"),
+    path("commandes/<int:pk>/<slug:action>/", po.po_action, name="po_action"),
+    path("commandes/lignes/<int:line_pk>/reception/", po.po_receive, name="po_receive"),
 ]

@@ -12,7 +12,9 @@ VIEW_ALL = [
         "camo": ["directive", "directiveapplicability", "maintenancetask", "taskrequiredpart", "taskaccomplishment", "airworthinessreview", "modificationrepair", "ampreview"],
         "part145": ["staff", "authorization", "qualification", "experiencerecord", "workpackage", "taskcard", "taskcardstep", "defect"],
         "safety": [],
-        "logistics": ["storelocation", "releasecertificate", "stockitem", "stockmovement", "partrequest", "tool", "toolusage", "toolcalibration"],
+        "quality": ["internalaudit", "auditfinding", "controlleddocument", "documentrevision"],
+        "logistics": ["storelocation", "releasecertificate", "stockitem", "stockmovement", "partrequest", "tool", "toolusage", "toolcalibration",
+                      "supplier", "purchaseorder", "purchaseorderline", "purchasereceipt"],
     }.items() for m in models
 ]
 
@@ -45,11 +47,14 @@ ROLES = {
        "part145.sign_crs", "part145.defer_defect", "logistics.add_partrequest", "camo.add_modificationrepair",
        "fleet.add_utilisationrecord", "core.view_signaturerecord"],
     "Magasinier": VIEW_ALL + REPORT
-    + _crud("logistics", "storelocation", "releasecertificate", "stockitem", "stockmovement", "partrequest", "tool", "toolusage", "toolcalibration")
+    + _crud("logistics", "storelocation", "releasecertificate", "stockitem", "stockmovement", "partrequest", "tool", "toolusage", "toolcalibration",
+            "purchaseorder", "purchaseorderline", "purchasereceipt")
     + _crud("fleet", "component", "partnumber"),
     "Responsable qualité": VIEW_ALL
     + _crud("part145", "staff", "authorization", "qualification", "experiencerecord")
-    + ["core.view_auditlog", "core.view_signaturerecord"] + SAFETY_MANAGER + ["safety.view_reporter_identity", "camo.view_transferrecord"],
+    + ["core.view_auditlog", "core.view_signaturerecord"] + SAFETY_MANAGER + ["safety.view_reporter_identity", "camo.view_transferrecord"]
+    + _crud("quality", "internalaudit", "auditfinding", "controlleddocument", "documentrevision") + ["quality.approve_documentrevision"]
+    + _crud("logistics", "supplier"),
 }
 
 

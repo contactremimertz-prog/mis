@@ -96,6 +96,8 @@ INSTALLED_APPS = [
     "apps.logistics",
     "apps.api",
     "apps.safety",
+    "apps.quality",
+    "apps.assistant",
     "rest_framework",
 ]
 

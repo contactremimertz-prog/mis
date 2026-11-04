@@ -123,7 +123,8 @@ class ModificationForm(AhmisModelForm):
         fields = ["aircraft", "component", "kind", "classification", "title", "ata", "approval_basis", "approval_reference",
                   "directive", "description", "status", "embodied_on", "fh_at_embodiment", "fc_at_embodiment",
                   "ica_reference", "ica_none", "ica_in_amp", "affects_mass_balance", "affects_flight_manual", "follow_up_done",
-                  "removed_on", "removal_reason"]
+                  "removed_on", "removal_reason", "part21_status", "design_holder", "design_approval_number",
+                  "part21_requested_on", "part21_approved_on", "part21_reference"]
         help_texts = {
             "fh_at_embodiment": "Vide = compteurs actuels de l'aéronef.",
             "ica_in_amp": "Cochez quand les tâches issues des ICA ont été ajoutées au programme d'entretien.",

@@ -361,6 +361,22 @@ class ModificationList(AhmisListView):
     subtitle = "Statut des modifications et réparations exigé par M.A.305 : base d'approbation, application, ICA."
 
 
+class Part21List(ModificationList):
+    """Dossiers Part-21 : modifications majeures ou fondées sur un STC, une approbation DOA ou EASA."""
+
+    columns = [("N°", "number"), ("Aéronef", "aircraft.registration"), ("Intitulé", "title"), ("Classe", "classification"),
+               ("Titulaire de la conception", "design_holder"), ("Dossier Part-21", "part21_status"),
+               ("Demande le", "part21_requested_on"), ("Approuvé le", "part21_approved_on"), ("Statut", "status")]
+    filter_fields = ["aircraft", "part21_status", "status"]
+    title = "Dossiers Part-21"
+    subtitle = "Modifications et réparations qui exigent des données de conception approuvées (DOA, STC, EASA) avant application."
+
+    def get_queryset(self):
+        from django.db.models import Q
+
+        return super().get_queryset().filter(Q(classification="major") | Q(approval_basis__in=ModificationRepair.PART21_BASES))
+
+
 class ModificationCreate(AhmisCreateView):
     model = ModificationRepair
     form_class = ModificationForm

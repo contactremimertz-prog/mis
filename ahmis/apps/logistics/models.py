@@ -308,3 +308,129 @@ class ToolCalibration(TrackedModel):
         elif self.result == "fail":
             tool.status = "unserviceable"
             tool.save()
+
+
+# ---------------------------------------------------------------- Achats (fournisseurs et commandes)
+class Supplier(TrackedModel):
+    """Fournisseur évalué : seules les commandes à un fournisseur accepté peuvent être émises (145.A.42(a))."""
+
+    KINDS = [("part145", "Organisme Part-145"), ("part21g", "Organisme de production Part-21 G"),
+             ("distributor", "Distributeur"), ("other", "Autre")]
+
+    name = models.CharField("raison sociale", max_length=150, unique=True)
+    kind = models.CharField("type", max_length=12, choices=KINDS, default="distributor")
+    approval_reference = models.CharField("n° d'agrément", max_length=60, blank=True, help_text="ex. FR.145.0123, FR.21G.0045")
+    approved = models.BooleanField("fournisseur accepté", default=False)
+    evaluated_on = models.DateField("évalué le", null=True, blank=True)
+    contact = models.CharField("contact", max_length=150, blank=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "fournisseur"
+        verbose_name_plural = "fournisseurs"
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("logistics:supplier_update", args=[self.pk])
+
+    def clean(self):
+        if self.approved and not self.evaluated_on:
+            raise ValidationError({"evaluated_on": "Indiquez la date d'évaluation du fournisseur accepté."})
+        if self.approved and self.kind in ("part145", "part21g") and not self.approval_reference.strip():
+            raise ValidationError({"approval_reference": "Indiquez le n° d'agrément de l'organisme."})
+
+
+class PurchaseOrder(TrackedModel):
+    STATUSES = [("draft", "Brouillon"), ("sent", "Émise"), ("partial", "Reçue partiellement"), ("received", "Reçue"),
+                ("cancelled", "Annulée")]
+
+    number = models.CharField("n° de commande", max_length=20, unique=True, editable=False)
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name="orders", verbose_name="fournisseur")
+    ordered_on = models.DateField("date de commande", null=True, blank=True)
+    expected_on = models.DateField("livraison prévue le", null=True, blank=True)
+    status = models.CharField("statut", max_length=10, choices=STATUSES, default="draft", editable=False)
+    notes = models.TextField("observations", blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "commande d'achat"
+        verbose_name_plural = "commandes d'achat"
+
+    def __str__(self):
+        return f"{self.number} {self.supplier}"
+
+    def get_absolute_url(self):
+        return reverse("logistics:po_detail", args=[self.pk])
+
+    @property
+    def late(self):
+        return self.status in ("sent", "partial") and self.expected_on and self.expected_on < timezone.localdate()
+
+    def refresh_status(self):
+        lines = list(self.lines.all())
+        if self.status in ("draft", "cancelled") or not lines:
+            return
+        if all(line.received_quantity >= line.quantity for line in lines):
+            self.status = "received"
+        elif any(line.received_quantity > 0 for line in lines):
+            self.status = "partial"
+        else:
+            self.status = "sent"
+        self.save(update_fields=["status", "updated_at"])
+
+    def save(self, *args, **kwargs):
+        if not self.number:
+            from apps.core.models import Sequence
+
+            self.number = Sequence.next("PO")
+        super().save(*args, **kwargs)
+
+
+class PurchaseOrderLine(TrackedModel):
+    order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, related_name="lines", verbose_name="commande")
+    part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N")
+    quantity = models.DecimalField("quantité commandée", max_digits=10, decimal_places=2, default=Decimal("1"))
+    received_quantity = models.DecimalField("quantité reçue", max_digits=10, decimal_places=2, default=Decimal("0"), editable=False)
+    part_request = models.ForeignKey(PartRequest, on_delete=models.PROTECT, null=True, blank=True, related_name="po_lines",
+                                     verbose_name="demande de pièce liée")
+
+    class Meta:
+        ordering = ["order", "pk"]
+        verbose_name = "ligne de commande"
+        verbose_name_plural = "lignes de commande"
+
+    def __str__(self):
+        return f"{self.order.number} – {self.part_number.pn} × {self.quantity}"
+
+    def get_absolute_url(self):
+        return self.order.get_absolute_url()
+
+    @property
+    def remaining(self):
+        return max(self.quantity - self.received_quantity, Decimal("0"))
+
+    def clean(self):
+        if self.quantity is not None and self.quantity <= 0:
+            raise ValidationError({"quantity": "La quantité doit être positive."})
+        if self.part_request_id and self.part_request.part_number_id != self.part_number_id:
+            raise ValidationError({"part_request": "La demande liée porte sur un autre P/N."})
+
+
+class PurchaseReceipt(TrackedModel):
+    """Réception d'une ligne de commande : rattachée au certificat libératoire contrôlé en réception."""
+
+    line = models.ForeignKey(PurchaseOrderLine, on_delete=models.PROTECT, related_name="receipts", verbose_name="ligne")
+    quantity = models.DecimalField("quantité reçue", max_digits=10, decimal_places=2)
+    certificate = models.ForeignKey(ReleaseCertificate, on_delete=models.PROTECT, null=True, blank=True, related_name="po_receipts",
+                                    verbose_name="certificat libératoire")
+    received_on = models.DateField("reçu le", default=timezone.localdate)
+
+    class Meta:
+        ordering = ["-received_on", "-pk"]
+        verbose_name = "réception sur commande"
+        verbose_name_plural = "réceptions sur commande"
+
+    def __str__(self):
+        return f"{self.line} : {self.quantity}"

@@ -487,6 +487,15 @@ class ModificationRepair(TrackedModel):
         ("other", "Autre donnée approuvée"),
     ]
     STATUSES = [("planned", "Prévue"), ("embodied", "Appliquée"), ("removed", "Déposée / annulée")]
+    # Dossier Part-21 : données de conception approuvées obtenues auprès du titulaire (DOA, TC/STC) ou de l'EASA.
+    PART21_BASES = ("stc", "doa", "easa")
+    PART21_STATUSES = [
+        ("not_required", "Sans objet (données déjà approuvées)"),
+        ("to_request", "Demande à émettre"),
+        ("requested", "Demande transmise"),
+        ("approved", "Données de conception approuvées reçues"),
+        ("refused", "Refusée par le titulaire / l'EASA"),
+    ]
 
     number = models.CharField("n° interne", max_length=20, unique=True, editable=False)
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT, related_name="modifications", verbose_name="aéronef")
@@ -514,6 +523,14 @@ class ModificationRepair(TrackedModel):
     follow_up_done = models.BooleanField("actions de suivi réalisées (pesée, supplément manuel de vol)", default=False)
     removed_on = models.DateField("déposée le", null=True, blank=True)
     removal_reason = models.CharField("motif de dépose / annulation", max_length=200, blank=True)
+    # Part-21
+    design_holder = models.CharField("titulaire de la conception (DOA, TC / STC)", max_length=150, blank=True)
+    design_approval_number = models.CharField("n° d'agrément du titulaire", max_length=60, blank=True, help_text="ex. EASA.21J.123")
+    part21_status = models.CharField("dossier Part-21", max_length=12, choices=PART21_STATUSES, default="not_required")
+    part21_requested_on = models.DateField("demande transmise le", null=True, blank=True)
+    part21_approved_on = models.DateField("approbation obtenue le", null=True, blank=True)
+    part21_reference = models.CharField("référence de l'approbation de conception", max_length=120, blank=True,
+                                        help_text="n° d'approbation EASA, de STC ou de la fiche d'approbation DOA")
 
     class Meta:
         ordering = ["aircraft__registration", "-embodied_on", "-number"]
@@ -546,15 +563,43 @@ class ModificationRepair(TrackedModel):
                 errors["ica_reference"] = "Indiquez les ICA, ou cochez « pas d'ICA associées »."
         if self.status == "removed" and not self.removal_reason.strip():
             errors["removal_reason"] = "Motif obligatoire."
+        if self.needs_part21:
+            if self.part21_status == "not_required":
+                errors["part21_status"] = "Modification majeure ou base STC / DOA / EASA : un dossier Part-21 est requis."
+            if self.part21_status in ("requested", "approved", "refused") and not self.design_holder.strip():
+                errors["design_holder"] = "Indiquez le titulaire de la conception."
+            if self.part21_status in ("requested", "approved") and not self.part21_requested_on:
+                errors["part21_requested_on"] = "Indiquez la date de la demande."
+            if self.part21_status == "approved":
+                if not self.part21_approved_on:
+                    errors["part21_approved_on"] = "Indiquez la date d'approbation."
+                if not self.part21_reference.strip():
+                    errors["part21_reference"] = "Indiquez la référence de l'approbation de conception."
+                if self.part21_requested_on and self.part21_approved_on and self.part21_approved_on < self.part21_requested_on:
+                    errors["part21_approved_on"] = "L'approbation ne peut précéder la demande."
+            if self.status == "embodied":
+                if self.part21_status != "approved":
+                    errors["status"] = "Application impossible : les données de conception ne sont pas encore approuvées (Part-21)."
+                elif self.part21_approved_on and self.embodied_on and self.embodied_on < self.part21_approved_on:
+                    errors["embodied_on"] = "Application antérieure à l'approbation de conception."
         if self.component_id and self.component.aircraft_id not in (None, self.aircraft_id) and self.status == "planned":
             errors["component"] = "Ce composant est installé sur un autre aéronef."
         if errors:
             raise ValidationError(errors)
 
     @property
+    def needs_part21(self):
+        """Modification majeure, ou fondée sur un STC, une approbation DOA ou une approbation EASA directe."""
+        return self.classification == "major" or self.approval_basis in self.PART21_BASES
+
+    @property
     def compliance_issues(self):
         """Points à traiter par la CAMO (affichés sur la fiche aéronef et dans les échéances)."""
         issues = []
+        if self.status == "planned" and self.needs_part21 and self.part21_status in ("to_request", "not_required"):
+            issues.append("dossier Part-21 : demande d'approbation de conception à émettre")
+        if self.task_card_id and self.status == "embodied" and self.task_card.status not in ("performed", "closed"):
+            issues.append("task card liée non encore clôturée")
         if self.status == "embodied":
             if not self.ica_none and not self.ica_in_amp:
                 issues.append("ICA non encore intégrées au programme d'entretien")

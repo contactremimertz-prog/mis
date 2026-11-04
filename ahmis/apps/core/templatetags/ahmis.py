@@ -30,6 +30,10 @@ STATUS_CLASSES = {
     "aog_prio": "bad", "urgent": "warn", "routine": "",
     # comptes rendus d'événements
     "submitted": "warn", "follow_up": "info", "not_reportable": "",
+    # qualité : audits, documents
+    "reported": "info", "current": "ok", "obsolete": "", "pending": "warn", "approved": "ok", "superseded": "", "rejected": "bad",
+    # commandes d'achat
+    "sent": "info", "partial": "warn", "received": "ok",
 }
 
 
@@ -141,8 +145,12 @@ def remaining_class(value):
 
 
 @register.simple_tag
-def yesno_badge(value, yes="Oui", no="Non"):
-    return mark_safe(f'<span class="badge {"ok" if value else ""}">{yes if value else no}</span>')
+def yesno_badge(value, yes=None, no=None):
+    from django.utils.translation import gettext
+
+    yes = gettext("Oui") if yes is None else yes
+    no = gettext("Non") if no is None else no
+    return format_html('<span class="badge {}">{}</span>', "ok" if value else "", yes if value else no)
 
 
 @register.filter

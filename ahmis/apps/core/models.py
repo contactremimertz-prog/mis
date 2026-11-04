@@ -103,6 +103,8 @@ class SignatureRecord(models.Model):
         ("accept_part", "Réception pièce"),
         ("camo_review", "Revue CAMO"),
         ("step", "Étape de task card"),
+        ("finding_close", "Clôture de constat d'audit"),
+        ("doc_approve", "Approbation de révision documentaire"),
     ]
 
     signed_at = models.DateTimeField("signé le", default=timezone.now)
