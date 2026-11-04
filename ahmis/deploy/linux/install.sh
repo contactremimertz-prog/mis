@@ -21,6 +21,7 @@
 #  (le code est remplacé ; la configuration et les données sont conservées).
 # ============================================================================
 set -euo pipefail
+export PATH="/usr/local/sbin:/usr/local/bin:$PATH"   # sudo (RHEL) retire /usr/local/bin
 
 APP_DIR=/opt/ahmis
 ETC_DIR=/etc/ahmis
