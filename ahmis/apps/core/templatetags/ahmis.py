@@ -6,6 +6,7 @@ from django.db.models import Model
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext
 
 register = template.Library()
 
@@ -58,7 +59,7 @@ def fmt(value):
     if value is None or value == "":
         return "—"
     if isinstance(value, bool):
-        return "Oui" if value else "Non"
+        return gettext("Oui") if value else gettext("Non")
     if isinstance(value, datetime):
         return timezone.localtime(value).strftime("%d/%m/%Y %H:%M")
     if isinstance(value, date):

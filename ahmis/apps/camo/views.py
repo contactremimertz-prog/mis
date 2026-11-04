@@ -15,8 +15,9 @@ from apps.fleet.models import Aircraft
 from . import services
 from .forms import TransferAckForm, TransferForm, AmpReviewForm, AccomplishmentForm, ModificationForm, ApplicabilityForm, ArcForm, DirectiveForm, ForecastForm, MaintenanceTaskForm, RequiredPartForm
 from .models import TransferRecord, AmpReview, amp_review_status, ModificationRepair, AirworthinessReview, Directive, DirectiveApplicability, MaintenanceTask, TaskRequiredPart
+from django.utils.translation import gettext, gettext_lazy
 
-MONTHS = ["", "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
+MONTHS = ["", "janvier", gettext_lazy("février"), "mars", "avril", "mai", "juin", "juillet", gettext_lazy("août"), "septembre", "octobre", "novembre", gettext_lazy("décembre")]
 
 
 # ---------------------------------------------------------------- Échéances
@@ -65,8 +66,8 @@ def due_csv(request):
     resp["Content-Disposition"] = f'attachment; filename="echeances_{timezone.localdate():%Y%m%d}.csv"'
     resp.write("﻿")
     w = csv.writer(resp, delimiter=";")
-    w.writerow(["Statut", "Aéronef", "Nature", "Référence", "Libellé", "Dernière réalisation", "Butée FH", "Butée cycles",
-                "Butée date", "Reste FH", "Reste cycles", "Date prévue", "Jours restants", "Critère", "Charge h.h"])
+    w.writerow([gettext("Statut"), gettext("Aéronef"), gettext("Nature"), gettext("Référence"), gettext("Libellé"), gettext("Dernière réalisation"), gettext("Butée FH"), gettext("Butée cycles"),
+                gettext("Butée date"), gettext("Reste FH"), gettext("Reste cycles"), gettext("Date prévue"), gettext("Jours restants"), gettext("Critère"), gettext("Charge h.h")])
     for i in items:
         w.writerow([i.status_label, i.aircraft.registration, i.kind_label, i.reference, i.label,
                     i.last_date.strftime("%d/%m/%Y") if i.last_date else "", _n(i.due_fh), _n(i.due_fc),
@@ -104,7 +105,7 @@ def forecast(request):
         resp["Content-Disposition"] = f'attachment; filename="forecast_{timezone.localdate():%Y%m%d}.csv"'
         resp.write("﻿")
         w = csv.writer(resp, delimiter=";")
-        w.writerow(["Date prévue", "Aéronef", "Nature", "Référence", "Libellé", "Occurrence", "Critère", "Charge h.h", "Pièces"])
+        w.writerow([gettext("Date prévue"), gettext("Aéronef"), gettext("Nature"), gettext("Référence"), gettext("Libellé"), gettext("Occurrence"), gettext("Critère"), gettext("Charge h.h"), gettext("Pièces")])
         for e in events:
             w.writerow([e.date.strftime("%d/%m/%Y"), e.item.aircraft.registration, e.item.kind_label, e.item.reference, e.item.label,
                         e.occurrence, e.item.driver, _n(e.item.estimated_mh), ", ".join(f"{p.pn} x{q}" for p, q in e.item.parts)])
@@ -120,20 +121,20 @@ def forecast(request):
 class TaskList(AhmisListView):
     model = MaintenanceTask
     queryset = MaintenanceTask.objects.select_related("aircraft_type", "part_number")
-    columns = [("Référence", "reference"), ("Intitulé", "title"), ("Type", "aircraft_type.code"), ("ATA", "ata"),
-               ("Origine", "source"), ("Nature", "task_type"), ("Intervalle", "interval_display"), ("Seuil", "threshold_display"),
-               ("Composant", "part_number.pn"), ("h.h", "estimated_mh"), ("Active", "active")]
+    columns = [(gettext_lazy("Référence"), "reference"), (gettext_lazy("Intitulé"), "title"), (gettext_lazy("Type"), "aircraft_type.code"), ("ATA", "ata"),
+               (gettext_lazy("Origine"), "source"), (gettext_lazy("Nature"), "task_type"), (gettext_lazy("Intervalle"), "interval_display"), (gettext_lazy("Seuil"), "threshold_display"),
+               (gettext_lazy("Composant"), "part_number.pn"), ("h.h", "estimated_mh"), (gettext_lazy("Active"), "active")]
     search_fields = ["reference", "title", "ata", "description"]
     filter_fields = ["aircraft_type", "source", "task_type"]
     create_url = reverse_lazy("camo:task_create")
-    title = "Programme d'entretien"
-    subtitle = "Tâches MSM/MPD, limitations de navigabilité (ALS), consignes et bulletins suivis."
+    title = gettext_lazy("Programme d'entretien")
+    subtitle = gettext_lazy("Tâches MSM/MPD, limitations de navigabilité (ALS), consignes et bulletins suivis.")
 
 
 class TaskCreate(AhmisCreateView):
     model = MaintenanceTask
     form_class = MaintenanceTaskForm
-    title = "Nouvelle tâche d'entretien"
+    title = gettext_lazy("Nouvelle tâche d'entretien")
 
     def get_initial(self):
         init = super().get_initial()
@@ -183,9 +184,9 @@ def task_add_part(request, pk):
         rp = form.save(commit=False)
         rp.task = task
         rp.save()
-        messages.success(request, f"Pièce {rp} ajoutée à la tâche.")
+        messages.success(request, gettext("Pièce {rp} ajoutée à la tâche.").format(rp=rp))
     else:
-        messages.error(request, "Saisie invalide.")
+        messages.error(request, gettext("Saisie invalide."))
     return redirect(task.get_absolute_url())
 
 
@@ -194,7 +195,7 @@ def task_remove_part(request, pk, part_pk):
     rp = get_object_or_404(TaskRequiredPart, pk=part_pk, task_id=pk)
     if request.method == "POST":
         rp.delete()
-        messages.success(request, "Pièce retirée.")
+        messages.success(request, gettext("Pièce retirée."))
     return redirect(rp.task.get_absolute_url())
 
 
@@ -209,7 +210,7 @@ def task_record(request, pk):
         acc = form.save(commit=False)
         acc.task = task
         acc.save()
-        messages.success(request, f"Réalisation enregistrée : {acc}.")
+        messages.success(request, gettext("Réalisation enregistrée : {acc}.").format(acc=acc))
         return redirect(task.get_absolute_url())
     return render(request, "core/form.html", {
         "form": form, "title": f"Enregistrer une réalisation – {task.reference}",
@@ -222,23 +223,23 @@ def task_record(request, pk):
 # ---------------------------------------------------------------- Consignes
 class DirectiveList(AhmisListView):
     model = Directive
-    columns = [("Numéro", "number"), ("Type", "kind"), ("Émetteur", "authority"), ("Objet", "title"),
-               ("En vigueur le", "effective_date"), ("Types", "aircraft_types"), ("Répétitive", "is_recurring")]
+    columns = [(gettext_lazy("Numéro"), "number"), (gettext_lazy("Type"), "kind"), (gettext_lazy("Émetteur"), "authority"), (gettext_lazy("Objet"), "title"),
+               (gettext_lazy("En vigueur le"), "effective_date"), (gettext_lazy("Types"), "aircraft_types"), (gettext_lazy("Répétitive"), "is_recurring")]
     search_fields = ["number", "title", "applicability_text"]
     filter_fields = ["kind", "authority"]
     create_url = reverse_lazy("camo:directive_create")
-    title = "Consignes de navigabilité et bulletins service"
+    title = gettext_lazy("Consignes de navigabilité et bulletins service")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["extra_actions"] = [("Statut par aéronef", reverse("camo:directive_status_list"))]
+        ctx["extra_actions"] = [(gettext("Statut par aéronef"), reverse("camo:directive_status_list"))]
         return ctx
 
 
 class DirectiveCreate(AhmisCreateView):
     model = Directive
     form_class = DirectiveForm
-    title = "Nouvelle consigne / bulletin"
+    title = gettext_lazy("Nouvelle consigne / bulletin")
 
     def form_valid(self, form):
         resp = super().form_valid(form)
@@ -292,7 +293,7 @@ def applicability_update(request, pk):
         except ValidationError as e:
             error_messages(request, e)
         else:
-            messages.success(request, f"Statut enregistré : {obj}.")
+            messages.success(request, gettext("Statut enregistré : {obj}.").format(obj=obj))
             return redirect(app.directive.get_absolute_url())
     return render(request, "core/form.html", {
         "form": form, "title": f"Évaluation {app.directive.number} – {app.aircraft.registration}",
@@ -303,29 +304,29 @@ def applicability_update(request, pk):
 class ApplicabilityList(AhmisListView):
     model = DirectiveApplicability
     queryset = DirectiveApplicability.objects.select_related("directive", "aircraft")
-    columns = [("Consigne", "directive.number"), ("Objet", "directive.title"), ("Aéronef", "aircraft.registration"),
-               ("Statut", "status"), ("Conformité le", "compliance_date"), ("Évalué par", "reviewed_by"), ("Évalué le", "reviewed_on")]
+    columns = [(gettext_lazy("Consigne"), "directive.number"), (gettext_lazy("Objet"), "directive.title"), (gettext_lazy("Aéronef"), "aircraft.registration"),
+               (gettext_lazy("Statut"), "status"), (gettext_lazy("Conformité le"), "compliance_date"), (gettext_lazy("Évalué par"), "reviewed_by"), (gettext_lazy("Évalué le"), "reviewed_on")]
     search_fields = ["directive__number", "directive__title", "aircraft__registration"]
     filter_fields = ["status", "aircraft"]
-    title = "Statut des consignes par aéronef"
+    title = gettext_lazy("Statut des consignes par aéronef")
 
 
 # ---------------------------------------------------------------- ARC
 class ArcList(AhmisListView):
     model = AirworthinessReview
     queryset = AirworthinessReview.objects.select_related("aircraft")
-    columns = [("Aéronef", "aircraft.registration"), ("Type", "review_type"), ("N° ARC", "reference"), ("Revue le", "review_date"),
-               ("Valable jusqu'au", "expiry_date"), ("Revue par", "reviewer"), ("Visite physique", "physical_survey")]
+    columns = [(gettext_lazy("Aéronef"), "aircraft.registration"), (gettext_lazy("Type"), "review_type"), (gettext_lazy("N° ARC"), "reference"), (gettext_lazy("Revue le"), "review_date"),
+               (gettext_lazy("Valable jusqu'au"), "expiry_date"), (gettext_lazy("Revue par"), "reviewer"), (gettext_lazy("Visite physique"), "physical_survey")]
     filter_fields = ["aircraft"]
     create_url = reverse_lazy("camo:arc_create")
-    title = "Examens de navigabilité (ARC)"
+    title = gettext_lazy("Examens de navigabilité (ARC)")
     link_column = -1
 
 
 class ArcCreate(AhmisCreateView):
     model = AirworthinessReview
     form_class = ArcForm
-    title = "Enregistrer un examen de navigabilité"
+    title = gettext_lazy("Enregistrer un examen de navigabilité")
 
     def get_initial(self):
         init = super().get_initial()
@@ -351,25 +352,25 @@ class ArcCreate(AhmisCreateView):
 class ModificationList(AhmisListView):
     model = ModificationRepair
     queryset = ModificationRepair.objects.select_related("aircraft", "component__part_number")
-    columns = [("N°", "number"), ("Aéronef", "aircraft.registration"), ("Nature", "kind"), ("Classe", "classification"),
-               ("Intitulé", "title"), ("Approbation", "approval_reference"), ("Statut", "status"), ("Appliquée le", "embodied_on"),
-               ("ICA au programme", "ica_in_amp")]
+    columns = [("N°", "number"), (gettext_lazy("Aéronef"), "aircraft.registration"), (gettext_lazy("Nature"), "kind"), (gettext_lazy("Classe"), "classification"),
+               (gettext_lazy("Intitulé"), "title"), (gettext_lazy("Approbation"), "approval_reference"), (gettext_lazy("Statut"), "status"), (gettext_lazy("Appliquée le"), "embodied_on"),
+               (gettext_lazy("ICA au programme"), "ica_in_amp")]
     search_fields = ["number", "title", "approval_reference", "aircraft__registration"]
     filter_fields = ["aircraft", "kind", "classification", "status"]
     create_url = reverse_lazy("camo:mod_create")
-    title = "Registre des modifications et réparations"
-    subtitle = "Statut des modifications et réparations exigé par M.A.305 : base d'approbation, application, ICA."
+    title = gettext_lazy("Registre des modifications et réparations")
+    subtitle = gettext_lazy("Statut des modifications et réparations exigé par M.A.305 : base d'approbation, application, ICA.")
 
 
 class Part21List(ModificationList):
     """Dossiers Part-21 : modifications majeures ou fondées sur un STC, une approbation DOA ou EASA."""
 
-    columns = [("N°", "number"), ("Aéronef", "aircraft.registration"), ("Intitulé", "title"), ("Classe", "classification"),
-               ("Titulaire de la conception", "design_holder"), ("Dossier Part-21", "part21_status"),
-               ("Demande le", "part21_requested_on"), ("Approuvé le", "part21_approved_on"), ("Statut", "status")]
+    columns = [("N°", "number"), (gettext_lazy("Aéronef"), "aircraft.registration"), (gettext_lazy("Intitulé"), "title"), (gettext_lazy("Classe"), "classification"),
+               (gettext_lazy("Titulaire de la conception"), "design_holder"), (gettext_lazy("Dossier Part-21"), "part21_status"),
+               (gettext_lazy("Demande le"), "part21_requested_on"), (gettext_lazy("Approuvé le"), "part21_approved_on"), (gettext_lazy("Statut"), "status")]
     filter_fields = ["aircraft", "part21_status", "status"]
-    title = "Dossiers Part-21"
-    subtitle = "Modifications et réparations qui exigent des données de conception approuvées (DOA, STC, EASA) avant application."
+    title = gettext_lazy("Dossiers Part-21")
+    subtitle = gettext_lazy("Modifications et réparations qui exigent des données de conception approuvées (DOA, STC, EASA) avant application.")
 
     def get_queryset(self):
         from django.db.models import Q
@@ -380,7 +381,7 @@ class Part21List(ModificationList):
 class ModificationCreate(AhmisCreateView):
     model = ModificationRepair
     form_class = ModificationForm
-    title = "Enregistrer une modification ou une réparation"
+    title = gettext_lazy("Enregistrer une modification ou une réparation")
 
     def get_initial(self):
         init = super().get_initial()
@@ -430,7 +431,7 @@ def amp_review_list(request):
 class AmpReviewCreate(AhmisCreateView):
     model = AmpReview
     form_class = AmpReviewForm
-    title = "Enregistrer une revue du programme d'entretien"
+    title = gettext_lazy("Enregistrer une revue du programme d'entretien")
 
     def get_initial(self):
         init = super().get_initial()
@@ -467,19 +468,19 @@ def amp_review_detail(request, pk):
 class TransferList(AhmisListView):
     model = TransferRecord
     queryset = TransferRecord.objects.select_related("aircraft")
-    columns = [("N°", "number"), ("Aéronef", "aircraft.registration"), ("Sens", "direction"), ("Date", "transfer_date"),
-               ("Organisme", "counterparty"), ("Agrément", "counterparty_approval"), ("Réception confirmée", "acknowledged_on")]
+    columns = [("N°", "number"), (gettext_lazy("Aéronef"), "aircraft.registration"), (gettext_lazy("Sens"), "direction"), (gettext_lazy("Date"), "transfer_date"),
+               (gettext_lazy("Organisme"), "counterparty"), (gettext_lazy("Agrément"), "counterparty_approval"), (gettext_lazy("Réception confirmée"), "acknowledged_on")]
     search_fields = ["number", "counterparty", "aircraft__registration"]
     filter_fields = ["aircraft", "direction"]
     create_url = reverse_lazy("camo:transfer_create")
-    title = "Transferts de dossiers"
-    subtitle = "M.A.307 / CAMO.A.315 : transfert des enregistrements de maintien de la navigabilité au nouvel organisme."
+    title = gettext_lazy("Transferts de dossiers")
+    subtitle = gettext_lazy("M.A.307 / CAMO.A.315 : transfert des enregistrements de maintien de la navigabilité au nouvel organisme.")
 
 
 class TransferCreate(AhmisCreateView):
     model = TransferRecord
     form_class = TransferForm
-    title = "Transférer ou archiver le dossier d'un aéronef"
+    title = gettext_lazy("Transférer ou archiver le dossier d'un aéronef")
 
     def get_initial(self):
         init = super().get_initial()
@@ -505,7 +506,7 @@ class TransferCreate(AhmisCreateView):
             if t.direction in ("out", "copy"):
                 raw, digest, manifest = dossier.build_archive(t.aircraft, self.request.user, recipient=t.counterparty, purpose=t.reason)
                 t.manifest, t.archive_sha256, t.archive_size = manifest, digest, len(raw)
-                t.verification = "Archive générée par AHMIS ; empreintes de chaque fichier dans manifest.json."
+                t.verification = gettext("Archive générée par AHMIS ; empreintes de chaque fichier dans manifest.json.")
                 t.save()
                 t.archive.save(f"dossier-{t.aircraft.registration}-{t.number}.zip", ContentFile(raw), save=True)
             else:
@@ -517,17 +518,17 @@ class TransferCreate(AhmisCreateView):
                 manifest, problems = dossier.verify_archive(upload)
                 upload.seek(0)
                 if manifest and manifest.get("aeronef", {}).get("msn") not in (None, t.aircraft.msn):
-                    problems.append(f"Le dossier concerne le MSN {manifest['aeronef'].get('msn')}, pas {t.aircraft.msn}.")
+                    problems.append(gettext("Le dossier concerne le MSN {msn}, pas {msn2}.").format(msn=manifest['aeronef'].get('msn'), msn2=t.aircraft.msn))
                 t.manifest, t.archive_sha256, t.archive_size = manifest, h.hexdigest(), upload.size
                 if manifest is None:
-                    t.verification = "ANOMALIE – " + " ".join(problems) + " Contrôle manuel du dossier requis."
+                    t.verification = gettext("ANOMALIE – ") + " ".join(problems) + gettext(" Contrôle manuel du dossier requis.")
                 elif problems:
-                    t.verification = "ANOMALIE – " + " ; ".join(problems)
+                    t.verification = gettext("ANOMALIE – ") + " ; ".join(problems)
                 else:
-                    t.verification = f"Archive AHMIS intègre : {len(manifest.get('fichiers', {}))} fichier(s) conformes au manifeste."
+                    t.verification = gettext("Archive AHMIS intègre : {fichiers} fichier(s) conformes au manifeste.").format(fichiers=len(manifest.get('fichiers', {})))
                 t.save()
         self.object = t
-        messages.success(self.request, f"Transfert {t.number} enregistré.")
+        messages.success(self.request, gettext("Transfert {number} enregistré.").format(number=t.number))
         if t.verification.startswith("ANOMALIE"):
             messages.warning(self.request, t.verification)
         return redirect(t.get_absolute_url())
@@ -545,7 +546,7 @@ def transfer_detail(request, pk):
             try:
                 t.full_clean()
                 t.save()
-                messages.success(request, "Accusé de réception enregistré.")
+                messages.success(request, gettext("Accusé de réception enregistré."))
                 return redirect(t.get_absolute_url())
             except ValidationError as e:
                 error_messages(request, e)

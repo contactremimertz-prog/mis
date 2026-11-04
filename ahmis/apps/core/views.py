@@ -20,6 +20,7 @@ from apps.logistics.models import PartRequest, StockItem, Tool
 from apps.part145.models import Authorization, Defect, TaskCard, WorkPackage
 
 from .models import AuditLog, SignatureRecord
+from django.utils.translation import gettext
 
 DOCS_DIR = Path(settings.BASE_DIR) / "docs" / "tutoriels"
 
@@ -51,7 +52,7 @@ class LoginView(auth_views.LoginView):
         ctx["oidc_label"] = auth["OIDC_BUTTON_LABEL"]
         ctx["auth_error"] = getattr(self.request, "ahmis_auth_error", "")
         if self.request.GET.get("sso") == "echec":
-            ctx["auth_error"] = self.request.session.pop("ahmis_sso_error", "") or "La connexion par SSO a échoué."
+            ctx["auth_error"] = self.request.session.pop("ahmis_sso_error", "") or gettext("La connexion par SSO a échoué.")
         return ctx
 
 
@@ -83,13 +84,13 @@ def my_account(request):
     if request.method == "POST":
         new, confirm = request.POST.get("pin", ""), request.POST.get("pin_confirm", "")
         if not fresh:
-            messages.error(request, "Pour des raisons de sécurité, reconnectez-vous avant de modifier votre code de signature.")
+            messages.error(request, gettext("Pour des raisons de sécurité, reconnectez-vous avant de modifier votre code de signature."))
         elif len(new) < 6 or len(set(new)) < 3:
-            messages.error(request, "Le code doit contenir au moins 6 caractères, dont 3 différents.")
+            messages.error(request, gettext("Le code doit contenir au moins 6 caractères, dont 3 différents."))
         elif new != confirm:
-            messages.error(request, "Les deux saisies ne correspondent pas.")
+            messages.error(request, gettext("Les deux saisies ne correspondent pas."))
         elif user.has_usable_password() and user.check_password(new):
-            messages.error(request, "Le code de signature doit être différent de votre mot de passe.")
+            messages.error(request, gettext("Le code de signature doit être différent de votre mot de passe."))
         else:
             pin = pin or SignaturePin(user=user)
             pin.set_pin(new)
@@ -99,8 +100,8 @@ def my_account(request):
 
             AuditLog.objects.create(user=user, username=user.username, action="update",
                                     content_type=ContentType.objects.get_for_model(user), object_id=str(user.pk),
-                                    object_repr=f"Code de signature de {user.username}", changes='{"code de signature": {"old": "***", "new": "défini"}}')
-            messages.success(request, "Code de signature enregistré.")
+                                    object_repr=gettext("Code de signature de {username}").format(username=user.username), changes=gettext('{"code de signature": {"old": "***", "new": "défini"}}'))
+            messages.success(request, gettext("Code de signature enregistré."))
             return redirect("my_account")
     from apps.part145.models import Staff
 
@@ -292,8 +293,8 @@ def retention_csv(request, key):
     resp["Content-Disposition"] = f'attachment; filename="conservation-{key}-{today:%Y%m%d}.csv"'
     resp.write("\ufeff")
     w = csv.writer(resp, delimiter=";")
-    w.writerow(["id", "enregistrement", "conserver jusqu'au", "état"])
+    w.writerow(["id", "enregistrement", gettext("conserver jusqu'au"), gettext("état")])
     for obj, until in items:
-        state = "sans échéance" if until is None else ("échue – archivable" if until <= today else "en cours")
+        state = gettext("sans échéance") if until is None else (gettext("échue – archivable") if until <= today else gettext("en cours"))
         w.writerow([obj.pk, str(obj), until.isoformat() if until else "", state])
     return resp

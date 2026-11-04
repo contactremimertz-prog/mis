@@ -7,19 +7,20 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.core.models import TrackedModel
+from django.utils.translation import gettext, gettext_lazy
 
 
 class StoreLocation(TrackedModel):
     code = models.CharField("code", max_length=30, unique=True)
-    name = models.CharField("désignation", max_length=100)
-    station = models.CharField("base / station", max_length=60, blank=True)
-    is_quarantine = models.BooleanField("zone de quarantaine", default=False)
-    is_bonded = models.BooleanField("magasin sous douane / contrôlé", default=True)
+    name = models.CharField(gettext_lazy("désignation"), max_length=100)
+    station = models.CharField(gettext_lazy("base / station"), max_length=60, blank=True)
+    is_quarantine = models.BooleanField(gettext_lazy("zone de quarantaine"), default=False)
+    is_bonded = models.BooleanField(gettext_lazy("magasin sous douane / contrôlé"), default=True)
 
     class Meta:
         ordering = ["code"]
-        verbose_name = "emplacement magasin"
-        verbose_name_plural = "emplacements magasin"
+        verbose_name = gettext_lazy("emplacement magasin")
+        verbose_name_plural = gettext_lazy("emplacements magasin")
 
     def __str__(self):
         return f"{self.code} – {self.name}"
@@ -29,65 +30,65 @@ class ReleaseCertificate(TrackedModel):
     """Certificat libératoire : EASA Form 1, FAA 8130-3, CoC fabricant..."""
 
     TYPES = [
-        ("easa_form1", "EASA Form 1"),
-        ("faa_8130", "FAA Form 8130-3"),
-        ("dual", "Double libération EASA/FAA"),
-        ("tcca_one", "TCCA Form One"),
-        ("coc", "Certificat de conformité (standard parts / matières)"),
+        ("easa_form1", gettext_lazy("EASA Form 1")),
+        ("faa_8130", gettext_lazy("FAA Form 8130-3")),
+        ("dual", gettext_lazy("Double libération EASA/FAA")),
+        ("tcca_one", gettext_lazy("TCCA Form One")),
+        ("coc", gettext_lazy("Certificat de conformité (standard parts / matières)")),
     ]
-    STATUSES = [("new", "Neuf"), ("overhauled", "Révisé"), ("repaired", "Réparé"), ("inspected", "Inspecté / testé"), ("modified", "Modifié")]
+    STATUSES = [("new", gettext_lazy("Neuf")), ("overhauled", gettext_lazy("Révisé")), ("repaired", gettext_lazy("Réparé")), ("inspected", gettext_lazy("Inspecté / testé")), ("modified", gettext_lazy("Modifié"))]
 
     cert_type = models.CharField("type", max_length=12, choices=TYPES, default="easa_form1")
-    tracking_number = models.CharField("n° de suivi (case 3)", max_length=60)
-    issuer = models.CharField("organisme émetteur", max_length=120)
-    issuer_approval = models.CharField("n° d'agrément émetteur", max_length=60, blank=True)
-    issue_date = models.DateField("date d'émission")
-    work_status = models.CharField("statut / travaux (case 11)", max_length=12, choices=STATUSES, default="new")
+    tracking_number = models.CharField(gettext_lazy("n° de suivi (case 3)"), max_length=60)
+    issuer = models.CharField(gettext_lazy("organisme émetteur"), max_length=120)
+    issuer_approval = models.CharField(gettext_lazy("n° d'agrément émetteur"), max_length=60, blank=True)
+    issue_date = models.DateField(gettext_lazy("date d'émission"))
+    work_status = models.CharField(gettext_lazy("statut / travaux (case 11)"), max_length=12, choices=STATUSES, default="new")
     part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N", related_name="certificates")
-    serial_or_batch = models.CharField("S/N ou n° de lot", max_length=60, blank=True)
-    quantity = models.DecimalField("quantité", max_digits=10, decimal_places=2, default=Decimal("1"))
+    serial_or_batch = models.CharField(gettext_lazy("S/N ou n° de lot"), max_length=60, blank=True)
+    quantity = models.DecimalField(gettext_lazy("quantité"), max_digits=10, decimal_places=2, default=Decimal("1"))
     component = models.ForeignKey("fleet.Component", on_delete=models.PROTECT, null=True, blank=True, related_name="release_certificates", verbose_name="composant")
-    stock_item = models.ForeignKey("StockItem", on_delete=models.PROTECT, null=True, blank=True, related_name="certificates", verbose_name="lot de stock")
-    remarks = models.TextField("remarques (case 12)", blank=True)
-    document = models.FileField("scan du certificat", upload_to="certificats/%Y/", blank=True)
-    is_valid = models.BooleanField("accepté en réception", default=True)
-    rejection_reason = models.CharField("motif de rejet", max_length=200, blank=True)
+    stock_item = models.ForeignKey("StockItem", on_delete=models.PROTECT, null=True, blank=True, related_name="certificates", verbose_name=gettext_lazy("lot de stock"))
+    remarks = models.TextField(gettext_lazy("remarques (case 12)"), blank=True)
+    document = models.FileField(gettext_lazy("scan du certificat"), upload_to="certificats/%Y/", blank=True)
+    is_valid = models.BooleanField(gettext_lazy("accepté en réception"), default=True)
+    rejection_reason = models.CharField(gettext_lazy("motif de rejet"), max_length=200, blank=True)
 
     class Meta:
         ordering = ["-issue_date", "-id"]
-        verbose_name = "certificat libératoire"
-        verbose_name_plural = "certificats libératoires"
+        verbose_name = gettext_lazy("certificat libératoire")
+        verbose_name_plural = gettext_lazy("certificats libératoires")
 
     def __str__(self):
         return f"{self.get_cert_type_display()} {self.tracking_number}"
 
     def clean(self):
         if self.component_id and self.component.part_number_id != self.part_number_id:
-            raise ValidationError("Le P/N du certificat ne correspond pas au composant.")
+            raise ValidationError(gettext("Le P/N du certificat ne correspond pas au composant."))
         if self.component_id and self.serial_or_batch and self.serial_or_batch != self.component.serial_number:
-            raise ValidationError("Le S/N du certificat ne correspond pas au composant.")
+            raise ValidationError(gettext("Le S/N du certificat ne correspond pas au composant."))
 
 
 class StockItem(TrackedModel):
     """Lot de pièces non sérialisées (consommables, standard parts, ingrédients)."""
 
-    STATUSES = [("serviceable", "Utilisable"), ("quarantine", "Quarantaine"), ("expired", "Périmé"), ("scrapped", "Rebuté")]
+    STATUSES = [("serviceable", gettext_lazy("Utilisable")), ("quarantine", gettext_lazy("Quarantaine")), ("expired", gettext_lazy("Périmé")), ("scrapped", gettext_lazy("Rebuté"))]
 
     part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N", related_name="stock_items")
-    batch = models.CharField("n° de lot", max_length=60, blank=True)
+    batch = models.CharField(gettext_lazy("n° de lot"), max_length=60, blank=True)
     location = models.ForeignKey(StoreLocation, on_delete=models.PROTECT, verbose_name="emplacement", related_name="stock_items")
-    quantity = models.DecimalField("quantité", max_digits=10, decimal_places=2, default=Decimal("0"))
-    min_quantity = models.DecimalField("stock mini", max_digits=10, decimal_places=2, default=Decimal("0"))
-    shelf_life_expiry = models.DateField("date de péremption", null=True, blank=True)
+    quantity = models.DecimalField(gettext_lazy("quantité"), max_digits=10, decimal_places=2, default=Decimal("0"))
+    min_quantity = models.DecimalField(gettext_lazy("stock mini"), max_digits=10, decimal_places=2, default=Decimal("0"))
+    shelf_life_expiry = models.DateField(gettext_lazy("date de péremption"), null=True, blank=True)
     status = models.CharField("statut", max_length=12, choices=STATUSES, default="serviceable")
-    status_reason = models.CharField("motif du statut", max_length=200, blank=True)
-    received_on = models.DateField("réceptionné le", default=timezone.localdate)
+    status_reason = models.CharField(gettext_lazy("motif du statut"), max_length=200, blank=True)
+    received_on = models.DateField(gettext_lazy("réceptionné le"), default=timezone.localdate)
     supplier = models.CharField("fournisseur", max_length=120, blank=True)
 
     class Meta:
         ordering = ["part_number__pn", "shelf_life_expiry"]
-        verbose_name = "lot de stock"
-        verbose_name_plural = "stock (lots)"
+        verbose_name = gettext_lazy("lot de stock")
+        verbose_name_plural = gettext_lazy("stock (lots)")
 
     def __str__(self):
         return f"{self.part_number.pn} lot {self.batch or '-'} ({self.quantity} {self.part_number.unit})"
@@ -108,51 +109,51 @@ class StockItem(TrackedModel):
     def issue(self, quantity, task_card=None, note=""):
         quantity = Decimal(str(quantity))
         if not self.is_issuable:
-            raise ValidationError("Lot non délivrable (statut, péremption, quantité ou certificat).")
+            raise ValidationError(gettext("Lot non délivrable (statut, péremption, quantité ou certificat)."))
         if quantity <= 0 or quantity > self.quantity:
-            raise ValidationError(f"Quantité invalide (disponible : {self.quantity}).")
+            raise ValidationError(gettext("Quantité invalide (disponible : {quantity}).").format(quantity=self.quantity))
         self.quantity -= quantity
         self.save()
         return StockMovement.objects.create(stock_item=self, quantity=-quantity, kind="issue", task_card=task_card, note=note)
 
 
 class StockMovement(TrackedModel):
-    KINDS = [("receipt", "Réception"), ("issue", "Sortie"), ("return", "Retour"), ("adjust", "Ajustement inventaire"), ("scrap", "Rebut")]
+    KINDS = [("receipt", gettext_lazy("Réception")), ("issue", gettext_lazy("Sortie")), ("return", gettext_lazy("Retour")), ("adjust", gettext_lazy("Ajustement inventaire")), ("scrap", gettext_lazy("Rebut"))]
 
     stock_item = models.ForeignKey(StockItem, on_delete=models.PROTECT, related_name="movements", verbose_name="lot")
     kind = models.CharField("type", max_length=10, choices=KINDS)
-    quantity = models.DecimalField("quantité (+/-)", max_digits=10, decimal_places=2)
-    task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, null=True, blank=True, related_name="stock_movements", verbose_name="task card")
+    quantity = models.DecimalField(gettext_lazy("quantité (+/-)"), max_digits=10, decimal_places=2)
+    task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, null=True, blank=True, related_name="stock_movements", verbose_name=gettext_lazy("task card"))
     note = models.CharField("note", max_length=200, blank=True)
     date = models.DateTimeField("date", default=timezone.now)
 
     class Meta:
         ordering = ["-date"]
-        verbose_name = "mouvement de stock"
-        verbose_name_plural = "mouvements de stock"
+        verbose_name = gettext_lazy("mouvement de stock")
+        verbose_name_plural = gettext_lazy("mouvements de stock")
 
     def __str__(self):
         return f"{self.get_kind_display()} {self.quantity} {self.stock_item.part_number.pn}"
 
 
 class PartRequest(TrackedModel):
-    STATUSES = [("requested", "Demandée"), ("reserved", "Réservée"), ("issued", "Délivrée"), ("cancelled", "Annulée")]
-    PRIORITIES = [("aog", "AOG"), ("urgent", "Urgent"), ("routine", "Normal")]
+    STATUSES = [("requested", gettext_lazy("Demandée")), ("reserved", gettext_lazy("Réservée")), ("issued", gettext_lazy("Délivrée")), ("cancelled", gettext_lazy("Annulée"))]
+    PRIORITIES = [("aog", "AOG"), ("urgent", gettext_lazy("Urgent")), ("routine", gettext_lazy("Normal"))]
 
-    number = models.CharField("n° demande", max_length=20, unique=True, editable=False)
-    task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, related_name="part_requests", verbose_name="task card")
+    number = models.CharField(gettext_lazy("n° demande"), max_length=20, unique=True, editable=False)
+    task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, related_name="part_requests", verbose_name=gettext_lazy("task card"))
     part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N")
-    quantity = models.DecimalField("quantité", max_digits=10, decimal_places=2, default=Decimal("1"))
-    priority = models.CharField("priorité", max_length=8, choices=PRIORITIES, default="routine")
+    quantity = models.DecimalField(gettext_lazy("quantité"), max_digits=10, decimal_places=2, default=Decimal("1"))
+    priority = models.CharField(gettext_lazy("priorité"), max_length=8, choices=PRIORITIES, default="routine")
     status = models.CharField("statut", max_length=10, choices=STATUSES, default="requested")
-    issued_component = models.ForeignKey("fleet.Component", on_delete=models.PROTECT, null=True, blank=True, verbose_name="composant délivré", related_name="part_requests")
-    issued_stock = models.ForeignKey(StockItem, on_delete=models.PROTECT, null=True, blank=True, verbose_name="lot délivré", related_name="part_requests")
+    issued_component = models.ForeignKey("fleet.Component", on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("composant délivré"), related_name="part_requests")
+    issued_stock = models.ForeignKey(StockItem, on_delete=models.PROTECT, null=True, blank=True, verbose_name=gettext_lazy("lot délivré"), related_name="part_requests")
     note = models.CharField("note", max_length=200, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "demande de pièce"
-        verbose_name_plural = "demandes de pièces"
+        verbose_name = gettext_lazy("demande de pièce")
+        verbose_name_plural = gettext_lazy("demandes de pièces")
 
     def __str__(self):
         return f"{self.number} {self.part_number.pn} x{self.quantity}"
@@ -172,15 +173,15 @@ class PartRequest(TrackedModel):
     @transaction.atomic
     def fulfil_with_component(self, component):
         if self.status not in ("requested",):
-            raise ValidationError("Demande déjà traitée.")
+            raise ValidationError(gettext("Demande déjà traitée."))
         if component.part_number not in self.acceptable_part_numbers():
-            raise ValidationError("P/N non conforme à la demande (ni interchangeable).")
+            raise ValidationError(gettext("P/N non conforme à la demande (ni interchangeable)."))
         if component.status != "serviceable":
-            raise ValidationError("Le composant n'est pas utilisable.")
+            raise ValidationError(gettext("Le composant n'est pas utilisable."))
         if not component.has_valid_certificate:
-            raise ValidationError("Composant sans certificat libératoire valide.")
+            raise ValidationError(gettext("Composant sans certificat libératoire valide."))
         if component.is_life_expired:
-            raise ValidationError("Composant en butée de vie / TBO.")
+            raise ValidationError(gettext("Composant en butée de vie / TBO."))
         component.status = "reserved"
         component.reserved_for = self.task_card
         component.save()
@@ -191,9 +192,9 @@ class PartRequest(TrackedModel):
     @transaction.atomic
     def fulfil_with_stock(self, stock_item):
         if self.status not in ("requested",):
-            raise ValidationError("Demande déjà traitée.")
+            raise ValidationError(gettext("Demande déjà traitée."))
         if stock_item.part_number not in self.acceptable_part_numbers():
-            raise ValidationError("P/N non conforme à la demande.")
+            raise ValidationError(gettext("P/N non conforme à la demande."))
         stock_item.issue(self.quantity, task_card=self.task_card, note=self.number)
         self.issued_stock = stock_item
         self.status = "issued"
@@ -201,19 +202,19 @@ class PartRequest(TrackedModel):
 
 
 class Tool(TrackedModel):
-    STATUSES = [("available", "Disponible"), ("checked_out", "Sorti"), ("calibration", "En étalonnage"), ("unserviceable", "Hors service")]
+    STATUSES = [("available", gettext_lazy("Disponible")), ("checked_out", gettext_lazy("Sorti")), ("calibration", gettext_lazy("En étalonnage")), ("unserviceable", gettext_lazy("Hors service"))]
 
-    reference = models.CharField("référence interne", max_length=40, unique=True)
-    description = models.CharField("désignation", max_length=150)
-    part_number = models.CharField("P/N outillage", max_length=60, blank=True)
+    reference = models.CharField(gettext_lazy("référence interne"), max_length=40, unique=True)
+    description = models.CharField(gettext_lazy("désignation"), max_length=150)
+    part_number = models.CharField(gettext_lazy("P/N outillage"), max_length=60, blank=True)
     serial_number = models.CharField("S/N", max_length=60, blank=True)
     location = models.ForeignKey(StoreLocation, on_delete=models.PROTECT, null=True, blank=True, verbose_name="emplacement")
     status = models.CharField("statut", max_length=14, choices=STATUSES, default="available")
-    calibration_required = models.BooleanField("étalonnage requis", default=True)
-    calibration_interval_days = models.PositiveIntegerField("périodicité d'étalonnage (jours)", null=True, blank=True)
-    last_calibration = models.DateField("dernier étalonnage", null=True, blank=True)
-    checked_out_to = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, null=True, blank=True, related_name="tools_out", verbose_name="sorti pour")
-    checked_out_by = models.ForeignKey("part145.Staff", on_delete=models.PROTECT, null=True, blank=True, related_name="+", verbose_name="sorti par")
+    calibration_required = models.BooleanField(gettext_lazy("étalonnage requis"), default=True)
+    calibration_interval_days = models.PositiveIntegerField(gettext_lazy("périodicité d'étalonnage (jours)"), null=True, blank=True)
+    last_calibration = models.DateField(gettext_lazy("dernier étalonnage"), null=True, blank=True)
+    checked_out_to = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, null=True, blank=True, related_name="tools_out", verbose_name=gettext_lazy("sorti pour"))
+    checked_out_by = models.ForeignKey("part145.Staff", on_delete=models.PROTECT, null=True, blank=True, related_name="+", verbose_name=gettext_lazy("sorti par"))
 
     class Meta:
         ordering = ["reference"]
@@ -242,9 +243,9 @@ class Tool(TrackedModel):
     @transaction.atomic
     def check_out(self, task_card, staff):
         if self.status != "available":
-            raise ValidationError(f"Outillage {self.reference} non disponible ({self.get_status_display()}).")
+            raise ValidationError(gettext("Outillage {reference} non disponible ({get_status_display}).").format(reference=self.reference, get_status_display=self.get_status_display()))
         if not self.calibration_ok:
-            raise ValidationError(f"Outillage {self.reference} : étalonnage échu ou non renseigné, sortie interdite.")
+            raise ValidationError(gettext("Outillage {reference} : étalonnage échu ou non renseigné, sortie interdite.").format(reference=self.reference))
         self.status = "checked_out"
         self.checked_out_to = task_card
         self.checked_out_by = staff
@@ -267,16 +268,16 @@ class ToolUsage(TrackedModel):
     """Traçabilité : quel outil (et dans quel état d'étalonnage) a servi sur quelle task card."""
 
     tool = models.ForeignKey(Tool, on_delete=models.PROTECT, related_name="usages", verbose_name="outillage")
-    task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, related_name="tool_usages", verbose_name="task card")
+    task_card = models.ForeignKey("part145.TaskCard", on_delete=models.PROTECT, related_name="tool_usages", verbose_name=gettext_lazy("task card"))
     staff = models.ForeignKey("part145.Staff", on_delete=models.PROTECT, null=True, blank=True, verbose_name="utilisateur")
-    checked_out_at = models.DateTimeField("sorti le", default=timezone.now)
-    returned_at = models.DateTimeField("rendu le", null=True, blank=True)
-    calibration_due = models.DateField("étalonnage valide jusqu'au", null=True, blank=True)
+    checked_out_at = models.DateTimeField(gettext_lazy("sorti le"), default=timezone.now)
+    returned_at = models.DateTimeField(gettext_lazy("rendu le"), null=True, blank=True)
+    calibration_due = models.DateField(gettext_lazy("étalonnage valide jusqu'au"), null=True, blank=True)
 
     class Meta:
         ordering = ["-checked_out_at"]
-        verbose_name = "utilisation d'outillage"
-        verbose_name_plural = "utilisations d'outillage"
+        verbose_name = gettext_lazy("utilisation d'outillage")
+        verbose_name_plural = gettext_lazy("utilisations d'outillage")
 
     def __str__(self):
         return f"{self.tool.reference} → {self.task_card.number}"
@@ -284,15 +285,15 @@ class ToolUsage(TrackedModel):
 
 class ToolCalibration(TrackedModel):
     tool = models.ForeignKey(Tool, on_delete=models.PROTECT, related_name="calibrations", verbose_name="outillage")
-    date = models.DateField("date d'étalonnage")
+    date = models.DateField(gettext_lazy("date d'étalonnage"))
     provider = models.CharField("laboratoire", max_length=120)
-    certificate_ref = models.CharField("n° certificat d'étalonnage", max_length=60)
-    result = models.CharField("résultat", max_length=10, choices=[("pass", "Conforme"), ("fail", "Non conforme")], default="pass")
+    certificate_ref = models.CharField(gettext_lazy("n° certificat d'étalonnage"), max_length=60)
+    result = models.CharField(gettext_lazy("résultat"), max_length=10, choices=[("pass", gettext_lazy("Conforme")), ("fail", gettext_lazy("Non conforme"))], default="pass")
 
     class Meta:
         ordering = ["-date"]
-        verbose_name = "étalonnage"
-        verbose_name_plural = "étalonnages"
+        verbose_name = gettext_lazy("étalonnage")
+        verbose_name_plural = gettext_lazy("étalonnages")
 
     def __str__(self):
         return f"{self.tool.reference} {self.date:%d/%m/%Y}"
@@ -314,14 +315,14 @@ class ToolCalibration(TrackedModel):
 class Supplier(TrackedModel):
     """Fournisseur évalué : seules les commandes à un fournisseur accepté peuvent être émises (145.A.42(a))."""
 
-    KINDS = [("part145", "Organisme Part-145"), ("part21g", "Organisme de production Part-21 G"),
-             ("distributor", "Distributeur"), ("other", "Autre")]
+    KINDS = [("part145", gettext_lazy("Organisme Part-145")), ("part21g", gettext_lazy("Organisme de production Part-21 G")),
+             ("distributor", gettext_lazy("Distributeur")), ("other", gettext_lazy("Autre"))]
 
-    name = models.CharField("raison sociale", max_length=150, unique=True)
+    name = models.CharField(gettext_lazy("raison sociale"), max_length=150, unique=True)
     kind = models.CharField("type", max_length=12, choices=KINDS, default="distributor")
-    approval_reference = models.CharField("n° d'agrément", max_length=60, blank=True, help_text="ex. FR.145.0123, FR.21G.0045")
-    approved = models.BooleanField("fournisseur accepté", default=False)
-    evaluated_on = models.DateField("évalué le", null=True, blank=True)
+    approval_reference = models.CharField(gettext_lazy("n° d'agrément"), max_length=60, blank=True, help_text=gettext_lazy("ex. FR.145.0123, FR.21G.0045"))
+    approved = models.BooleanField(gettext_lazy("fournisseur accepté"), default=False)
+    evaluated_on = models.DateField(gettext_lazy("évalué le"), null=True, blank=True)
     contact = models.CharField("contact", max_length=150, blank=True)
 
     class Meta:
@@ -337,26 +338,26 @@ class Supplier(TrackedModel):
 
     def clean(self):
         if self.approved and not self.evaluated_on:
-            raise ValidationError({"evaluated_on": "Indiquez la date d'évaluation du fournisseur accepté."})
+            raise ValidationError({"evaluated_on": gettext("Indiquez la date d'évaluation du fournisseur accepté.")})
         if self.approved and self.kind in ("part145", "part21g") and not self.approval_reference.strip():
-            raise ValidationError({"approval_reference": "Indiquez le n° d'agrément de l'organisme."})
+            raise ValidationError({"approval_reference": gettext("Indiquez le n° d'agrément de l'organisme.")})
 
 
 class PurchaseOrder(TrackedModel):
-    STATUSES = [("draft", "Brouillon"), ("sent", "Émise"), ("partial", "Reçue partiellement"), ("received", "Reçue"),
-                ("cancelled", "Annulée")]
+    STATUSES = [("draft", gettext_lazy("Brouillon")), ("sent", gettext_lazy("Émise")), ("partial", gettext_lazy("Reçue partiellement")), ("received", gettext_lazy("Reçue")),
+                ("cancelled", gettext_lazy("Annulée"))]
 
-    number = models.CharField("n° de commande", max_length=20, unique=True, editable=False)
+    number = models.CharField(gettext_lazy("n° de commande"), max_length=20, unique=True, editable=False)
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name="orders", verbose_name="fournisseur")
-    ordered_on = models.DateField("date de commande", null=True, blank=True)
-    expected_on = models.DateField("livraison prévue le", null=True, blank=True)
+    ordered_on = models.DateField(gettext_lazy("date de commande"), null=True, blank=True)
+    expected_on = models.DateField(gettext_lazy("livraison prévue le"), null=True, blank=True)
     status = models.CharField("statut", max_length=10, choices=STATUSES, default="draft", editable=False)
     notes = models.TextField("observations", blank=True)
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "commande d'achat"
-        verbose_name_plural = "commandes d'achat"
+        verbose_name = gettext_lazy("commande d'achat")
+        verbose_name_plural = gettext_lazy("commandes d'achat")
 
     def __str__(self):
         return f"{self.number} {self.supplier}"
@@ -391,15 +392,15 @@ class PurchaseOrder(TrackedModel):
 class PurchaseOrderLine(TrackedModel):
     order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, related_name="lines", verbose_name="commande")
     part_number = models.ForeignKey("fleet.PartNumber", on_delete=models.PROTECT, verbose_name="P/N")
-    quantity = models.DecimalField("quantité commandée", max_digits=10, decimal_places=2, default=Decimal("1"))
-    received_quantity = models.DecimalField("quantité reçue", max_digits=10, decimal_places=2, default=Decimal("0"), editable=False)
+    quantity = models.DecimalField(gettext_lazy("quantité commandée"), max_digits=10, decimal_places=2, default=Decimal("1"))
+    received_quantity = models.DecimalField(gettext_lazy("quantité reçue"), max_digits=10, decimal_places=2, default=Decimal("0"), editable=False)
     part_request = models.ForeignKey(PartRequest, on_delete=models.PROTECT, null=True, blank=True, related_name="po_lines",
-                                     verbose_name="demande de pièce liée")
+                                     verbose_name=gettext_lazy("demande de pièce liée"))
 
     class Meta:
         ordering = ["order", "pk"]
-        verbose_name = "ligne de commande"
-        verbose_name_plural = "lignes de commande"
+        verbose_name = gettext_lazy("ligne de commande")
+        verbose_name_plural = gettext_lazy("lignes de commande")
 
     def __str__(self):
         return f"{self.order.number} – {self.part_number.pn} × {self.quantity}"
@@ -413,24 +414,24 @@ class PurchaseOrderLine(TrackedModel):
 
     def clean(self):
         if self.quantity is not None and self.quantity <= 0:
-            raise ValidationError({"quantity": "La quantité doit être positive."})
+            raise ValidationError({"quantity": gettext("La quantité doit être positive.")})
         if self.part_request_id and self.part_request.part_number_id != self.part_number_id:
-            raise ValidationError({"part_request": "La demande liée porte sur un autre P/N."})
+            raise ValidationError({"part_request": gettext("La demande liée porte sur un autre P/N.")})
 
 
 class PurchaseReceipt(TrackedModel):
     """Réception d'une ligne de commande : rattachée au certificat libératoire contrôlé en réception."""
 
     line = models.ForeignKey(PurchaseOrderLine, on_delete=models.PROTECT, related_name="receipts", verbose_name="ligne")
-    quantity = models.DecimalField("quantité reçue", max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(gettext_lazy("quantité reçue"), max_digits=10, decimal_places=2)
     certificate = models.ForeignKey(ReleaseCertificate, on_delete=models.PROTECT, null=True, blank=True, related_name="po_receipts",
-                                    verbose_name="certificat libératoire")
-    received_on = models.DateField("reçu le", default=timezone.localdate)
+                                    verbose_name=gettext_lazy("certificat libératoire"))
+    received_on = models.DateField(gettext_lazy("reçu le"), default=timezone.localdate)
 
     class Meta:
         ordering = ["-received_on", "-pk"]
-        verbose_name = "réception sur commande"
-        verbose_name_plural = "réceptions sur commande"
+        verbose_name = gettext_lazy("réception sur commande")
+        verbose_name_plural = gettext_lazy("réceptions sur commande")
 
     def __str__(self):
         return f"{self.line} : {self.quantity}"

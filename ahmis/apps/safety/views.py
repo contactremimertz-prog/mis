@@ -8,6 +8,7 @@ from apps.core.crud import AhmisCreateView, AhmisListView, AhmisUpdateView
 
 from .forms import DeclarationForm, ProcessingForm
 from .models import OccurrenceReport
+from django.utils.translation import gettext, gettext_lazy
 
 
 def visible_reports(user):
@@ -24,13 +25,13 @@ def can_see_reporter(user, report):
 
 class OccurrenceList(AhmisListView):
     model = OccurrenceReport
-    columns = [("N°", "number"), ("Intitulé", "title"), ("Aéronef", "aircraft.registration"), ("Catégorie", "category"),
-               ("Gravité", "severity"), ("Connu le", "aware_at"), ("Statut", "status"), ("Réf. autorité", "authority_reference")]
+    columns = [("N°", "number"), (gettext_lazy("Intitulé"), "title"), (gettext_lazy("Aéronef"), "aircraft.registration"), (gettext_lazy("Catégorie"), "category"),
+               (gettext_lazy("Gravité"), "severity"), (gettext_lazy("Connu le"), "aware_at"), (gettext_lazy("Statut"), "status"), (gettext_lazy("Réf. autorité"), "authority_reference")]
     search_fields = ["number", "title", "description", "authority_reference", "aircraft__registration"]
     filter_fields = ["status", "category", "severity", "aircraft"]
     create_url = reverse_lazy("safety:create")
-    title = "Comptes rendus d'événements"
-    subtitle = "Règlement (UE) 376/2014 et 145.A.60 : notification à l'autorité sous 72 h, suivi sous 30 jours."
+    title = gettext_lazy("Comptes rendus d'événements")
+    subtitle = gettext_lazy("Règlement (UE) 376/2014 et 145.A.60 : notification à l'autorité sous 72 h, suivi sous 30 jours.")
 
     def get_permission_required(self):
         return ["safety.add_occurrencereport"]
@@ -42,14 +43,14 @@ class OccurrenceList(AhmisListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         if not self.request.user.has_perm("safety.view_all_occurrences"):
-            ctx["subtitle"] = "Vos déclarations. Le responsable qualité / sécurité traite chaque compte rendu en toute confidentialité."
+            ctx["subtitle"] = gettext("Vos déclarations. Le responsable qualité / sécurité traite chaque compte rendu en toute confidentialité.")
         return ctx
 
 
 class OccurrenceCreate(AhmisCreateView):
     model = OccurrenceReport
     form_class = DeclarationForm
-    title = "Déclarer un événement"
+    title = gettext_lazy("Déclarer un événement")
 
     def get_initial(self):
         from apps.part145.models import Defect, TaskCard
@@ -63,11 +64,11 @@ class OccurrenceCreate(AhmisCreateView):
             d = Defect.objects.filter(pk=g["defect"]).first()
             if d:
                 init.update({"defect": d, "aircraft": d.aircraft, "description": d.description,
-                             "title": f"Défaut {d.number} – ATA {d.ata}" if d.ata else f"Défaut {d.number}"})
+                             "title": gettext("Défaut {number} – ATA {ata}").format(number=d.number, ata=d.ata) if d.ata else gettext("Défaut {number}").format(number=d.number)})
         if g.get("task_card"):
             c = TaskCard.objects.filter(pk=g["task_card"]).select_related("work_package").first()
             if c:
-                init.update({"task_card": c, "aircraft": c.aircraft, "title": f"Task card {c.number}"})
+                init.update({"task_card": c, "aircraft": c.aircraft, "title": gettext("Task card {number}").format(number=c.number)})
         if g.get("aircraft"):
             init["aircraft"] = g["aircraft"]
         return init

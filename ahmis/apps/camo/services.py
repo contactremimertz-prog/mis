@@ -17,12 +17,13 @@ from django.utils import timezone
 from apps.fleet.models import Aircraft
 
 from .models import DirectiveApplicability, MaintenanceTask, TaskAccomplishment
+from django.utils.translation import gettext, gettext_lazy
 
 STATUS_ORDER = {"overdue": 0, "tolerance": 1, "due_soon": 2, "ok": 3}
 STATUS_LABELS = {
-    "overdue": "Dépassé",
-    "tolerance": "En tolérance",
-    "due_soon": "À planifier",
+    "overdue": gettext_lazy("Dépassé"),
+    "tolerance": gettext_lazy("En tolérance"),
+    "due_soon": gettext_lazy("À planifier"),
     "ok": "OK",
 }
 
@@ -81,8 +82,8 @@ class DueItem:
     @property
     def kind_label(self):
         return {
-            "task": "Tâche", "component_task": "Tâche composant", "llp": "LLP", "tbo": "TBO",
-            "arc": "ARC", "defect": "Défaut reporté", "directive": "Consigne", "modification": "Modification / réparation",
+            "task": gettext("Tâche"), "component_task": gettext("Tâche composant"), "llp": "LLP", "tbo": "TBO",
+            "arc": "ARC", "defect": gettext("Défaut reporté"), "directive": gettext("Consigne"), "modification": gettext("Modification / réparation"),
         }.get(self.kind, self.kind)
 
 
@@ -215,7 +216,7 @@ def task_due(task, aircraft, component=None, today=None, utilisation_factor=1.0,
         if task.interval_days:
             item.due_date = base_date + timedelta(days=task.interval_days)
         if last.used_tolerance:
-            item.notes = "Réalisée en tolérance : prochaine échéance comptée depuis la butée théorique."
+            item.notes = gettext("Réalisée en tolérance : prochaine échéance comptée depuis la butée théorique.")
     else:
         has_threshold = any([task.threshold_fh, task.threshold_fc, task.threshold_days])
         fh = task.threshold_fh if has_threshold else task.interval_fh
@@ -260,7 +261,7 @@ def component_limit_items(aircraft, today=None, utilisation_factor=1.0):
             item = DueItem(
                 aircraft=aircraft, kind=kind, component=comp,
                 reference=f"{comp.part_number.pn} S/N {comp.serial_number}",
-                label=f"{'Limite de vie' if kind == 'llp' else 'Révision (TBO)'} – {comp.part_number.description}"
+                label=f"{gettext('Limite de vie') if kind == 'llp' else gettext('Révision (TBO)')} – {comp.part_number.description}"
                       + (f" ({comp.position})" if comp.position else ""),
                 url=reverse("fleet:component_detail", args=[comp.pk]),
             )
@@ -287,7 +288,7 @@ def arc_item(aircraft, today=None):
     if not aircraft.arc_expiry:
         return None
     item = DueItem(
-        aircraft=aircraft, kind="arc", reference="ARC", label="Expiration du certificat d'examen de navigabilité (ARC)",
+        aircraft=aircraft, kind="arc", reference="ARC", label=gettext("Expiration du certificat d'examen de navigabilité (ARC)"),
         due_date=aircraft.arc_expiry, url=reverse("fleet:aircraft_detail", args=[aircraft.pk]),
     )
     item.projected_date = aircraft.arc_expiry
@@ -305,7 +306,7 @@ def defect_items(aircraft, today=None):
     for d in Defect.objects.filter(aircraft=aircraft, status="deferred"):
         item = DueItem(
             aircraft=aircraft, kind="defect", defect=d, reference=d.number,
-            label=f"Défaut reporté {d.mel_reference or ''} cat. {d.deferral_category or '-'} : {d.description[:80]}",
+            label=gettext("Défaut reporté {or_} cat. {or_2} : {description}").format(or_=d.mel_reference or '', or_2=d.deferral_category or '-', description=d.description[:80]),
             url=reverse("part145:defect_detail", args=[d.pk]), estimated_mh=Decimal("1"),
         )
         item.due_date = d.deferral_limit_date
@@ -314,7 +315,7 @@ def defect_items(aircraft, today=None):
         if d.deferral_limit_fc is not None:
             item.due_fc = d.deferral_limit_fc
         if d.extended:
-            item.notes = f"Délai prorogé une fois ({d.extension_reference}) : aucune nouvelle prorogation possible."
+            item.notes = gettext("Délai prorogé une fois ({extension_reference}) : aucune nouvelle prorogation possible.").format(extension_reference=d.extension_reference)
         _project(item, aircraft, aircraft.total_fh, aircraft.total_fc, today)
         _status(item, today)
         items.append(item)
@@ -331,7 +332,7 @@ def directive_items(aircraft, today=None):
         d = app.directive
         item = DueItem(
             aircraft=aircraft, kind="directive", directive=d, reference=d.number,
-            label=("À évaluer : " if app.status == "to_assess" else "Sans tâche de suivi : ") + d.title,
+            label=(gettext("À évaluer : ") if app.status == "to_assess" else gettext("Sans tâche de suivi : ")) + d.title,
             url=reverse("camo:directive_detail", args=[d.pk]),
         )
         item.due_date = d.effective_date

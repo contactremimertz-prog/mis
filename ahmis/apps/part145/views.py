@@ -20,6 +20,7 @@ from .forms import (AddTaskForm, AdhocCardForm, AuthorizationForm, ComponentChan
                     PartRequestForm, PerformForm, QualificationForm, ReasonForm, SignForm, StaffForm, StepForm,
                     ToolCheckoutForm, WorkPackageForm)
 from .models import Defect, Staff, TaskCard, TaskCardStep, WorkPackage
+from django.utils.translation import gettext, gettext_lazy
 
 
 def _check_password(request, form):
@@ -27,7 +28,7 @@ def _check_password(request, form):
     from apps.core.identity import verify_signature_secret
 
     if not verify_signature_secret(request.user, form.cleaned_data["password"]):
-        raise ValidationError("Mot de passe ou code de signature incorrect : signature refusée.")
+        raise ValidationError(gettext("Mot de passe ou code de signature incorrect : signature refusée."))
 
 
 def _run(request, fn, success, *args, **kwargs):
@@ -46,18 +47,18 @@ def _run(request, fn, success, *args, **kwargs):
 class WorkPackageList(AhmisListView):
     model = WorkPackage
     queryset = WorkPackage.objects.select_related("aircraft")
-    columns = [("N°", "number"), ("Aéronef", "aircraft.registration"), ("Intitulé", "title"), ("Type", "check_type"),
-               ("Station", "station"), ("Début", "planned_start"), ("Fin", "planned_end"), ("Statut", "status"), ("Avancement %", "progress")]
+    columns = [("N°", "number"), (gettext_lazy("Aéronef"), "aircraft.registration"), (gettext_lazy("Intitulé"), "title"), (gettext_lazy("Type"), "check_type"),
+               (gettext_lazy("Station"), "station"), (gettext_lazy("Début"), "planned_start"), (gettext_lazy("Fin"), "planned_end"), (gettext_lazy("Statut"), "status"), (gettext_lazy("Avancement %"), "progress")]
     search_fields = ["number", "title", "aircraft__registration", "customer_order"]
     filter_fields = ["status", "aircraft", "check_type"]
     create_url = reverse_lazy("part145:wp_create")
-    title = "Work packages"
+    title = gettext_lazy("Work packages")
 
 
 class WorkPackageCreate(AhmisCreateView):
     model = WorkPackage
     form_class = WorkPackageForm
-    title = "Nouveau work package"
+    title = gettext_lazy("Nouveau work package")
 
     def get_initial(self):
         init = super().get_initial()
@@ -75,7 +76,7 @@ class WorkPackageUpdate(AhmisUpdateView):
     def dispatch(self, request, *args, **kwargs):
         wp = self.get_object()
         if wp.is_locked:
-            messages.error(request, "Work package verrouillé : remis en service ou annulé.")
+            messages.error(request, gettext("Work package verrouillé : remis en service ou annulé."))
             return redirect(wp.get_absolute_url())
         return super().dispatch(request, *args, **kwargs)
 
@@ -124,14 +125,14 @@ def wp_add_items(request, pk):
         if form.is_valid():
             keys.append(f"task:{form.cleaned_data['task'].pk}:0")
     if not keys:
-        messages.warning(request, "Aucun élément sélectionné.")
+        messages.warning(request, gettext("Aucun élément sélectionné."))
         return redirect(wp.get_absolute_url())
     try:
         created = services.add_due_items_to_wp(wp, keys)
     except ValidationError as e:
         error_messages(request, e)
     else:
-        messages.success(request, f"{len(created)} task card(s) créée(s).")
+        messages.success(request, gettext("{created} task card(s) créée(s).").format(created=len(created)))
     return redirect(wp.get_absolute_url())
 
 
@@ -140,7 +141,7 @@ def wp_add_items(request, pk):
 def wp_add_adhoc(request, pk):
     wp = get_object_or_404(WorkPackage, pk=pk)
     if wp.is_locked:
-        messages.error(request, "Work package verrouillé.")
+        messages.error(request, gettext("Work package verrouillé."))
         return redirect(wp.get_absolute_url())
     form = AdhocCardForm(request.POST)
     if form.is_valid():
@@ -148,9 +149,9 @@ def wp_add_adhoc(request, pk):
         card.work_package = wp
         card.origin = "adhoc"
         card.save()
-        messages.success(request, f"Task card {card.number} créée.")
+        messages.success(request, gettext("Task card {number} créée.").format(number=card.number))
         return redirect(card.get_absolute_url())
-    messages.error(request, "Formulaire incomplet : " + "; ".join(f"{k} : {', '.join(v)}" for k, v in form.errors.items()))
+    messages.error(request, gettext("Formulaire incomplet : ") + "; ".join(f"{k} : {', '.join(v)}" for k, v in form.errors.items()))
     return redirect(wp.get_absolute_url())
 
 
@@ -165,7 +166,7 @@ def wp_crs(request, pk):
         except ValidationError as e:
             error_messages(request, e)
             return redirect(wp.get_absolute_url())
-        _run(request, services.issue_crs, f"CRS signé : {wp.aircraft.registration} remis en service.", wp, request.user)
+        _run(request, services.issue_crs, gettext("CRS signé : {registration} remis en service.").format(registration=wp.aircraft.registration), wp, request.user)
     return redirect(wp.get_absolute_url())
 
 
@@ -176,14 +177,14 @@ def plan_from_due(request, aircraft_pk):
     ac = get_object_or_404(Aircraft, pk=aircraft_pk)
     keys = request.POST.getlist("keys")
     if not keys:
-        messages.warning(request, "Cochez au moins un élément à planifier.")
+        messages.warning(request, gettext("Cochez au moins un élément à planifier."))
         return redirect(reverse("camo:due") + f"?aircraft={ac.pk}")
     target = request.POST.get("wp", "new")
     with transaction.atomic():
         if target == "new":
             today = timezone.localdate()
             wp = WorkPackage.objects.create(
-                aircraft=ac, title="Visite programmée", check_type="periodic", status="draft",
+                aircraft=ac, title=gettext("Visite programmée"), check_type="periodic", status="draft",
                 planned_start=today + timedelta(days=7), planned_end=today + timedelta(days=9), station=ac.base,
             )
         else:
@@ -194,7 +195,7 @@ def plan_from_due(request, aircraft_pk):
             transaction.set_rollback(True)
             error_messages(request, e)
             return redirect(reverse("camo:due") + f"?aircraft={ac.pk}")
-    messages.success(request, f"{len(created)} task card(s) créée(s) dans {wp.number}. Complétez les dates et l'intitulé du work package.")
+    messages.success(request, gettext("{created} task card(s) créée(s) dans {number}. Complétez les dates et l'intitulé du work package.").format(created=len(created), number=wp.number))
     return redirect(wp.get_absolute_url())
 
 
@@ -202,11 +203,11 @@ def plan_from_due(request, aircraft_pk):
 class TaskCardList(AhmisListView):
     model = TaskCard
     queryset = TaskCard.objects.select_related("work_package__aircraft", "performed_by")
-    columns = [("N°", "number"), ("Intitulé", "title"), ("WP", "work_package.number"), ("Aéronef", "work_package.aircraft.registration"),
-               ("ATA", "ata"), ("Origine", "origin"), ("Statut", "status"), ("Exécuté par", "performed_by.full_name"), ("h.h prévues", "estimated_mh")]
+    columns = [("N°", "number"), (gettext_lazy("Intitulé"), "title"), ("WP", "work_package.number"), (gettext_lazy("Aéronef"), "work_package.aircraft.registration"),
+               ("ATA", "ata"), (gettext_lazy("Origine"), "origin"), (gettext_lazy("Statut"), "status"), (gettext_lazy("Exécuté par"), "performed_by.full_name"), (gettext_lazy("h.h prévues"), "estimated_mh")]
     search_fields = ["number", "title", "work_package__number", "work_package__aircraft__registration"]
     filter_fields = ["status", "origin"]
-    title = "Task cards"
+    title = gettext_lazy("Task cards")
 
 
 @permission_required("part145.view_taskcard", raise_exception=True)
@@ -253,16 +254,16 @@ def card_action(request, pk, action):
     card = get_object_or_404(TaskCard, pk=pk)
     user = request.user
     if action == "start":
-        _run(request, services.start_card, "Task card démarrée.", card, user)
+        _run(request, services.start_card, gettext("Task card démarrée."), card, user)
         return redirect(card.get_absolute_url())
 
     form_class = {"perform": PerformForm, "defer": ReasonForm, "cancel": ReasonForm, "inspect": ReasonForm}.get(action)
     if form_class is None:
-        messages.error(request, "Action inconnue.")
+        messages.error(request, gettext("Action inconnue."))
         return redirect(card.get_absolute_url())
     data = request.POST.copy()
     if action == "inspect" and not data.get("reason"):
-        data["reason"] = "Conforme"
+        data["reason"] = gettext("Conforme")
     form = form_class(data)
     if not form.is_valid():
         for field, errs in form.errors.items():
@@ -276,16 +277,16 @@ def card_action(request, pk, action):
         return redirect(card.get_absolute_url())
     d = form.cleaned_data
     if action == "perform":
-        _run(request, services.perform_card, "Travaux signés.", card, user, d["work_done"], d["actual_mh"])
+        _run(request, services.perform_card, gettext("Travaux signés."), card, user, d["work_done"], d["actual_mh"])
     elif action == "inspect":
         if not user.has_perm("part145.certify_taskcard"):
-            messages.error(request, "Vous n'avez pas le droit de contrôle.")
+            messages.error(request, gettext("Vous n'avez pas le droit de contrôle."))
         else:
-            _run(request, services.inspect_card, "Contrôle indépendant signé : task card clôturée.", card, user, d["reason"])
+            _run(request, services.inspect_card, gettext("Contrôle indépendant signé : task card clôturée."), card, user, d["reason"])
     elif action == "defer":
-        _run(request, services.defer_card, "Task card reportée.", card, user, d["reason"])
+        _run(request, services.defer_card, gettext("Task card reportée."), card, user, d["reason"])
     elif action == "cancel":
-        _run(request, services.cancel_card, "Task card annulée.", card, user, d["reason"])
+        _run(request, services.cancel_card, gettext("Task card annulée."), card, user, d["reason"])
     return redirect(card.get_absolute_url())
 
 
@@ -300,10 +301,10 @@ def step_sign(request, pk):
         except ValidationError as e:
             error_messages(request, e)
         else:
-            _run(request, services.sign_step, f"Étape {step.order} signée.", step, request.user,
+            _run(request, services.sign_step, gettext("Étape {order} signée.").format(order=step.order), step, request.user,
                  form.cleaned_data["measured_value"], form.cleaned_data["not_applicable"])
     else:
-        messages.error(request, "Mot de passe requis pour signer.")
+        messages.error(request, gettext("Mot de passe requis pour signer."))
     return redirect(step.card.get_absolute_url() + f"#step-{step.pk}")
 
 
@@ -323,7 +324,7 @@ def card_component_change(request, pk):
         error_messages(request, e)
         return redirect(card.get_absolute_url())
     d = form.cleaned_data
-    _run(request, services.change_component, "Changement de composant enregistré (configuration et historique mis à jour).",
+    _run(request, services.change_component, gettext("Changement de composant enregistré (configuration et historique mis à jour)."),
          card, request.user, d["removed"], d["installed"], d["position"], d["removal_reason"], d["removal_type"], d["removed_status"])
     return redirect(card.get_absolute_url())
 
@@ -335,7 +336,7 @@ def card_finding(request, pk):
     card = get_object_or_404(TaskCard, pk=pk)
     text = request.POST.get("description", "").strip()
     if not text:
-        messages.error(request, "Décrivez la constatation.")
+        messages.error(request, gettext("Décrivez la constatation."))
         return redirect(card.get_absolute_url())
     staff = Staff.objects.filter(user=request.user).first()
     with transaction.atomic():
@@ -347,7 +348,7 @@ def card_finding(request, pk):
         new.origin = "finding"
         new.parent = card
         new.save()
-    messages.success(request, f"Constatation {defect.number} et task card {new.number} créées.")
+    messages.success(request, gettext("Constatation {number} et task card {number2} créées.").format(number=defect.number, number2=new.number))
     return redirect(new.get_absolute_url())
 
 
@@ -355,18 +356,18 @@ def card_finding(request, pk):
 class DefectList(AhmisListView):
     model = Defect
     queryset = Defect.objects.select_related("aircraft")
-    columns = [("N°", "number"), ("Aéronef", "aircraft.registration"), ("Signalé le", "reported_on"), ("ATA", "ata"),
-               ("Description", "description"), ("Source", "source"), ("Statut", "status"), ("MEL", "mel_reference"), ("Limite", "deferral_limit_date")]
+    columns = [("N°", "number"), (gettext_lazy("Aéronef"), "aircraft.registration"), (gettext_lazy("Signalé le"), "reported_on"), ("ATA", "ata"),
+               (gettext_lazy("Description"), "description"), (gettext_lazy("Source"), "source"), (gettext_lazy("Statut"), "status"), ("MEL", "mel_reference"), (gettext_lazy("Limite"), "deferral_limit_date")]
     search_fields = ["number", "description", "aircraft__registration", "mel_reference"]
     filter_fields = ["status", "aircraft", "source"]
     create_url = reverse_lazy("part145:defect_create")
-    title = "Défauts et reports (MEL/CDL)"
+    title = gettext_lazy("Défauts et reports (MEL/CDL)")
 
 
 class DefectCreate(AhmisCreateView):
     model = Defect
     form_class = DefectForm
-    title = "Signaler un défaut"
+    title = gettext_lazy("Signaler un défaut")
 
     def get_initial(self):
         init = super().get_initial()
@@ -404,10 +405,10 @@ def defect_defer(request, pk):
             error_messages(request, e)
             return redirect(d.get_absolute_url())
         c = form.cleaned_data
-        _run(request, services.defer_defect, "Défaut reporté : il apparaît désormais dans les échéances.", d, request.user,
+        _run(request, services.defer_defect, gettext("Défaut reporté : il apparaît désormais dans les échéances."), d, request.user,
              c["mel_reference"], c["category"], c["limit_date"], c["limit_fh"], c["limit_fc"], c["procedure"])
     else:
-        messages.error(request, "Formulaire de report incomplet.")
+        messages.error(request, gettext("Formulaire de report incomplet."))
     return redirect(d.get_absolute_url())
 
 
@@ -423,10 +424,10 @@ def defect_extend(request, pk):
             error_messages(request, e)
             return redirect(d.get_absolute_url())
         c = form.cleaned_data
-        _run(request, services.extend_deferral, "Prorogation unique approuvée et signée : la nouvelle limite est prise en compte dans les échéances.",
+        _run(request, services.extend_deferral, gettext("Prorogation unique approuvée et signée : la nouvelle limite est prise en compte dans les échéances."),
              d, request.user, c["reason"], c["reference"], c["new_date"], c["new_fh"], c["new_fc"], c["authority_notified"])
     else:
-        messages.error(request, "Formulaire de prorogation incomplet.")
+        messages.error(request, gettext("Formulaire de prorogation incomplet."))
     return redirect(d.get_absolute_url())
 
 
@@ -447,25 +448,25 @@ def defect_to_wp(request, pk):
         except ValidationError as e:
             error_messages(request, e)
             return redirect(d.get_absolute_url())
-    messages.success(request, f"Task card {card.number} créée dans {wp.number}.")
+    messages.success(request, gettext("Task card {number} créée dans {number2}.").format(number=card.number, number2=wp.number))
     return redirect(card.get_absolute_url())
 
 
 # ---------------------------------------------------------------- Personnel
 class StaffList(AhmisListView):
     model = Staff
-    columns = [("Matricule", "employee_number"), ("Nom", "full_name"), ("Fonction", "role"), ("Visa", "stamp"),
-               ("Licence", "licence_number"), ("Catégories", "licence_categories"), ("Validité licence", "licence_expiry"), ("Compte", "user"), ("Actif", "active")]
+    columns = [(gettext_lazy("Matricule"), "employee_number"), (gettext_lazy("Nom"), "full_name"), (gettext_lazy("Fonction"), "role"), (gettext_lazy("Visa"), "stamp"),
+               (gettext_lazy("Licence"), "licence_number"), (gettext_lazy("Catégories"), "licence_categories"), (gettext_lazy("Validité licence"), "licence_expiry"), (gettext_lazy("Compte"), "user"), (gettext_lazy("Actif"), "active")]
     search_fields = ["last_name", "first_name", "employee_number", "licence_number"]
     filter_fields = ["role", "active"]
     create_url = reverse_lazy("part145:staff_create")
-    title = "Personnel et autorisations"
+    title = gettext_lazy("Personnel et autorisations")
 
 
 class StaffCreate(AhmisCreateView):
     model = Staff
     form_class = StaffForm
-    title = "Nouvelle fiche personnel"
+    title = gettext_lazy("Nouvelle fiche personnel")
 
 
 class StaffUpdate(AhmisUpdateView):
@@ -511,9 +512,9 @@ def staff_add_authorization(request, pk):
         except ValidationError as e:
             error_messages(request, e)
         else:
-            messages.success(request, f"Autorisation {a} ajoutée.")
+            messages.success(request, gettext("Autorisation {a} ajoutée.").format(a=a))
     else:
-        messages.error(request, "Autorisation incomplète : " + "; ".join(f"{k} : {', '.join(v)}" for k, v in form.errors.items()))
+        messages.error(request, gettext("Autorisation incomplète : ") + "; ".join(f"{k} : {', '.join(v)}" for k, v in form.errors.items()))
     return redirect(s.get_absolute_url())
 
 
@@ -531,9 +532,9 @@ def staff_add_experience(request, pk):
         except ValidationError as exc:
             error_messages(request, exc)
         else:
-            messages.success(request, "Expérience enregistrée.")
+            messages.success(request, gettext("Expérience enregistrée."))
     else:
-        messages.error(request, "Expérience incomplète : " + "; ".join(f"{k} : {', '.join(v)}" for k, v in form.errors.items()))
+        messages.error(request, gettext("Expérience incomplète : ") + "; ".join(f"{k} : {', '.join(v)}" for k, v in form.errors.items()))
     return redirect(s.get_absolute_url())
 
 
@@ -546,9 +547,9 @@ def staff_add_qualification(request, pk):
         q = form.save(commit=False)
         q.staff = s
         q.save()
-        messages.success(request, f"Formation {q.name} ajoutée.")
+        messages.success(request, gettext("Formation {name} ajoutée.").format(name=q.name))
     else:
-        messages.error(request, "Formation incomplète.")
+        messages.error(request, gettext("Formation incomplète."))
     return redirect(s.get_absolute_url())
 
 
