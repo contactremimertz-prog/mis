@@ -120,3 +120,120 @@ msgstr "API tokens"
 
 msgid "Forecast"
 msgstr "Forecast"
+
+msgid "Tableau de bord"
+msgstr "Dashboard"
+
+msgid "Toutes les échéances"
+msgstr "All due items"
+
+msgid "Saisir des heures de vol"
+msgstr "Enter flight hours"
+
+msgid "Échéances dépassées"
+msgstr "Overdue items"
+
+msgid "dont {{ kpi.tolerance }} en tolérance"
+msgstr "of which {{ kpi.tolerance }} in tolerance"
+
+msgid "À planifier (≤ {{ AHMIS.ALERT_DAYS }} j)"
+msgstr "To plan (≤ {{ AHMIS.ALERT_DAYS }} d)"
+
+msgid "Défauts ouverts"
+msgstr "Open defects"
+
+msgid "reporté(s)"
+msgstr "deferred"
+
+msgid "hors délai"
+msgstr "overdue"
+
+msgid "AD / SB à évaluer"
+msgstr "AD / SB to assess"
+
+msgid "Work packages actifs"
+msgstr "Active work packages"
+
+msgid "task card(s) en attente de contrôle"
+msgstr "task card(s) awaiting inspection"
+
+msgid "Demandes de pièces"
+msgstr "Part requests"
+
+msgid "En quarantaine"
+msgstr "In quarantine"
+
+msgid "Outillage hors étalonnage"
+msgstr "Tools out of calibration"
+
+msgid "autorisation(s) expirant sous 60 j"
+msgstr "authorisation(s) expiring within 60 d"
+
+msgid "Comptes rendus d'événements :"
+msgstr "Occurrence reports:"
+
+msgid "ouvert(s)"
+msgstr "open"
+
+msgid "à notifier"
+msgstr "to notify"
+
+msgid "Revue du programme d'entretien (M.A.302(g)) :"
+msgstr "Maintenance programme review (M.A.302(g)):"
+
+msgid "Flotte"
+msgstr "Fleet"
+
+msgid "Aéronef"
+msgstr "Aircraft"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Statut"
+msgstr "Status"
+
+msgid "FH totales"
+msgstr "Total FH"
+
+msgid "Cycles"
+msgstr "Cycles"
+
+msgid "Compteurs au"
+msgstr "Counters at"
+
+msgid "ARC jusqu'au"
+msgstr "ARC valid until"
+
+msgid "Dépassé"
+msgstr "Overdue"
+
+msgid "À planifier"
+msgstr "To plan"
+
+msgid "Échéances prioritaires"
+msgstr "Priority due items"
+
+msgid "Tout voir →"
+msgstr "See all →"
+
+msgid "Work packages en cours"
+msgstr "Work packages in progress"
+
+msgid "Planning →"
+msgstr "Planning →"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "Dates"
+msgstr "Dates"
+
+msgid "Avancement"
+msgstr "Progress"
+
+msgid "Aucun work package actif."
+msgstr "No active work package."
+
+msgid "Aucun"
+msgstr "None"
