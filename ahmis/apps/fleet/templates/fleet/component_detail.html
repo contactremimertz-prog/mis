@@ -1,0 +1,94 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}{{ c }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ c.part_number.pn }} · S/N {{ c.serial_number }} {% badge c %}</h1>
+    <div class="sub"><a href="{{ c.part_number.get_absolute_url }}">{{ c.part_number.description }}</a> · ATA {{ c.part_number.ata|default:"—" }} · état {{ c.get_condition_display|lower }}{% if c.part_number.is_llp %} · <span class="badge warn">Pièce à vie limitée</span>{% endif %}</div>
+  </div>
+  <div class="actions">
+    {% if perms.logistics.add_releasecertificate %}<a class="btn" href="{% url 'logistics:certificate_create' %}?component={{ c.pk }}">Ajouter un certificat</a>{% endif %}
+    {% if perms.fleet.change_component %}<a class="btn" href="{% url 'fleet:component_update' c.pk %}">Modifier</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'fleet.component' c.pk %}">Historique</a>{% endif %}
+  </div>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:18px">
+  <div class="kpi"><div class="label">TSN (h depuis neuf)</div><div class="value counter">{{ c.tsn_fh|hours }}</div></div>
+  <div class="kpi"><div class="label">CSN (cycles depuis neuf)</div><div class="value counter">{{ c.csn }}</div></div>
+  <div class="kpi"><div class="label">TSO (h depuis révision)</div><div class="value counter">{{ c.tso_fh|hours }}</div></div>
+  <div class="kpi"><div class="label">CSO</div><div class="value counter">{{ c.cso }}</div></div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Situation</h2>
+    <dl class="dl">
+      <div><dt>Aéronef</dt><dd>{% if c.aircraft %}<a href="{{ c.aircraft.get_absolute_url }}">{{ c.aircraft.registration }}</a>{% else %}—{% endif %}</dd></div>
+      <div><dt>Position</dt><dd>{{ c.position|default:"—" }}</dd></div>
+      <div><dt>Emplacement magasin</dt><dd>{{ c.location|default:"—" }}</dd></div>
+      <div><dt>Fabrication</dt><dd>{{ c.manufacture_date|date:"d/m/Y"|default:"—" }}</dd></div>
+      <div><dt>Dernière révision</dt><dd>{{ c.last_overhaul_date|date:"d/m/Y"|default:"—" }}</dd></div>
+      <div><dt>Réservé pour</dt><dd>{% if c.reserved_for %}<a href="{{ c.reserved_for.get_absolute_url }}">{{ c.reserved_for.number }}</a>{% else %}—{% endif %}</dd></div>
+    </dl>
+    {% if c.status == "scrapped" %}<div class="alert" style="margin-top:12px"><strong>Pièce rebutée – statut définitif</strong> le {{ c.scrapped_on|date:"d/m/Y" }} ({{ c.get_scrap_reason_display }}).<br>
+      Mutilation : {{ c.mutilation_method }} – constatée par {{ c.mutilation_witness }}{% if c.scrap_reference %} – certificat {{ c.scrap_reference }}{% endif %}.</div>
+    {% elif c.status_reason %}<div class="alert warn" style="margin-top:12px">Motif du statut : {{ c.status_reason }}</div>{% endif %}
+    {% if perms.fleet.change_component and c.status != "installed" and c.status != "scrapped" %}
+    <form method="post" action="{% url 'logistics:component_status' c.pk %}" class="inline-form" style="margin-top:14px">{% csrf_token %}
+      {% for f in status_form %}{% field f %}{% endfor %}
+      <button class="btn" type="submit">Changer le statut</button>
+    </form>{% endif %}
+    {% if perms.fleet.change_component and c.status != "installed" and c.status != "reserved" and c.status != "scrapped" %}
+    <details style="margin-top:14px"><summary class="small"><strong>Mettre au rebut (pièce non récupérable)</strong></summary>
+    <form method="post" action="{% url 'logistics:component_scrap' c.pk %}" class="stacked sign-box" style="margin-top:8px">{% csrf_token %}
+      <div class="form-grid">{% for f in scrap_form %}{% field f %}{% endfor %}</div>
+      <button class="btn danger" type="submit">Signer la mise au rebut définitive</button>
+      <p class="small muted">145.A.42(d) / M.A.504(d) : la pièce est mutilée pour empêcher toute réutilisation ; ce statut est irréversible.</p>
+    </form></details>{% endif %}
+  </div>
+  <div class="card">
+    <h2>Potentiels et limites de vie</h2>
+    <table class="data"><thead><tr><th>Critère</th><th class="num">Limite</th><th class="num">Consommé</th><th class="num">Restant</th><th></th></tr></thead><tbody>
+    {% for l in limits %}{% with p=l|pct_used %}<tr><td>{{ l.label }}</td><td class="num">{{ l.limit|fmt }} {{ l.unit }}</td><td class="num">{{ l.used|fmt }}</td>
+      <td class="num {% if l.remaining <= 0 %}neg{% endif %}">{{ l.remaining|fmt }}</td>
+      <td><div class="lifebar {% if p >= 100 %}bad{% elif p >= 90 %}warn{% endif %}"><span style="width:{{ p }}%"></span></div></td></tr>{% endwith %}
+    {% empty %}<tr><td colspan="5" class="empty">Aucune limite (équipement « on condition »).</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Certificats libératoires</h2>
+  <table class="data"><thead><tr><th>Type</th><th>N° de suivi</th><th>Émetteur</th><th>Date</th><th>Statut (case 11)</th><th>Réception</th></tr></thead><tbody>
+  {% for cert in certs %}<tr><td>{{ cert.get_cert_type_display }}</td><td>{{ cert.tracking_number }}</td><td>{{ cert.issuer }} <span class="muted small">{{ cert.issuer_approval }}</span></td><td>{{ cert.issue_date|date:"d/m/Y" }}</td><td>{{ cert.get_work_status_display }}</td>
+    <td>{% if cert.is_valid %}<span class="badge ok">Accepté</span>{% else %}<span class="badge bad">Rejeté</span> <span class="small">{{ cert.rejection_reason }}</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">Aucun certificat : la pièce ne peut pas être posée.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+
+<div class="card">
+  <h2>Traçabilité « back-to-birth » (montages successifs)</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>Aéronef</th><th>Position</th><th>Posé le</th><th class="num">FH / cyc aéronef à la pose</th><th class="num">TSN / CSN à la pose</th><th>Déposé le</th><th class="num">FH / cyc à la dépose</th><th>Motif</th><th>Task card</th></tr></thead><tbody>
+  {% for r in installs %}<tr><td><a href="{{ r.aircraft.get_absolute_url }}">{{ r.aircraft.registration }}</a></td><td>{{ r.position }}</td><td>{{ r.installed_on|date:"d/m/Y" }}</td>
+    <td class="num">{{ r.ac_fh_at_install|hours }} / {{ r.ac_fc_at_install }}</td><td class="num">{{ r.comp_tsn_at_install|hours }} / {{ r.comp_csn_at_install }}</td>
+    <td>{{ r.removed_on|date:"d/m/Y"|default:"—" }}</td><td class="num">{% if r.removed_on %}{{ r.ac_fh_at_removal|hours }} / {{ r.ac_fc_at_removal }}{% else %}—{% endif %}</td>
+    <td class="small">{{ r.get_removal_type_display }} {{ r.removal_reason }}</td><td>{% if r.task_card %}<a href="{{ r.task_card.get_absolute_url }}">{{ r.task_card.number }}</a>{% else %}<span class="muted small">reprise</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="9" class="empty">Jamais installé.</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card"><h2>Tâches réalisées sur le composant</h2>
+    <table class="data"><thead><tr><th>Date</th><th>Tâche</th><th class="num">TSN / CSN</th></tr></thead><tbody>
+    {% for a in accomplishments %}<tr><td>{{ a.date|date:"d/m/Y" }}</td><td><a href="{{ a.task.get_absolute_url }}">{{ a.task.reference }}</a></td><td class="num">{{ a.comp_fh|hours }} / {{ a.comp_fc|fmt }}</td></tr>
+    {% empty %}<tr><td colspan="3" class="empty">Aucune.</td></tr>{% endfor %}</tbody></table>
+  </div>
+  <div class="card"><h2>Task cards liées</h2>
+    <table class="data"><thead><tr><th>Task card</th><th>WP</th><th>Statut</th></tr></thead><tbody>
+    {% for t in cards %}<tr><td><a href="{{ t.get_absolute_url }}">{{ t.number }}</a> <span class="small muted">{{ t.title|truncatechars:50 }}</span></td><td>{{ t.work_package.number }}</td><td>{% badge t %}</td></tr>
+    {% empty %}<tr><td colspan="3" class="empty">Aucune.</td></tr>{% endfor %}</tbody></table>
+  </div>
+</div>
+{% if c.notes %}<div class="card"><h2>Notes</h2><p class="small">{{ c.notes|linebreaksbr }}</p></div>{% endif %}
+{% endblock %}

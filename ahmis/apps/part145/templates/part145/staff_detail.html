@@ -1,0 +1,46 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}{{ s.full_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ s.full_name }}{% if not s.active %} <span class="badge">inactif</span>{% endif %}</h1>
+    <div class="sub">{{ s.get_role_display }} · matricule {{ s.employee_number }}{% if s.stamp %} · visa {{ s.stamp }}{% endif %} · compte {{ s.user|default:"aucun" }}</div></div>
+  <div class="actions">{% if perms.part145.change_staff %}<a class="btn" href="{% url 'part145:staff_update' s.pk %}">Modifier</a>{% endif %}</div>
+</div>
+<div class="card"><dl class="dl">
+  <div><dt>Licence Part-66</dt><dd>{{ s.licence_number|default:"—" }}</dd></div>
+  <div><dt>Catégories</dt><dd>{{ s.licence_categories|default:"—" }}</dd></div>
+  <div><dt>Validité</dt><dd>{% if s.licence_number %}{% if s.licence_valid %}<span class="badge ok">{{ s.licence_expiry|date:"d/m/Y"|default:"valide" }}</span>{% else %}<span class="badge bad">Expirée {{ s.licence_expiry|date:"d/m/Y" }}</span>{% endif %}{% else %}—{% endif %}</dd></div>
+</dl></div>
+<div class="card"><h2>Aptitude à signer</h2>
+  <dl class="dl">
+    <div><dt>Expérience récente</dt><dd>{% if recency.months >= recency.need %}<span class="badge ok">{{ recency.months }} mois / {{ recency.window }}</span>{% else %}<span class="badge bad">{{ recency.months }} mois / {{ recency.window }} ({{ recency.need }} requis)</span>{% endif %}{% if not recency.enforced %} <span class="small muted">contrôle désactivé</span>{% endif %}</dd></div>
+    <div><dt>Formations (tout personnel)</dt><dd>{% if missing_all %}<span class="badge bad">Manque : {{ missing_all|join:", " }}</span>{% else %}<span class="badge ok">À jour</span>{% endif %}</dd></div>
+    <div><dt>Formations (certifiant)</dt><dd>{% if missing_cert %}<span class="badge bad">Manque : {{ missing_cert|join:", " }}</span>{% else %}<span class="badge ok">À jour</span>{% endif %}</dd></div>
+  </dl>
+  {% for t, problems in type_status %}<div class="small" style="margin-top:6px"><strong>{{ t.code }}</strong> : {% if problems %}<span style="color:var(--bad)">{{ problems|join:" " }}</span>{% else %}<span style="color:var(--ok)">peut signer</span>{% endif %}</div>{% endfor %}
+  <p class="small muted" style="margin-bottom:0">Expérience = mois calendaires avec au moins une task card exécutée ou contrôlée dans AHMIS, plus les expériences déclarées ci-dessous (145.A.35 : 6 mois sur 2 ans pour le personnel certifiant).</p>
+</div>
+<div class="card"><h2>Autorisations (organisme Part-145)</h2>
+  <table class="data"><thead><tr><th>N°</th><th>Type</th><th>Catégorie</th><th>Certifiante</th><th>Portée</th><th>Validité</th><th>État</th></tr></thead><tbody>
+  {% for a in auths %}<tr><td>{{ a.number }}</td><td>{{ a.aircraft_type.code }}</td><td>{{ a.get_category_display }}</td><td>{% yesno_badge a.certifying %}</td><td class="small">{{ a.scope }}</td><td class="small">{{ a.valid_from|date:"d/m/Y" }} → {{ a.valid_until|date:"d/m/Y" }}</td><td>{% if a.is_valid %}<span class="badge ok">Valide</span>{% elif a.suspended %}<span class="badge bad">Suspendue</span>{% else %}<span class="badge bad">Hors validité</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">Aucune autorisation : cette personne ne peut rien signer.</td></tr>{% endfor %}</tbody></table>
+  {% if perms.part145.add_authorization %}<h3>Ajouter une autorisation</h3>
+  <form method="post" action="{% url 'part145:staff_add_authorization' s.pk %}" class="stacked">{% csrf_token %}<div class="form-grid">{% for f in auth_form %}{% field f %}{% endfor %}</div><button class="btn" type="submit">Ajouter</button></form>{% endif %}
+</div>
+<div class="card"><h2>Formations à validité limitée</h2>
+  <table class="data"><thead><tr><th>Catégorie</th><th>Formation</th><th>Obtenue</th><th>Expire</th><th></th></tr></thead><tbody>
+  {% for q in quals %}<tr><td class="small">{{ q.get_category_display }}</td><td>{{ q.name }}</td><td>{{ q.obtained|date:"d/m/Y" }}</td><td>{{ q.expiry|date:"d/m/Y"|default:"—" }}</td><td>{% if q.is_valid %}<span class="badge ok">Valide</span>{% else %}<span class="badge bad">Expirée</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="empty">Aucune.</td></tr>{% endfor %}</tbody></table>
+  {% if perms.part145.add_qualification %}<form method="post" action="{% url 'part145:staff_add_qualification' s.pk %}" class="inline-form" style="margin-top:10px">{% csrf_token %}{% for f in qual_form %}{% field f %}{% endfor %}<button class="btn" type="submit">Ajouter</button></form>{% endif %}
+</div>
+<div class="card"><h2>Expériences déclarées (hors AHMIS)</h2>
+  <table class="data"><thead><tr><th>Période</th><th>Organisme</th><th>Type</th><th>Travaux</th><th>Justificatif</th></tr></thead><tbody>
+  {% for e in experiences %}<tr><td class="nowrap">{{ e.start|date:"m/Y" }} → {{ e.end|date:"m/Y" }}</td><td>{{ e.organisation }}</td><td>{{ e.aircraft_type.code|default:"—" }}</td><td class="small">{{ e.description }}</td><td class="small">{{ e.evidence }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="empty">Aucune.</td></tr>{% endfor %}</tbody></table>
+  {% if perms.part145.add_experiencerecord %}<form method="post" action="{% url 'part145:staff_add_experience' s.pk %}" class="stacked" style="margin-top:10px">{% csrf_token %}<div class="form-grid">{% for f in exp_form %}{% field f %}{% endfor %}</div><button class="btn" type="submit">Ajouter</button></form>{% endif %}
+</div>
+<div class="grid grid-2">
+  <div class="card"><h2>Derniers travaux signés</h2><table class="data"><tbody>{% for c in recent_cards %}<tr><td><a href="{{ c.get_absolute_url }}">{{ c.number }}</a></td><td class="small">{{ c.title|truncatechars:50 }}</td><td class="small">{{ c.performed_at|date:"d/m/Y" }}</td></tr>{% empty %}<tr><td class="empty">Aucun.</td></tr>{% endfor %}</tbody></table></div>
+  <div class="card"><h2>Derniers contrôles</h2><table class="data"><tbody>{% for c in recent_inspections %}<tr><td><a href="{{ c.get_absolute_url }}">{{ c.number }}</a></td><td class="small">{{ c.title|truncatechars:50 }}</td><td class="small">{{ c.inspected_at|date:"d/m/Y" }}</td></tr>{% empty %}<tr><td class="empty">Aucun.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

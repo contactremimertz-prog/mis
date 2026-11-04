@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}{{ m.number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ m.number }} {% badge m %} <span class="badge {% if m.classification == 'major' %}bad{% else %}info{% endif %}">{{ m.get_kind_display }} {{ m.get_classification_display|lower }}</span></h1>
+    <div class="sub">{{ m.title }} · <a href="{{ m.aircraft.get_absolute_url }}">{{ m.aircraft.registration }}</a>{% if m.component %} · <a href="{{ m.component.get_absolute_url }}">{{ m.component }}</a>{% endif %} · ATA {{ m.ata|default:"—" }}</div></div>
+  <div class="actions">
+    {% if perms.camo.change_modificationrepair %}<a class="btn" href="{% url 'camo:mod_update' m.pk %}">Modifier</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'camo.modificationrepair' m.pk %}">Historique</a>{% endif %}
+  </div>
+</div>
+{% if m.compliance_issues %}<div class="alert warn"><strong>Suivi à solder :</strong><ul>{% for i in m.compliance_issues %}<li>{{ i }}</li>{% endfor %}</ul></div>{% endif %}
+<div class="grid grid-2">
+  <div class="card"><h2>Approbation</h2><dl class="dl">
+    <div><dt>Base</dt><dd>{{ m.get_approval_basis_display }}</dd></div>
+    <div><dt>Référence</dt><dd>{{ m.approval_reference }}</dd></div>
+    <div><dt>SB / AD liée</dt><dd>{% if m.directive %}<a href="{{ m.directive.get_absolute_url }}">{{ m.directive.number }}</a>{% else %}—{% endif %}</dd></div>
+  </dl>{% if m.description %}<p class="small">{{ m.description|linebreaksbr }}</p>{% endif %}</div>
+  <div class="card"><h2>Application</h2><dl class="dl">
+    <div><dt>Appliquée le</dt><dd>{{ m.embodied_on|date:"d/m/Y"|default:"—" }}</dd></div>
+    <div><dt>Compteurs</dt><dd>{{ m.fh_at_embodiment|hours }} FH / {{ m.fc_at_embodiment|fmt }} cyc</dd></div>
+    <div><dt>Task card</dt><dd>{% if m.task_card %}<a href="{{ m.task_card.get_absolute_url }}">{{ m.task_card.number }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>ICA</dt><dd>{% if m.ica_none %}Aucune{% else %}{{ m.ica_reference|default:"—" }}{% endif %}</dd></div>
+    <div><dt>ICA au programme</dt><dd>{% if m.ica_none %}n/a{% else %}{% yesno_badge m.ica_in_amp %}{% endif %}</dd></div>
+    <div><dt>Masse et centrage</dt><dd>{% yesno_badge m.affects_mass_balance "Impacté" "Non" %}</dd></div>
+    <div><dt>Manuel de vol</dt><dd>{% yesno_badge m.affects_flight_manual "Supplément" "Non" %}</dd></div>
+    {% if m.status == "removed" %}<div><dt>Déposée le</dt><dd>{{ m.removed_on|date:"d/m/Y" }} – {{ m.removal_reason }}</dd></div>{% endif %}
+  </dl></div>
+</div>
+{% endblock %}

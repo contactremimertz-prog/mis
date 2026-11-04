@@ -1,0 +1,39 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}Mon compte{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Mon compte</h1><div class="sub">{{ user.get_full_name|default:user.username }} · identifiant <code>{{ user.username }}</code></div></div></div>
+<div class="grid grid-2">
+  <div class="card"><h2>Identité</h2>
+    <dl class="dl">
+      <div><dt>Type de compte</dt><dd>{% for i in identities %}{{ i.get_provider_display }}{% if not forloop.last %} + {% endif %}{% empty %}Compte local AHMIS{% endfor %}</dd></div>
+      <div><dt>Courriel</dt><dd>{{ user.email|default:"—" }}</dd></div>
+      <div><dt>Rôles AHMIS</dt><dd>{% for g in groups %}{{ g.name }}{% if not forloop.last %}, {% endif %}{% empty %}{% if user.is_superuser %}Administrateur{% else %}Aucun{% endif %}{% endfor %}</dd></div>
+      <div><dt>Fiche personnel</dt><dd>{% if staff %}<a href="{{ staff.get_absolute_url }}">{{ staff }}</a>{% else %}Non rattachée (signature impossible){% endif %}</dd></div>
+    </dl>
+    {% for i in identities %}<p class="small muted" style="margin-bottom:0">{{ i.get_provider_display }} : dernière connexion le {{ i.last_login|date:"d/m/Y H:i" }}. Les rôles sont mis à jour à chaque connexion selon vos groupes d'entreprise.</p>{% endfor %}
+  </div>
+  <div class="card"><h2>Signature électronique</h2>
+    <p class="small">Pour signer (étapes, travaux, contrôles, CRS), vous ressaisissez :</p>
+    <ul class="small">
+      {% if "password" in methods %}<li>votre <strong>mot de passe AHMIS</strong> ;</li>{% endif %}
+      {% if "ldap" in methods %}<li>votre <strong>mot de passe Windows</strong> (vérifié auprès de l'Active Directory) ;</li>{% endif %}
+      {% if "pin" in methods %}<li>votre <strong>code de signature personnel</strong>{% if pin_locked %} – <span class="badge bad">bloqué après 5 erreurs, contactez l'administrateur</span>{% endif %}.</li>{% endif %}
+      {% if not methods %}<li><span class="badge bad">aucun moyen de signature</span> : définissez un code de signature ci-dessous.</li>{% endif %}
+    </ul>
+    <h3>{% if has_pin %}Changer{% else %}Définir{% endif %} mon code de signature</h3>
+    {% if fresh %}
+    <form method="post" class="stacked">{% csrf_token %}
+      <div class="form-grid">
+        <div class="field"><label for="pin">Nouveau code (6 caractères minimum)</label><input id="pin" type="password" name="pin" minlength="6" required autocomplete="new-password"></div>
+        <div class="field"><label for="pin2">Confirmation</label><input id="pin2" type="password" name="pin_confirm" minlength="6" required autocomplete="new-password"></div>
+      </div>
+      <button class="btn primary" type="submit">Enregistrer</button>
+    </form>
+    <p class="small muted">Le code est personnel, stocké sous forme hachée, et ne doit jamais être communiqué. Il est surtout utile pour les comptes SSO dont AHMIS ne peut pas vérifier le mot de passe.</p>
+    {% else %}
+    <div class="alert warn">Par sécurité, le code ne peut être défini ou modifié que dans les 15 minutes qui suivent une connexion.
+      <form method="post" action="{% url 'logout' %}" style="display:inline">{% csrf_token %}<button class="linklike" type="submit">Se reconnecter</button></form></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

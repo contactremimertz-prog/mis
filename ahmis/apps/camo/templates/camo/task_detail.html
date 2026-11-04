@@ -1,0 +1,60 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}{{ task.reference }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ task.reference }}{% if not task.active %} <span class="badge">inactive</span>{% endif %}</h1>
+    <div class="sub">{{ task.title }} · {{ task.aircraft_type }} · ATA {{ task.ata|default:"—" }} · {{ task.get_source_display }}</div></div>
+  <div class="actions">
+    {% if perms.camo.add_taskaccomplishment %}<a class="btn" href="{% url 'camo:task_record' task.pk %}">Enregistrer une réalisation (historique)</a>{% endif %}
+    {% if perms.camo.change_maintenancetask %}<a class="btn" href="{% url 'camo:task_update' task.pk %}">Modifier</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'camo.maintenancetask' task.pk %}">Historique des révisions</a>{% endif %}
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="card"><h2>Définition</h2>
+    <dl class="dl">
+      <div><dt>Intervalle</dt><dd>{{ task.interval_display }}</dd></div>
+      <div><dt>Seuil (1re échéance)</dt><dd>{{ task.threshold_display|default:"= intervalle" }}</dd></div>
+      <div><dt>Tolérances</dt><dd>{{ task.tolerance_fh|fmt }} FH · {{ task.tolerance_fc|fmt }} cyc · {{ task.tolerance_days|fmt }} j</dd></div>
+      <div><dt>Nature</dt><dd>{{ task.get_task_type_display }}</dd></div>
+      <div><dt>Charge estimée</dt><dd>{{ task.estimated_mh|fmt }} h.h</dd></div>
+      <div><dt>Qualification</dt><dd>{{ task.get_skill_display }}</dd></div>
+      <div><dt>Contrôle indépendant</dt><dd>{% yesno_badge task.requires_independent_inspection "Requis" "Non" %}</dd></div>
+      <div><dt>Zone / accès</dt><dd>{{ task.zone|default:"—" }} · {{ task.access|default:"—" }}</dd></div>
+      <div><dt>Composant</dt><dd>{% if task.part_number %}<a href="{{ task.part_number.get_absolute_url }}">{{ task.part_number.pn }}</a>{% else %}Cellule{% endif %}</dd></div>
+      <div><dt>Consigne liée</dt><dd>{% if task.directive %}<a href="{{ task.directive.get_absolute_url }}">{{ task.directive.number }}</a>{% else %}—{% endif %}</dd></div>
+      <div><dt>Révision AMP</dt><dd>{{ task.amp_revision|default:"—" }}</dd></div>
+      <div><dt>Effectivité</dt><dd>{{ task.effectivity.all|join:", "|default:"Tous les aéronefs du type" }}</dd></div>
+    </dl>
+    {% if task.description %}<h3>Description</h3><p class="small">{{ task.description|linebreaksbr }}</p>{% endif %}
+  </div>
+  <div class="card"><h2>Étapes</h2>
+    <ol class="small">{% for s in task.steps_list %}<li>{{ s }}</li>{% empty %}<li class="muted">Aucune étape détaillée.</li>{% endfor %}</ol>
+    <h3>Pièces requises</h3>
+    <table class="data"><tbody>{% for rp in required_parts %}<tr><td><a href="{{ rp.part_number.get_absolute_url }}">{{ rp.part_number.pn }}</a> {{ rp.part_number.description }}</td><td class="num">× {{ rp.quantity|fmt }}</td>
+      <td>{% if perms.camo.change_maintenancetask %}<form method="post" action="{% url 'camo:task_remove_part' task.pk rp.pk %}">{% csrf_token %}<button class="btn small" type="submit">Retirer</button></form>{% endif %}</td></tr>
+    {% empty %}<tr><td class="empty">Aucune pièce prévue.</td></tr>{% endfor %}</tbody></table>
+    {% if perms.camo.change_maintenancetask %}<form method="post" action="{% url 'camo:task_add_part' task.pk %}" class="inline-form" style="margin-top:10px">{% csrf_token %}{% for f in part_form %}{% field f %}{% endfor %}<button class="btn small" type="submit">Ajouter</button></form>{% endif %}
+  </div>
+</div>
+
+<div class="card"><h2>Situation par aéronef</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>Aéronef</th><th>Composant</th><th>Statut</th><th>Dernière réalisation</th><th class="num">Butée FH</th><th class="num">Butée cyc.</th><th>Butée date</th><th class="num">Reste FH</th><th class="num">Reste cyc.</th><th>Date prévue</th><th></th></tr></thead>
+  <tbody>{% for r in rows %}<tr>
+    <td><a href="{{ r.ac.get_absolute_url }}">{{ r.ac.registration }}</a></td><td class="small">{{ r.comp|default:"—" }}</td>
+    {% if r.item %}<td>{% status_badge r.item.status r.item.status_label %}</td>
+      <td class="small">{{ r.item.last_date|date:"d/m/Y"|default:"jamais" }}</td>
+      <td class="num">{{ r.item.due_fh|hours }}</td><td class="num">{{ r.item.due_fc|fmt }}</td><td>{{ r.item.due_date|date:"d/m/Y"|default:"—" }}</td>
+      <td class="num {{ r.item.remaining_fh|remaining_class }}">{{ r.item.remaining_fh|hours }}</td><td class="num {{ r.item.remaining_fc|remaining_class }}">{{ r.item.remaining_fc|fmt }}</td><td>{{ r.item.projected_date|date:"d/m/Y" }}</td>
+    {% else %}<td colspan="8"><span class="badge ok">Réalisée (tâche unique)</span></td>{% endif %}
+    <td>{% if perms.camo.add_taskaccomplishment %}<a class="small" href="{% url 'camo:task_record' task.pk %}?aircraft={{ r.ac.pk }}">reprise</a>{% endif %}</td>
+  </tr>{% empty %}<tr><td colspan="11" class="empty">Aucun aéronef concerné.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+
+<div class="card"><h2>Réalisations</h2>
+  <table class="data"><thead><tr><th>Date</th><th>Aéronef</th><th class="num">FH / cyc</th><th>Composant</th><th>Origine</th><th>Certifié par</th></tr></thead><tbody>
+  {% for a in accomplishments %}<tr><td>{{ a.date|date:"d/m/Y" }}</td><td>{{ a.aircraft.registration }}</td><td class="num">{{ a.fh|hours }} / {{ a.fc }}</td><td class="small">{{ a.component|default:"—" }}</td>
+    <td class="small">{% if a.task_card %}<a href="{{ a.task_card.get_absolute_url }}">{{ a.task_card.number }}</a>{% else %}{{ a.get_source_display }} – {{ a.reference }}{% endif %}</td><td class="small">{{ a.certified_by }}{% if a.used_tolerance %} <span class="badge tolerance" title="Butée théorique {{ a.due_fh_at_done|hours }} FH / {{ a.due_fc_at_done|fmt }} cyc / {{ a.due_date_at_done|date:'d/m/Y'|default:'—' }} : l'intervalle suivant repart de cette butée">en tolérance</span>{% endif %}{% if a.done_overdue %} <span class="badge bad">hors tolérance</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">Aucune.</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

@@ -1,0 +1,239 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: AHMIS\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Tableau de bord"
+msgstr "Dashboard"
+
+msgid "Navigabilité (CAMO)"
+msgstr "Airworthiness (CAMO)"
+
+msgid "Flotte"
+msgstr "Fleet"
+
+msgid "Échéances"
+msgstr "Due items"
+
+msgid "Programme d'entretien"
+msgstr "Maintenance programme"
+
+msgid "AD / SB"
+msgstr "AD / SB"
+
+msgid "Heures de vol"
+msgstr "Flight hours"
+
+msgid "Modifications &amp; réparations"
+msgstr "Modifications &amp; repairs"
+
+msgid "Revue du programme"
+msgstr "Programme review"
+
+msgid "Transferts de dossiers"
+msgstr "Record transfers"
+
+msgid "Examens de navigabilité"
+msgstr "Airworthiness reviews"
+
+msgid "Types &amp; configuration"
+msgstr "Types &amp; configuration"
+
+msgid "Entretien (Part-145)"
+msgstr "Maintenance (Part-145)"
+
+msgid "Planning"
+msgstr "Planning"
+
+msgid "Work packages"
+msgstr "Work packages"
+
+msgid "Task cards"
+msgstr "Task cards"
+
+msgid "Défauts &amp; reports"
+msgstr "Defects &amp; deferrals"
+
+msgid "Personnel &amp; autorisations"
+msgstr "Staff &amp; authorisations"
+
+msgid "Logistique"
+msgstr "Logistics"
+
+msgid "Réception"
+msgstr "Receiving"
+
+msgid "Composants"
+msgstr "Components"
+
+msgid "Références P/N"
+msgstr "Part numbers (P/N)"
+
+msgid "Stock consommables"
+msgstr "Consumables stock"
+
+msgid "Demandes de pièces"
+msgstr "Part requests"
+
+msgid "Quarantaine"
+msgstr "Quarantine"
+
+msgid "Certificats libératoires"
+msgstr "Release certificates"
+
+msgid "Outillage"
+msgstr "Tools"
+
+msgid "Magasins"
+msgstr "Stores"
+
+msgid "Qualité"
+msgstr "Quality"
+
+msgid "Comptes rendus d'événements"
+msgstr "Occurrence reports"
+
+msgid "Journal d'audit"
+msgstr "Audit log"
+
+msgid "Signatures électroniques"
+msgstr "Electronic signatures"
+
+msgid "Conservation des enregistrements"
+msgstr "Record retention"
+
+msgid "Aide"
+msgstr "Help"
+
+msgid "Tutoriels"
+msgstr "Tutorials"
+
+msgid "Administration"
+msgstr "Administration"
+
+msgid "Jetons API"
+msgstr "API tokens"
+
+msgid "Forecast"
+msgstr "Forecast"
+
+msgid "Tableau de bord"
+msgstr "Dashboard"
+
+msgid "Toutes les échéances"
+msgstr "All due items"
+
+msgid "Saisir des heures de vol"
+msgstr "Enter flight hours"
+
+msgid "Échéances dépassées"
+msgstr "Overdue items"
+
+msgid "dont {{ kpi.tolerance }} en tolérance"
+msgstr "of which {{ kpi.tolerance }} in tolerance"
+
+msgid "À planifier (≤ {{ AHMIS.ALERT_DAYS }} j)"
+msgstr "To plan (≤ {{ AHMIS.ALERT_DAYS }} d)"
+
+msgid "Défauts ouverts"
+msgstr "Open defects"
+
+msgid "reporté(s)"
+msgstr "deferred"
+
+msgid "hors délai"
+msgstr "overdue"
+
+msgid "AD / SB à évaluer"
+msgstr "AD / SB to assess"
+
+msgid "Work packages actifs"
+msgstr "Active work packages"
+
+msgid "task card(s) en attente de contrôle"
+msgstr "task card(s) awaiting inspection"
+
+msgid "Demandes de pièces"
+msgstr "Part requests"
+
+msgid "En quarantaine"
+msgstr "In quarantine"
+
+msgid "Outillage hors étalonnage"
+msgstr "Tools out of calibration"
+
+msgid "autorisation(s) expirant sous 60 j"
+msgstr "authorisation(s) expiring within 60 d"
+
+msgid "Comptes rendus d'événements :"
+msgstr "Occurrence reports:"
+
+msgid "ouvert(s)"
+msgstr "open"
+
+msgid "à notifier"
+msgstr "to notify"
+
+msgid "Revue du programme d'entretien (M.A.302(g)) :"
+msgstr "Maintenance programme review (M.A.302(g)):"
+
+msgid "Flotte"
+msgstr "Fleet"
+
+msgid "Aéronef"
+msgstr "Aircraft"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Statut"
+msgstr "Status"
+
+msgid "FH totales"
+msgstr "Total FH"
+
+msgid "Cycles"
+msgstr "Cycles"
+
+msgid "Compteurs au"
+msgstr "Counters at"
+
+msgid "ARC jusqu'au"
+msgstr "ARC valid until"
+
+msgid "Dépassé"
+msgstr "Overdue"
+
+msgid "À planifier"
+msgstr "To plan"
+
+msgid "Échéances prioritaires"
+msgstr "Priority due items"
+
+msgid "Tout voir →"
+msgstr "See all →"
+
+msgid "Work packages en cours"
+msgstr "Work packages in progress"
+
+msgid "Planning →"
+msgstr "Planning →"
+
+msgid "WP"
+msgstr "WP"
+
+msgid "Dates"
+msgstr "Dates"
+
+msgid "Avancement"
+msgstr "Progress"
+
+msgid "Aucun work package actif."
+msgstr "No active work package."
+
+msgid "Aucun"
+msgstr "None"

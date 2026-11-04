@@ -1,0 +1,34 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}Planning{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Planning hangar</h1><div class="sub">Work packages par aéronef sur {{ weeks }} semaines. Les points signalent les échéances (rouge : dépassée, orange : à planifier, gris : prévue).</div></div>
+  <div class="actions">
+    <a class="btn" href="?offset={{ offset|add:'-4' }}&weeks={{ weeks }}">← 4 semaines</a>
+    <a class="btn" href="?weeks={{ weeks }}">Aujourd'hui</a>
+    <a class="btn" href="?offset={{ offset|add:'4' }}&weeks={{ weeks }}">4 semaines →</a>
+    {% if perms.part145.add_workpackage %}<a class="btn primary" href="{% url 'part145:wp_create' %}">Nouveau work package</a>{% endif %}
+  </div>
+</div>
+<div class="card gantt">
+  <table>
+    <thead>
+      <tr><th class="ac">Aéronef</th>{% for d in days %}<th class="{% if d == today %}today{% endif %}" title="{{ d|date:'l d F Y' }}">{% if d.weekday == 0 or forloop.first %}<div class="small" style="font-weight:700">{{ d|date:"d/m" }}</div>{% else %}{{ d|date:"d" }}{% endif %}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+    {% for r in rows %}<tr>
+      <td class="ac"><a href="{{ r.ac.get_absolute_url }}"><strong>{{ r.ac.registration }}</strong></a> <span class="small muted">{{ r.ac.aircraft_type.code }}</span></td>
+      {% for c in r.cells %}<td class="{% if c.day == today %}today{% elif c.day.weekday >= 5 %}weekend{% endif %}">
+        {% if c.wp %}<a class="bar {{ c.wp.status }}" href="{{ c.wp.get_absolute_url }}" title="{{ c.wp.number }} – {{ c.wp.title }} ({{ c.wp.get_status_display }})">&nbsp;{% if c.wp_start %}<span class="lbl">{{ c.wp.number }}</span>{% endif %}</a>{% endif %}
+        {% for i in c.dots %}<a href="{{ i.url }}" class="due-dot {{ i.status }}" title="{{ i.reference }} – {{ i.label }} ({{ i.status_label }}{% if i.projected_date %}, {{ i.projected_date|date:'d/m/Y' }}{% endif %})"></a>{% endfor %}
+      </td>{% endfor %}
+    </tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="card"><h2>Work packages de la période</h2>
+  <table class="data"><thead><tr><th>WP</th><th>Aéronef</th><th>Intitulé</th><th>Dates</th><th>Statut</th><th>Avancement</th></tr></thead><tbody>
+  {% for wp in wps %}<tr><td><a href="{{ wp.get_absolute_url }}">{{ wp.number }}</a></td><td>{{ wp.aircraft.registration }}</td><td>{{ wp.title }}</td><td class="small nowrap">{{ wp.planned_start|date:"d/m/Y" }} → {{ wp.planned_end|date:"d/m/Y" }}</td><td>{% badge wp %}</td><td><div class="progress"><span style="width:{{ wp.progress }}%"></span></div></td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">Aucun work package sur la période.</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}
