@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}{{ t.code }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ t }}</h1><div class="sub">{{ t.model }} · {{ t.get_category_display }} · {{ t.get_regulatory_frame_display }}</div></div>
+  <div class="actions">
+    {% if perms.camo.add_maintenancetask %}<a class="btn" href="{% url 'camo:task_create' %}?aircraft_type={{ t.pk }}">Ajouter une tâche</a>{% endif %}
+    {% if perms.fleet.change_aircrafttype %}<a class="btn" href="{% url 'fleet:type_update' t.pk %}">Modifier</a>{% endif %}
+  </div>
+</div>
+<div class="card"><dl class="dl">
+  <div><dt>Motorisation</dt><dd>{{ t.engine_count }} × {{ t.engine_model|default:"—" }}</dd></div>
+  <div><dt>Libellé des cycles</dt><dd>{{ t.cycle_label }}</dd></div>
+  <div><dt>MTOW</dt><dd>{{ t.mtow_kg|fmt }} kg</dd></div>
+</dl>{% if t.notes %}<p class="small muted">{{ t.notes|linebreaksbr }}</p>{% endif %}</div>
+<div class="card"><h2>Revue du programme d'entretien (M.A.302(g))</h2>
+  <p>{% with st=amp_status %}{% include "camo/_amp_status.html" %}{% endwith %}
+  {% if perms.camo.add_ampreview %} <a class="btn small" href="{% url 'camo:amp_review_create' %}?aircraft_type={{ t.pk }}">Enregistrer une revue</a>{% endif %}</p>
+  <table class="data"><tbody>{% for x in amp_reviews %}<tr><td><a href="{{ x.get_absolute_url }}">{{ x.review_date|date:"d/m/Y" }}</a></td><td>{{ x.amp_reference }}</td><td>{{ x.revision_before }}{% if x.revision_after %} → {{ x.revision_after }}{% endif %}</td><td>{{ x.get_outcome_display }}</td></tr>{% empty %}<tr><td class="empty">Aucune revue enregistrée.</td></tr>{% endfor %}</tbody></table>
+</div>
+<div class="grid grid-2">
+  <div class="card"><h2>Aéronefs</h2><table class="data"><tbody>{% for a in aircraft %}<tr><td><a href="{{ a.get_absolute_url }}">{{ a.registration }}</a></td><td>MSN {{ a.msn }}</td><td>{% badge a %}</td></tr>{% empty %}<tr><td class="empty">Aucun.</td></tr>{% endfor %}</tbody></table></div>
+  <div class="card"><h2>Personnel autorisé</h2><table class="data"><tbody>{% for a in authorizations %}<tr><td><a href="{{ a.staff.get_absolute_url }}">{{ a.staff.full_name }}</a></td><td>{{ a.category }}{% if a.certifying %} certifiant{% endif %}</td><td class="small">jusqu'au {{ a.valid_until|date:"d/m/Y" }}</td></tr>{% empty %}<tr><td class="empty">Aucun.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="card"><h2>Programme d'entretien ({{ tasks|length }} tâches actives)</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>Référence</th><th>Intitulé</th><th>ATA</th><th>Origine</th><th>Intervalle</th><th>Seuil</th><th class="num">h.h</th></tr></thead><tbody>
+  {% for x in tasks %}<tr><td><a href="{{ x.get_absolute_url }}">{{ x.reference }}</a></td><td>{{ x.title }}</td><td>{{ x.ata }}</td><td class="small">{{ x.get_source_display }}</td><td class="small">{{ x.interval_display }}</td><td class="small">{{ x.threshold_display|default:"—" }}</td><td class="num">{{ x.estimated_mh|fmt }}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">Aucune tâche.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="card"><h2>Références P/N applicables</h2><table class="data"><tbody>{% for p in pns %}<tr><td><a href="{{ p.get_absolute_url }}">{{ p.pn }}</a></td><td>{{ p.description }}</td><td>{% if p.is_llp %}<span class="badge warn">LLP</span>{% endif %}</td></tr>{% empty %}<tr><td class="empty">Aucune.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

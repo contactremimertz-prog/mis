@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}Quarantaine{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Quarantaine et pièces non utilisables</h1>
+  <div class="sub">Une pièce en quarantaine ou U/S ne peut être ni délivrée ni posée. Pour la libérer, ouvrez sa fiche : un certificat accepté et un potentiel restant sont exigés.</div></div></div>
+<div class="card"><h2>Composants sérialisés ({{ components|length }})</h2>
+  <table class="data"><thead><tr><th>P/N</th><th>S/N</th><th>Désignation</th><th>Statut</th><th>Emplacement</th><th>Motif</th><th>Depuis</th></tr></thead><tbody>
+  {% for c in components %}<tr><td><a href="{{ c.get_absolute_url }}">{{ c.part_number.pn }}</a></td><td><a href="{{ c.get_absolute_url }}">{{ c.serial_number }}</a></td><td>{{ c.part_number.description }}</td><td>{% badge c %}</td><td>{{ c.location.code|default:"—" }}</td><td class="small">{{ c.status_reason }}</td><td class="small">{{ c.updated_at|date:"d/m/Y" }}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">Aucun.</td></tr>{% endfor %}</tbody></table>
+</div>
+<div class="card"><h2>Lots de stock en quarantaine / périmés</h2>
+  <table class="data"><thead><tr><th>P/N</th><th>Lot</th><th class="num">Qté</th><th>Statut</th><th>Motif</th><th></th></tr></thead><tbody>
+  {% for s in stock %}<tr><td>{{ s.part_number.pn }}</td><td>{{ s.batch }}</td><td class="num">{{ s.quantity|fmt }}</td><td>{% badge s %}</td><td class="small">{{ s.status_reason }}</td><td>{% if perms.logistics.change_stockitem %}<a class="btn small" href="{% url 'logistics:stock_update' s.pk %}">Traiter</a>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">Aucun.</td></tr>{% endfor %}</tbody></table>
+  {% if expired %}<div class="alert warn" style="margin-top:12px"><strong>Lots utilisables mais périmés</strong> (non délivrables, à passer en « périmé ») : {% for s in expired %}<a href="{% url 'logistics:stock_update' s.pk %}">{{ s.part_number.pn }} lot {{ s.batch }}</a> ({{ s.shelf_life_expiry|date:"d/m/Y" }}){% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+</div>
+{% endblock %}

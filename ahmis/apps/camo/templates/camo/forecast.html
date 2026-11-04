@@ -1,0 +1,51 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}Forecast{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Forecast de maintenance{% if aircraft %} – {{ aircraft.registration }}{% endif %}</h1>
+    <div class="sub">Projection sur {{ horizon }} jours avec {{ util }} % de l'utilisation prévue. Les tâches répétitives sont déroulées ; les éléments déjà dépassés sont placés à aujourd'hui.</div></div>
+  <div class="actions"><a class="btn" href="?{% qs_replace format='csv' %}">Export CSV</a></div>
+</div>
+<div class="card">
+  <form method="get" class="filters">
+    {% for f in form %}<div class="f"><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+    <button class="btn primary" type="submit">Calculer</button>
+  </form>
+  <div class="grid grid-3" style="margin-top:6px">
+    <div class="kpi"><div class="label">Échéances sur l'horizon</div><div class="value">{{ total_events }}</div></div>
+    <div class="kpi"><div class="label">Charge estimée</div><div class="value">{{ total_mh|fmt }} h.h</div></div>
+    <div class="kpi"><div class="label">Déposes en butée (LLP / TBO)</div><div class="value">{{ total_removals }}</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Charge mensuelle</h2>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>Mois</th><th class="num">Échéances</th><th class="num">Charge (h.h)</th><th style="width:40%"></th><th class="num">Déposes</th><th>Par aéronef</th></tr></thead>
+    <tbody>{% for m in summary %}<tr>
+      <td class="nowrap"><a href="#m{{ m.year }}{{ m.month }}">{{ m.label|capfirst }}</a></td><td class="num">{{ m.count }}</td><td class="num">{{ m.mh|fmt }}</td>
+      <td><div class="lifebar" style="height:10px"><span style="width:{{ m.pct }}%;background:var(--accent)"></span></div></td>
+      <td class="num">{{ m.removals }}</td>
+      <td class="small">{% for reg, n in m.by_aircraft.items %}{{ reg }} ({{ n }}){% if not forloop.last %}, {% endif %}{% endfor %}</td>
+    </tr>{% empty %}<tr><td colspan="6" class="empty">Aucune échéance sur l'horizon.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+
+{% for m in summary %}
+<details class="card" id="m{{ m.year }}{{ m.month }}" {% if forloop.first %}open{% endif %}>
+  <summary>{{ m.label|capfirst }} – {{ m.count }} échéance(s), {{ m.mh|fmt }} h.h</summary>
+  <div class="table-wrap" style="margin-top:10px"><table class="data">
+    <thead><tr><th>Date prévue</th><th>Aéronef</th><th>Nature</th><th>Élément</th><th>Occ.</th><th>Critère</th><th class="num">h.h</th><th>Pièces prévues</th></tr></thead>
+    <tbody>{% for e in m.events %}<tr>
+      <td class="nowrap">{{ e.date|date:"d/m/Y" }}{% if e.overdue %} <span class="badge bad">dépassé</span>{% endif %}</td>
+      <td><a href="{{ e.item.aircraft.get_absolute_url }}">{{ e.item.aircraft.registration }}</a></td>
+      <td class="small">{{ e.item.kind_label }}</td>
+      <td><a href="{{ e.item.url }}">{{ e.item.reference }}</a><div class="small muted">{{ e.item.label|truncatechars:80 }}</div></td>
+      <td class="num">{{ e.occurrence }}</td><td class="small">{{ e.item.driver }}</td><td class="num">{{ e.item.estimated_mh|fmt }}</td>
+      <td class="small">{% for pn, q in e.item.parts %}{{ pn.pn }} ×{{ q|fmt }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  {% if m.parts_list %}<p class="small"><strong>Besoin en pièces du mois :</strong> {% for pn, q in m.parts_list %}{{ pn }} ×{{ q|fmt }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+</details>
+{% endfor %}
+{% endblock %}

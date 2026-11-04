@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}Réception{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Réception magasin</h1>
+  <div class="sub">Enregistrez la pièce et son certificat libératoire. Si un point du contrôle à réception n'est pas coché, la pièce part automatiquement en quarantaine.</div></div></div>
+<form method="post" enctype="multipart/form-data" class="stacked">{% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="card"><h2>Pièce</h2><div class="form-grid">
+    {% field form.part_number %}{% field form.serial_number %}{% field form.batch %}{% field form.quantity %}{% field form.location %}{% field form.supplier %}{% field form.shelf_life_expiry %}{% field form.condition %}{% field form.manufacture_date %}
+  </div>
+  <h3>Compteurs (pièce sérialisée d'occasion ou révisée)</h3>
+  <div class="form-grid">{% field form.tsn_fh %}{% field form.csn %}{% field form.tso_fh %}{% field form.cso %}</div></div>
+  <div class="card"><h2>Certificat libératoire</h2><div class="form-grid">
+    {% field form.cert_type %}{% field form.tracking_number %}{% field form.issuer %}{% field form.issuer_approval %}{% field form.issue_date %}{% field form.work_status %}{% field form.document %}
+  </div></div>
+  <div class="card"><h2>Contrôle à réception</h2>
+    <div class="form-grid">{% field form.check_identity True %}{% field form.check_certificate True %}{% field form.check_condition True %}{% field form.remarks %}</div>
+    <div class="actions" style="margin-top:12px"><button class="btn primary" type="submit">Enregistrer la réception</button></div>
+  </div>
+</form>
+{% endblock %}

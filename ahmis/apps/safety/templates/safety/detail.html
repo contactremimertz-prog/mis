@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}{{ r.number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ r.number }} {% badge r %} <span class="badge {% if r.severity == 'high' or r.severity == 'serious_incident' %}bad{% elif r.severity == 'medium' %}warn{% endif %}">{{ r.get_severity_display }}</span></h1>
+    <div class="sub">{{ r.title }} · {{ r.get_category_display }}{% if r.aircraft %} · <a href="{{ r.aircraft.get_absolute_url }}">{{ r.aircraft.registration }}</a>{% endif %}</div></div>
+  <div class="actions">
+    {% if perms.safety.change_occurrencereport %}<a class="btn primary" href="{% url 'safety:update' r.pk %}">Traiter</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'safety.occurrencereport' r.pk %}">Historique</a>{% endif %}
+  </div>
+</div>
+{% if r.status == "draft" %}
+  {% if r.hours_left < 0 %}<div class="alert"><strong>Délai de 72 h dépassé</strong> depuis le {{ r.report_deadline|date:"d/m/Y H:i" }} : notifier l'autorité sans délai et documenter le motif du retard.</div>
+  {% else %}<div class="alert warn">À notifier à l'autorité avant le <strong>{{ r.report_deadline|date:"d/m/Y H:i" }}</strong> (reste {{ r.hours_left }} h).</div>{% endif %}
+{% elif r.follow_up_late %}<div class="alert">Analyse de suivi attendue avant le {{ r.follow_up_deadline|date:"d/m/Y" }} (art. 13(4)) : en retard.</div>
+{% elif r.status == "submitted" %}<div class="alert info">Analyse de suivi à transmettre avant le {{ r.follow_up_deadline|date:"d/m/Y" }}.</div>{% endif %}
+<div class="grid grid-2">
+  <div class="card"><h2>Déclaration</h2><dl class="dl">
+    <div><dt>Événement le</dt><dd>{{ r.occurred_at|date:"d/m/Y H:i" }}</dd></div>
+    <div><dt>Connu le</dt><dd>{{ r.aware_at|date:"d/m/Y H:i" }}</dd></div>
+    <div><dt>Phase / lieu</dt><dd>{{ r.get_phase_display }}{% if r.location %} – {{ r.location }}{% endif %}</dd></div>
+    <div><dt>Composant</dt><dd>{% if r.component %}<a href="{{ r.component.get_absolute_url }}">{{ r.component }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>Défaut lié</dt><dd>{% if r.defect %}<a href="{{ r.defect.get_absolute_url }}">{{ r.defect.number }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>Task card liée</dt><dd>{% if r.task_card %}<a href="{{ r.task_card.get_absolute_url }}">{{ r.task_card.number }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>Déclarant</dt><dd>{% if show_reporter %}{{ r.reporter_name|default:"—" }}{% if r.confidential %} <span class="badge">confidentiel</span>{% endif %}{% else %}<span class="muted">Confidentiel</span>{% endif %}</dd></div>
+  </dl>
+  <h3>Description</h3><p class="small">{{ r.description|linebreaksbr }}</p>
+  {% if r.immediate_actions %}<h3>Mesures immédiates</h3><p class="small">{{ r.immediate_actions|linebreaksbr }}</p>{% endif %}</div>
+  <div class="card"><h2>Notification et suivi</h2><dl class="dl">
+    <div><dt>Échéance 72 h</dt><dd>{{ r.report_deadline|date:"d/m/Y H:i" }}{% if r.submitted_at %} {% if r.report_late %}<span class="badge bad">notifié en retard</span>{% else %}<span class="badge ok">dans les délais</span>{% endif %}{% endif %}</dd></div>
+    <div><dt>Autorité</dt><dd>{{ r.authority|default:"—" }}{% if r.authority_reference %} – {{ r.authority_reference }}{% endif %}</dd></div>
+    <div><dt>Notifié le</dt><dd>{{ r.submitted_at|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+    <div><dt>Détenteur de la conception</dt><dd>{% yesno_badge r.design_holder_notified "Informé" "Non informé" %}{% if r.design_holder_reference %} {{ r.design_holder_reference }}{% endif %}</dd></div>
+    <div><dt>Exploitant / CAMO client</dt><dd>{% yesno_badge r.customer_notified "Informé" "Non informé" %}</dd></div>
+    <div><dt>Suivi transmis le</dt><dd>{{ r.follow_up_at|date:"d/m/Y"|default:"—" }}</dd></div>
+    <div><dt>Clôturé le</dt><dd>{{ r.closed_on|date:"d/m/Y"|default:"—" }}</dd></div>
+  </dl>
+  {% if r.late_reason %}<h3>Motif du retard</h3><p class="small">{{ r.late_reason|linebreaksbr }}</p>{% endif %}
+  {% if r.not_reportable_reason %}<h3>Classement non notifiable</h3><p class="small">{{ r.not_reportable_reason|linebreaksbr }}</p>{% endif %}
+  {% if r.analysis %}<h3>Analyse</h3><p class="small">{{ r.analysis|linebreaksbr }}</p>{% endif %}
+  {% if r.corrective_actions %}<h3>Actions correctives</h3><p class="small">{{ r.corrective_actions|linebreaksbr }}</p>{% endif %}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}{% load ahmis %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Tableau de bord</h1><div class="sub">{{ AHMIS.ORGANISATION }} · situation au {{ today|date:"l d F Y" }}</div></div>
+  <div class="actions"><a class="btn" href="{% url 'camo:due' %}">Toutes les échéances</a><a class="btn primary" href="{% url 'fleet:utilisation_create' %}">Saisir des heures de vol</a></div>
+</div>
+<div class="grid grid-4" style="margin-bottom:18px">
+  <a class="kpi {% if kpi.overdue %}bad{% else %}ok{% endif %}" href="{% url 'camo:due' %}?status=overdue"><div class="label">Échéances dépassées</div><div class="value">{{ kpi.overdue }}</div><div class="small muted">dont {{ kpi.tolerance }} en tolérance</div></a>
+  <a class="kpi {% if kpi.due_soon %}warn{% endif %}" href="{% url 'camo:due' %}?status=due_soon"><div class="label">À planifier (≤ {{ AHMIS.ALERT_DAYS }} j)</div><div class="value">{{ kpi.due_soon }}</div></a>
+  <a class="kpi {% if kpi.open_defects %}bad{% endif %}" href="{% url 'part145:defect_list' %}?status=open"><div class="label">Défauts ouverts</div><div class="value">{{ kpi.open_defects }}</div><div class="small muted">{{ kpi.deferred }} reporté(s){% if kpi.deferred_overdue %}, <span style="color:var(--bad)">{{ kpi.deferred_overdue }} hors délai</span>{% endif %}</div></a>
+  <a class="kpi {% if kpi.ad_to_assess %}bad{% endif %}" href="{% url 'camo:directive_status_list' %}?status=to_assess"><div class="label">AD / SB à évaluer</div><div class="value">{{ kpi.ad_to_assess }}</div></a>
+  <a class="kpi" href="{% url 'part145:wp_list' %}"><div class="label">Work packages actifs</div><div class="value">{{ kpi.wp_active }}</div><div class="small muted">{{ kpi.cards_waiting_inspection }} task card(s) en attente de contrôle</div></a>
+  <a class="kpi {% if kpi.requests %}warn{% endif %}" href="{% url 'logistics:request_list' %}?status=requested"><div class="label">Demandes de pièces</div><div class="value">{{ kpi.requests }}</div></a>
+  <a class="kpi {% if kpi.quarantine %}warn{% endif %}" href="{% url 'logistics:quarantine' %}"><div class="label">En quarantaine</div><div class="value">{{ kpi.quarantine }}</div></a>
+  <a class="kpi {% if kpi.tools_expired or kpi.auth_expiring %}warn{% endif %}" href="{% url 'logistics:tool_list' %}"><div class="label">Outillage hors étalonnage</div><div class="value">{{ kpi.tools_expired }}</div><div class="small muted">{{ kpi.auth_expiring }} autorisation(s) expirant sous 60 j</div></a>
+</div>
+{% if occ.open %}<div class="alert {% if not occ.overdue %}warn{% endif %}"><strong>Comptes rendus d'événements :</strong>
+  <a href="{% url 'safety:list' %}">{{ occ.open }} ouvert(s)</a>, dont {{ occ.to_notify }} à notifier{% if occ.overdue %} – <strong>{{ occ.overdue }} hors délai (72 h / 30 j)</strong>{% endif %}.</div>{% endif %}
+{% if amp_alerts %}<div class="alert warn"><strong>Revue du programme d'entretien (M.A.302(g)) :</strong>
+  {% for r in amp_alerts %}<a href="{% url 'camo:amp_review_list' %}">{{ r.type.code }}</a> {% with st=r %}{% include "camo/_amp_status.html" %}{% endwith %}{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+
+<div class="card">
+  <h2>Flotte</h2>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>Aéronef</th><th>Type</th><th>Statut</th><th class="num">FH totales</th><th class="num">Cycles</th><th>Compteurs au</th><th>ARC jusqu'au</th><th>Dépassé</th><th>À planifier</th></tr></thead>
+    <tbody>{% for r in fleet_rows %}<tr>
+      <td><a href="{{ r.ac.get_absolute_url }}"><strong>{{ r.ac.registration }}</strong></a> <span class="muted small">MSN {{ r.ac.msn }}</span></td>
+      <td>{{ r.ac.aircraft_type.code }}</td><td>{% badge r.ac %}</td>
+      <td class="num">{{ r.ac.total_fh|hours }}</td><td class="num">{{ r.ac.total_fc }}</td><td>{{ r.ac.counters_date|date:"d/m/Y" }}</td>
+      <td>{% if r.ac.arc_expiry %}<span class="{% if r.ac.arc_expiry < today %}badge bad{% endif %}">{{ r.ac.arc_expiry|date:"d/m/Y" }}</span>{% else %}<span class="badge bad">Aucun</span>{% endif %}</td>
+      <td>{% with n=r.counts.overdue|add:r.counts.tolerance %}{% if n %}<span class="badge bad">{{ n }}</span>{% else %}<span class="muted">0</span>{% endif %}{% endwith %}</td>
+      <td>{% if r.counts.due_soon %}<span class="badge warn">{{ r.counts.due_soon }}</span>{% else %}<span class="muted">0</span>{% endif %}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+
+<div class="stack">
+  <div class="card">
+    <h2>Échéances prioritaires <a class="small" href="{% url 'camo:due' %}">Tout voir →</a></h2>
+    {% include "camo/_due_table.html" with items=top_items compact=True %}
+  </div>
+  <div class="card">
+    <h2>Work packages en cours <a class="small" href="{% url 'part145:planning' %}">Planning →</a></h2>
+    <table class="data"><thead><tr><th>WP</th><th>Aéronef</th><th>Dates</th><th>Statut</th><th>Avancement</th></tr></thead><tbody>
+    {% for wp in active_wps %}<tr><td><a href="{{ wp.get_absolute_url }}">{{ wp.number }}</a><div class="small muted">{{ wp.title }}</div></td><td class="reg">{{ wp.aircraft.registration }}</td>
+      <td class="nowrap">{{ wp.planned_start|date:"d/m" }} → {{ wp.planned_end|date:"d/m" }}</td><td>{% badge wp %}</td>
+      <td><div class="progress"><span style="width:{{ wp.progress }}%"></span></div><span class="small muted">{{ wp.progress }} %</span></td></tr>
+    {% empty %}<tr><td colspan="5" class="empty">Aucun work package actif.</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+{% endblock %}
