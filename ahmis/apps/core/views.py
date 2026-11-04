@@ -100,7 +100,7 @@ def my_account(request):
 
             AuditLog.objects.create(user=user, username=user.username, action="update",
                                     content_type=ContentType.objects.get_for_model(user), object_id=str(user.pk),
-                                    object_repr=gettext("Code de signature de {username}").format(username=user.username), changes=gettext('{"code de signature": {"old": "***", "new": "défini"}}'))
+                                    object_repr=gettext("Code de signature de {username}").format(username=user.username), changes='{"code de signature": {"old": "***", "new": "défini"}}')
             messages.success(request, gettext("Code de signature enregistré."))
             return redirect("my_account")
     from apps.part145.models import Staff
