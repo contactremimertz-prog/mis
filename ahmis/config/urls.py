@@ -10,6 +10,7 @@ admin.site.site_header = "AHMIS – administration"
 admin.site.site_title = "AHMIS"
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", core.dashboard, name="dashboard"),
     path("connexion/", login_not_required(core.LoginView.as_view()), name="login"),
     path("deconnexion/", auth_views.LogoutView.as_view(), name="logout"),

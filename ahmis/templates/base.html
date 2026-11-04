@@ -1,5 +1,5 @@
-{% load static ahmis %}<!doctype html>
-<html lang="fr">
+{% load static i18n ahmis %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,49 +15,49 @@
       <span>AHMIS<small>Maintenance Information System</small></span>
     </a>
     {% with ns=request.resolver_match.namespace un=request.resolver_match.url_name %}
-    <a href="{% url 'dashboard' %}" class="{% if un == 'dashboard' %}active{% endif %}">Tableau de bord</a>
+    <a href="{% url 'dashboard' %}" class="{% if un == 'dashboard' %}active{% endif %}">{% trans "Tableau de bord" %}</a>
 
-    <div class="nav-section">Navigabilité (CAMO)</div>
-    <a href="{% url 'fleet:aircraft_list' %}" class="{% if ns == 'fleet' and 'aircraft' in un %}active{% endif %}">Flotte</a>
-    <a href="{% url 'camo:due' %}" class="{% if un == 'due' %}active{% endif %}">Échéances</a>
-    <a href="{% url 'camo:forecast' %}" class="{% if un == 'forecast' %}active{% endif %}">Forecast</a>
-    <a href="{% url 'camo:task_list' %}" class="{% if ns == 'camo' and 'task' in un %}active{% endif %}">Programme d'entretien</a>
-    <a href="{% url 'camo:directive_list' %}" class="{% if ns == 'camo' and 'directive' in un %}active{% endif %}">AD / SB</a>
-    <a href="{% url 'fleet:utilisation_list' %}" class="{% if 'utilisation' in un %}active{% endif %}">Heures de vol</a>
-    <a href="{% url 'camo:mod_list' %}" class="{% if 'mod_' in un %}active{% endif %}">Modifications &amp; réparations</a>
-    <a href="{% url 'camo:amp_review_list' %}" class="{% if 'amp_review' in un %}active{% endif %}">Revue du programme</a>
-    {% if perms.camo.view_transferrecord %}<a href="{% url 'camo:transfer_list' %}" class="{% if 'transfer' in un %}active{% endif %}">Transferts de dossiers</a>{% endif %}
-    <a href="{% url 'camo:arc_list' %}" class="{% if 'arc' in un %}active{% endif %}">Examens de navigabilité</a>
-    <a href="{% url 'fleet:type_list' %}" class="{% if 'type' in un %}active{% endif %}">Types &amp; configuration</a>
+    <div class="nav-section">{% trans "Navigabilité (CAMO)" %}</div>
+    <a href="{% url 'fleet:aircraft_list' %}" class="{% if ns == 'fleet' and 'aircraft' in un %}active{% endif %}">{% trans "Flotte" %}</a>
+    <a href="{% url 'camo:due' %}" class="{% if un == 'due' %}active{% endif %}">{% trans "Échéances" %}</a>
+    <a href="{% url 'camo:forecast' %}" class="{% if un == 'forecast' %}active{% endif %}">{% trans "Forecast" %}</a>
+    <a href="{% url 'camo:task_list' %}" class="{% if ns == 'camo' and 'task' in un %}active{% endif %}">{% trans "Programme d'entretien" %}</a>
+    <a href="{% url 'camo:directive_list' %}" class="{% if ns == 'camo' and 'directive' in un %}active{% endif %}">{% trans "AD / SB" %}</a>
+    <a href="{% url 'fleet:utilisation_list' %}" class="{% if 'utilisation' in un %}active{% endif %}">{% trans "Heures de vol" %}</a>
+    <a href="{% url 'camo:mod_list' %}" class="{% if 'mod_' in un %}active{% endif %}">{% trans "Modifications &amp; réparations" %}</a>
+    <a href="{% url 'camo:amp_review_list' %}" class="{% if 'amp_review' in un %}active{% endif %}">{% trans "Revue du programme" %}</a>
+    {% if perms.camo.view_transferrecord %}<a href="{% url 'camo:transfer_list' %}" class="{% if 'transfer' in un %}active{% endif %}">{% trans "Transferts de dossiers" %}</a>{% endif %}
+    <a href="{% url 'camo:arc_list' %}" class="{% if 'arc' in un %}active{% endif %}">{% trans "Examens de navigabilité" %}</a>
+    <a href="{% url 'fleet:type_list' %}" class="{% if 'type' in un %}active{% endif %}">{% trans "Types &amp; configuration" %}</a>
 
-    <div class="nav-section">Entretien (Part-145)</div>
-    <a href="{% url 'part145:planning' %}" class="{% if un == 'planning' %}active{% endif %}">Planning</a>
-    <a href="{% url 'part145:wp_list' %}" class="{% if ns == 'part145' and 'wp' in un %}active{% endif %}">Work packages</a>
-    <a href="{% url 'part145:card_list' %}" class="{% if ns == 'part145' and 'card' in un %}active{% endif %}">Task cards</a>
-    <a href="{% url 'part145:defect_list' %}" class="{% if 'defect' in un %}active{% endif %}">Défauts &amp; reports</a>
-    <a href="{% url 'part145:staff_list' %}" class="{% if 'staff' in un %}active{% endif %}">Personnel &amp; autorisations</a>
+    <div class="nav-section">{% trans "Entretien (Part-145)" %}</div>
+    <a href="{% url 'part145:planning' %}" class="{% if un == 'planning' %}active{% endif %}">{% trans "Planning" %}</a>
+    <a href="{% url 'part145:wp_list' %}" class="{% if ns == 'part145' and 'wp' in un %}active{% endif %}">{% trans "Work packages" %}</a>
+    <a href="{% url 'part145:card_list' %}" class="{% if ns == 'part145' and 'card' in un %}active{% endif %}">{% trans "Task cards" %}</a>
+    <a href="{% url 'part145:defect_list' %}" class="{% if 'defect' in un %}active{% endif %}">{% trans "Défauts &amp; reports" %}</a>
+    <a href="{% url 'part145:staff_list' %}" class="{% if 'staff' in un %}active{% endif %}">{% trans "Personnel &amp; autorisations" %}</a>
 
-    <div class="nav-section">Logistique</div>
-    <a href="{% url 'logistics:receive' %}" class="{% if un == 'receive' %}active{% endif %}">Réception</a>
-    <a href="{% url 'fleet:component_list' %}" class="{% if 'component' in un %}active{% endif %}">Composants</a>
-    <a href="{% url 'fleet:pn_list' %}" class="{% if 'pn_' in un %}active{% endif %}">Références P/N</a>
-    <a href="{% url 'logistics:stock_list' %}" class="{% if 'stock' in un %}active{% endif %}">Stock consommables</a>
-    <a href="{% url 'logistics:request_list' %}" class="{% if 'request' in un %}active{% endif %}">Demandes de pièces</a>
-    <a href="{% url 'logistics:quarantine' %}" class="{% if un == 'quarantine' %}active{% endif %}">Quarantaine</a>
-    <a href="{% url 'logistics:certificate_list' %}" class="{% if 'certificate' in un %}active{% endif %}">Certificats libératoires</a>
-    <a href="{% url 'logistics:tool_list' %}" class="{% if 'tool' in un %}active{% endif %}">Outillage</a>
-    <a href="{% url 'logistics:store_list' %}" class="{% if 'store' in un %}active{% endif %}">Magasins</a>
+    <div class="nav-section">{% trans "Logistique" %}</div>
+    <a href="{% url 'logistics:receive' %}" class="{% if un == 'receive' %}active{% endif %}">{% trans "Réception" %}</a>
+    <a href="{% url 'fleet:component_list' %}" class="{% if 'component' in un %}active{% endif %}">{% trans "Composants" %}</a>
+    <a href="{% url 'fleet:pn_list' %}" class="{% if 'pn_' in un %}active{% endif %}">{% trans "Références P/N" %}</a>
+    <a href="{% url 'logistics:stock_list' %}" class="{% if 'stock' in un %}active{% endif %}">{% trans "Stock consommables" %}</a>
+    <a href="{% url 'logistics:request_list' %}" class="{% if 'request' in un %}active{% endif %}">{% trans "Demandes de pièces" %}</a>
+    <a href="{% url 'logistics:quarantine' %}" class="{% if un == 'quarantine' %}active{% endif %}">{% trans "Quarantaine" %}</a>
+    <a href="{% url 'logistics:certificate_list' %}" class="{% if 'certificate' in un %}active{% endif %}">{% trans "Certificats libératoires" %}</a>
+    <a href="{% url 'logistics:tool_list' %}" class="{% if 'tool' in un %}active{% endif %}">{% trans "Outillage" %}</a>
+    <a href="{% url 'logistics:store_list' %}" class="{% if 'store' in un %}active{% endif %}">{% trans "Magasins" %}</a>
 
-    <div class="nav-section">Qualité</div>
-    <a href="{% url 'safety:list' %}" class="{% if request.resolver_match.namespace == 'safety' %}active{% endif %}">Comptes rendus d'événements</a>
-    <a href="{% url 'audit_list' %}" class="{% if un == 'audit_list' %}active{% endif %}">Journal d'audit</a>
-    <a href="{% url 'signature_list' %}" class="{% if un == 'signature_list' %}active{% endif %}">Signatures électroniques</a>
-    <a href="{% url 'retention_report' %}" class="{% if 'retention' in un %}active{% endif %}">Conservation des enregistrements</a>
+    <div class="nav-section">{% trans "Qualité" %}</div>
+    <a href="{% url 'safety:list' %}" class="{% if request.resolver_match.namespace == 'safety' %}active{% endif %}">{% trans "Comptes rendus d'événements" %}</a>
+    <a href="{% url 'audit_list' %}" class="{% if un == 'audit_list' %}active{% endif %}">{% trans "Journal d'audit" %}</a>
+    <a href="{% url 'signature_list' %}" class="{% if un == 'signature_list' %}active{% endif %}">{% trans "Signatures électroniques" %}</a>
+    <a href="{% url 'retention_report' %}" class="{% if 'retention' in un %}active{% endif %}">{% trans "Conservation des enregistrements" %}</a>
 
-    <div class="nav-section">Aide</div>
-    <a href="{% url 'help_index' %}" class="{% if 'help' in un %}active{% endif %}">Tutoriels</a>
-    {% if user.is_superuser %}<a href="{% url 'admin:index' %}">Administration</a>
-    <a href="{% url 'api_tokens' %}" class="{% if un == 'api_tokens' %}active{% endif %}">Jetons API</a>{% endif %}
+    <div class="nav-section">{% trans "Aide" %}</div>
+    <a href="{% url 'help_index' %}" class="{% if 'help' in un %}active{% endif %}">{% trans "Tutoriels" %}</a>
+    {% if user.is_superuser %}<a href="{% url 'admin:index' %}">{% trans "Administration" %}</a>
+    <a href="{% url 'api_tokens' %}" class="{% if un == 'api_tokens' %}active{% endif %}">{% trans "Jetons API" %}</a>{% endif %}
     {% endwith %}
   </nav>
   <div class="main">
@@ -65,6 +65,13 @@
       <button class="btn small menu-toggle" type="button" onclick="document.body.classList.toggle('nav-open')" aria-label="Menu">☰ Menu</button>
       <form method="get" action="{% url 'search' %}" style="flex:1;max-width:380px">
         <input type="search" name="q" placeholder="Rechercher immatriculation, P/N, S/N, WP, task card…" value="{{ request.GET.q|default:'' }}" aria-label="Recherche globale">
+      </form>
+      <form method="post" action="{% url 'set_language' %}" style="display:inline">{% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <select name="language" aria-label="Langue" onchange="this.form.submit()">
+          {% get_available_languages as LANGS %}{% get_current_language as LANG %}
+          {% for code, name in LANGS %}<option value="{{ code }}"{% if code == LANG %} selected{% endif %}>{{ name }}</option>{% endfor %}
+        </select>
       </form>
       <div class="who">
         <a href="{% url 'my_account' %}" title="Mon compte">{% with st=user.staff %}{% if st %}{{ st.full_name }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}{% endwith %}</a>

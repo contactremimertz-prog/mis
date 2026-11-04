@@ -168,6 +168,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "fr"
+LANGUAGES = [("fr", "Français"), ("en", "English")]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = os.environ.get("AHMIS_TIME_ZONE", "Europe/Paris")
 USE_I18N = True
 USE_TZ = True
