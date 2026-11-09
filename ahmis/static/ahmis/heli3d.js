@@ -17,13 +17,26 @@
     var host = card.querySelector("#heli-view");
     var buttons = Array.prototype.slice.call(card.querySelectorAll(".heli-zone"));
     var panels = Array.prototype.slice.call(card.querySelectorAll("[data-zone-info]"));
-    var level = {};
-    buttons.forEach(function (b) { level[b.dataset.zone] = b.dataset.level in COLORS ? b.dataset.level : "none"; });
+    var level = {}, names = {};
+    buttons.forEach(function (b) {
+      level[b.dataset.zone] = b.dataset.level in COLORS ? b.dataset.level : "none";
+      names[b.dataset.zone] = b.dataset.label || "";
+    });
+    var navLinks = Array.prototype.slice.call(card.querySelectorAll("[data-heli-nav]"));
+    var navSelect = card.querySelector("[data-heli-select]");
+    /** Adresse d'un autre appareil, en gardant la zone choisie. */
+    function withZone(href, id) {
+      var u = new URL(href, location.href);
+      if (id) u.searchParams.set("zone", id); else u.searchParams.delete("zone");
+      u.hash = "vue-3d";
+      return u.pathname + u.search + u.hash;
+    }
 
     var view = null;
     function select(id) {
       buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.zone === id)); });
       panels.forEach(function (p) { p.hidden = p.dataset.zoneInfo !== (id || ""); });
+      navLinks.forEach(function (a) { a.setAttribute("href", withZone(a.getAttribute("href"), id)); });
       if (view) view.focus(id);
     }
     var current = null;
@@ -34,17 +47,44 @@
       });
     });
 
-    view = build(host, level, function (id) { current = id; select(id); });
-    select(null);  // sans JS, toutes les fiches de zone restent visibles
+    var navForm = card.querySelector("[data-heli-form]");
+    if (navForm && navSelect) {
+      navForm.hidden = false;  // sans JS, seuls les liens précédent et suivant sont proposés
+      // Le changement d'appareil attend le bouton « Ouvrir » : choisir dans la liste ne quitte pas la page.
+      navForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var v = navSelect.value;
+        // Seules les adresses internes proposées par le serveur sont suivies.
+        if (v && new URL(v, location.origin).origin === location.origin) location.assign(withZone(v, current));
+      });
+    }
+    view = build(host, level, names, function (id) { current = id; select(id); });
+    // Zone demandée par l'adresse (?zone=…), si elle existe sur cette page.
+    var asked = new URLSearchParams(location.search).get("zone");
+    if (!Object.prototype.hasOwnProperty.call(level, asked)) asked = null;
+    current = asked;
+    select(asked);  // sans JS, toutes les fiches de zone restent visibles
+    var toggle = card.querySelector("[data-heli-names]");
+    if (toggle && view) {
+      var saved = null;
+      try { saved = localStorage.getItem("ahmis.heli.names"); } catch (e) { saved = null; }
+      if (saved === "0") toggle.checked = false;
+      view.showNames(toggle.checked);
+      toggle.addEventListener("change", function () {
+        view.showNames(toggle.checked);
+        try { localStorage.setItem("ahmis.heli.names", toggle.checked ? "1" : "0"); } catch (e) { /* stockage indisponible */ }
+      });
+    }
     if (!view) {
       host.hidden = true;
       card.querySelector(".heli-hint").hidden = true;
       card.querySelector(".heli-nogl").hidden = false;
+      if (toggle) toggle.parentNode.hidden = true;
     }
   }
 
-  /** Construit la scène. Renvoie {focus(id)} ou null si WebGL est indisponible. */
-  function build(host, level, onPick) {
+  /** Construit la scène. Renvoie {focus(id), showNames(bool)} ou null si WebGL est indisponible. */
+  function build(host, level, names, onPick) {
     var THREE = window.THREE;
     var renderer = null;
     try {
@@ -197,6 +237,72 @@
     window.addEventListener("resize", resize);
     resize();
 
+    // Noms des zones : étiquettes HTML reliées à leur pièce par un trait, replacées à chaque image.
+    var SVGNS = "http://www.w3.org/2000/svg";
+    var overlay = document.createElement("div");
+    overlay.className = "heli-labels";
+    var lines = document.createElementNS(SVGNS, "svg");
+    lines.setAttribute("aria-hidden", "true");
+    overlay.appendChild(lines);
+    host.appendChild(overlay);
+    var labels = [];
+    Object.keys(names).forEach(function (id) {
+      var anchor = pickable.filter(function (m) { return m.userData.zone === id; })[0];
+      if (!anchor || !names[id]) return;
+      var el = document.createElement("button");
+      el.type = "button";
+      el.className = "heli-label lvl-" + (level[id] || "none");
+      el.textContent = names[id];
+      el.tabIndex = -1;  // la liste des zones porte déjà la navigation clavier
+      el.setAttribute("aria-hidden", "true");
+      el.addEventListener("click", function () { onPick(id === selected ? null : id); });
+      var line = document.createElementNS(SVGNS, "line");
+      line.setAttribute("class", "lvl-" + (level[id] || "none"));
+      lines.appendChild(line);
+      overlay.appendChild(el);
+      labels.push({ id: id, anchor: anchor, el: el, line: line, left: null, y: null, ax: 0, ay: 0, on: false });
+    });
+    var world = new THREE.Vector3();
+    function placeLabels() {
+      var w = host.clientWidth || 1, h = host.clientHeight || 1;
+      labels.forEach(function (l) {
+        l.anchor.getWorldPosition(world);
+        world.project(camera);
+        l.on = world.z < 1 && Math.abs(world.x) < 1.05 && Math.abs(world.y) < 1.05;
+        l.ax = (world.x + 1) / 2 * w;
+        l.ay = (1 - world.y) / 2 * h;
+        // Côté de l'étiquette : celui de la pièce, avec une marge pour éviter les sauts.
+        if (l.left === null) l.left = l.ax < w / 2;
+        else if (l.left && l.ax > w / 2 + 30) l.left = false;
+        else if (!l.left && l.ax < w / 2 - 30) l.left = true;
+      });
+      [true, false].forEach(function (side) {
+        var col = labels.filter(function (l) { return l.on && l.left === side; }).sort(function (a, b) { return a.ay - b.ay; });
+        var prev = -100;
+        col.forEach(function (l, i) {
+          var goal = Math.max(prev + 30, Math.min(l.ay - 40, h - 34 - (col.length - 1 - i) * 30));
+          goal = Math.max(8, goal);
+          prev = goal;
+          l.y = l.y === null ? goal : l.y + (goal - l.y) * 0.25;
+        });
+      });
+      labels.forEach(function (l) {
+        l.el.hidden = !l.on;
+        l.line.style.display = l.on ? "" : "none";
+        if (!l.on) return;
+        l.el.style.top = l.y + "px";
+        l.el.style.left = l.left ? "10px" : "auto";
+        l.el.style.right = l.left ? "auto" : "10px";
+        var lw = l.el.offsetWidth;
+        l.line.setAttribute("x1", l.left ? 10 + lw : w - 10 - lw);
+        l.line.setAttribute("y1", l.y + 12);
+        l.line.setAttribute("x2", l.ax);
+        l.line.setAttribute("y2", l.ay);
+        l.el.classList.toggle("on", l.id === selected);
+      });
+    }
+    var namesOn = true;
+
     var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var visible = true;
     if (typeof IntersectionObserver !== "undefined") {
@@ -218,6 +324,7 @@
       lookAt.lerp(targetGoal, 0.08);
       camera.lookAt(lookAt);
       renderer.render(scene, camera);
+      if (namesOn) placeLabels();
     }
     function wake() { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(loop); }
     document.addEventListener("visibilitychange", wake);
@@ -228,7 +335,7 @@
     });
     wake();
 
-    return { focus: focus };
+    return { focus: focus, showNames: function (on) { namesOn = !!on; overlay.hidden = !namesOn; } };
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

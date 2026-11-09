@@ -8,12 +8,12 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 
 from apps.camo.models import DirectiveApplicability, TaskAccomplishment
-from apps.camo.services import aircraft_due_list
+from apps.camo.services import aircraft_due_list, fleet_due_list
 from apps.core.crud import AhmisCreateView, AhmisListView, AhmisUpdateView, error_messages
 from apps.core.models import AuditLog, SignatureRecord
 
 from .forms import AircraftForm, AircraftTypeForm, ComponentForm, PartNumberForm, UtilisationForm
-from .heli3d import outside_zones, zone_states
+from .heli3d import ZONE_IDS, fleet_counts, neighbours, outside_zones, zone_states
 from .models import Aircraft, AircraftType, Component, InstallationRecord, PartNumber, UtilisationRecord, install_component
 from django.utils.translation import gettext, gettext_lazy
 
@@ -68,6 +68,19 @@ class AircraftList(AhmisListView):
     filter_fields = ["aircraft_type", "status"]
     create_url = reverse_lazy("fleet:aircraft_create")
     title = gettext_lazy("Flotte")
+    template_name = "fleet/aircraft_list.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        page = list(ctx["object_list"])
+        helis = [a for a in page if a.aircraft_type.category == "helicopter"]
+        counts = fleet_counts(helis, fleet_due_list(helis) if helis else [])
+        for a in page:
+            a.heli_counts = counts.get(a.pk)
+            a.heli_zone_groups = [(k, a.heli_counts[k]) for k in ("crit", "warn", "none")] if a.heli_counts else []
+        ctx["object_list"] = page
+        ctx["extra_cols"] = 4
+        return ctx
 
 
 class AircraftCreate(AhmisCreateView):
@@ -109,6 +122,8 @@ def aircraft_detail(request, pk):
         "util_form": UtilisationForm(initial={"aircraft": ac}),
         "heli_zones": zone_states(items) if is_heli else None,
         "heli_outside": outside_zones(items) if is_heli else None,
+        "heli_nav": neighbours(ac) if is_heli else None,
+        "heli_zone": request.GET.get("zone") if request.GET.get("zone") in ZONE_IDS else "",
     }
     return render(request, "fleet/aircraft_detail.html", ctx)
 

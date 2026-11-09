@@ -10,7 +10,10 @@ Le modèle 3D est générique : il sert à situer les zones, pas à représenter
 """
 import re
 
+from django.db.models import Q
 from django.utils.translation import gettext_lazy
+
+from .models import Aircraft
 
 ZONES = [
     ("rotor", gettext_lazy("Rotor principal et commandes rotor"), ("62", "67")),
@@ -19,6 +22,7 @@ ZONES = [
     ("engine", gettext_lazy("Moteur(s)"), tuple(str(n) for n in range(71, 81))),
     ("gear", gettext_lazy("Train d'atterrissage"), ("32",)),
 ]
+ZONE_IDS = frozenset(z[0] for z in ZONES)
 LEVELS = {
     "crit": gettext_lazy("Urgence haute"),
     "warn": gettext_lazy("Urgence moyenne"),
@@ -69,3 +73,39 @@ def outside_zones(items):
     rest = [i for i in items if item_ata(i) not in chapters]
     return {"crit": sum(1 for i in rest if _LEVEL_OF.get(i.status) == "crit"),
             "warn": sum(1 for i in rest if _LEVEL_OF.get(i.status) == "warn")}
+
+
+def fleet_counts(aircraft_list, items):
+    """Par hélicoptère : zones en urgence haute, en urgence moyenne et sans échéance rattachée.
+
+    `items` est la liste des échéances de ces aéronefs (fleet_due_list). Renvoie
+    {pk: {"crit": [zone…], "warn": [zone…], "none": [zone…], "outside": {"crit": n, "warn": n}}} ;
+    « outside » compte les échéances urgentes hors zone (visites, ARC…) pour que la liste
+    ne laisse pas croire qu'un appareil n'a rien d'urgent. Les avions sont absents.
+    Les zones dont toutes les échéances sont lointaines ne figurent dans aucune liste.
+    """
+    by_ac = {}
+    for i in items:
+        by_ac.setdefault(i.aircraft.pk, []).append(i)
+    out = {}
+    for ac in aircraft_list:
+        if ac.aircraft_type.category != "helicopter":
+            continue
+        groups = {"crit": [], "warn": [], "none": []}
+        for z in zone_states(by_ac.get(ac.pk, [])):
+            if z["level"] in groups:
+                z["first"] = z["items"][0] if z["items"] else None
+                groups[z["level"]].append(z)
+        groups["outside"] = outside_zones(by_ac.get(ac.pk, []))
+        out[ac.pk] = groups
+    return out
+
+
+def neighbours(aircraft):
+    """Hélicoptères de la flotte (hors retirés, plus l'appareil affiché), avec le précédent et le suivant."""
+    qs = Aircraft.objects.filter(aircraft_type__category="helicopter").filter(~Q(status="retired") | Q(pk=aircraft.pk))
+    everyone = list(qs.select_related("aircraft_type").order_by("registration"))
+    idx = next((n for n, a in enumerate(everyone) if a.pk == aircraft.pk), None)
+    if idx is None or len(everyone) < 2:
+        return {"all": everyone, "others": False, "prev": None, "next": None}
+    return {"all": everyone, "others": True, "prev": everyone[idx - 1], "next": everyone[(idx + 1) % len(everyone)]}

@@ -7,14 +7,14 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import Client, SimpleTestCase, TestCase, override_settings
 
-from apps.fleet.heli3d import item_ata, outside_zones, zone_states
+from apps.fleet.heli3d import fleet_counts, item_ata, neighbours, outside_zones, zone_states
 from apps.fleet.models import Aircraft
 
 
-def due(status, ata="", pn_ata="", days=10):
+def due(status, ata="", pn_ata="", days=10, ac=None):
     comp = SimpleNamespace(part_number=SimpleNamespace(ata=pn_ata)) if pn_ata else None
     task = SimpleNamespace(ata=ata) if ata else None
-    return SimpleNamespace(status=status, task=task, defect=None, directive=None, component=comp, remaining_days=days)
+    return SimpleNamespace(status=status, task=task, defect=None, directive=None, component=comp, remaining_days=days, aircraft=ac)
 
 
 class ZoneRulesTests(SimpleTestCase):
@@ -44,6 +44,26 @@ class ZoneRulesTests(SimpleTestCase):
     def test_most_urgent_listed_first(self):
         z = zone_states([due("ok", "63", days=5), due("overdue", "63", days=-3)])[1]
         self.assertEqual([i.status for i in z["items"]], ["overdue", "ok"])
+
+
+class FleetCountsTests(SimpleTestCase):
+    def test_counts_per_helicopter_and_no_counts_for_aeroplanes(self):
+        heli = SimpleNamespace(pk=1, aircraft_type=SimpleNamespace(category="helicopter"))
+        plane = SimpleNamespace(pk=2, aircraft_type=SimpleNamespace(category="aeroplane"))
+        items = [due("overdue", "63", ac=heli), due("ok", "63", ac=heli), due("due_soon", "72", ac=heli),
+                 due("ok", "62", ac=heli), due("overdue", "32", ac=plane)]
+        counts = fleet_counts([heli, plane], items)
+        self.assertNotIn(2, counts)
+        self.assertEqual([z["id"] for z in counts[1]["crit"]], ["bte"])
+        self.assertEqual([z["id"] for z in counts[1]["warn"]], ["engine"])
+        self.assertEqual([z["id"] for z in counts[1]["none"]], ["tail", "gear"])
+        self.assertEqual(counts[1]["crit"][0]["first"].status, "overdue")
+
+    def test_urgent_items_outside_zones_are_reported_in_the_fleet_list(self):
+        heli = SimpleNamespace(pk=1, aircraft_type=SimpleNamespace(category="helicopter"))
+        counts = fleet_counts([heli], [due("overdue", "05", ac=heli), due("due_soon", ac=heli), due("ok", "62", ac=heli)])
+        self.assertEqual(counts[1]["crit"], [])
+        self.assertEqual(counts[1]["outside"], {"crit": 1, "warn": 1})
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp(prefix="ahmis-test-media-"))
@@ -81,3 +101,48 @@ class AircraftPageTests(TestCase):
                 self.assertContains(r, "Hors de ces zones")
                 return
         self.skipTest("aucun hélicoptère de la démo avec échéance urgente hors zone")
+
+    def test_fleet_list_shows_counters_and_zone_links(self):
+        r = self.c.get("/flotte/aeronefs/")
+        self.assertContains(r, "Urgence haute")
+        self.assertContains(r, "data-heli-count=")
+        self.assertContains(r, "?zone=")
+        self.assertContains(r, "avion : pas de vue 3D")
+        self.assertContains(r, "Hors éléments")
+        self.assertContains(r, "ahmis/fleet_counts.js")
+
+    def test_other_lists_are_unchanged(self):
+        r = self.c.get("/flotte/composants/")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, "heli-count")
+
+    def test_navigation_between_helicopters(self):
+        helis = list(Aircraft.objects.filter(aircraft_type__category="helicopter").exclude(status="retired").order_by("registration"))
+        self.assertGreaterEqual(len(helis), 2)
+        nav = neighbours(helis[0])
+        self.assertEqual(nav["next"], helis[1])
+        self.assertEqual(nav["prev"], helis[-1])
+        self.assertNotIn("aeroplane", {a.aircraft_type.category for a in nav["all"]})
+        r = self.c.get(helis[0].get_absolute_url())
+        self.assertContains(r, "data-heli-select")
+        self.assertContains(r, f'href="{helis[1].get_absolute_url()}#vue-3d"')
+        r = self.c.get(helis[0].get_absolute_url() + "?zone=engine")
+        self.assertContains(r, f'href="{helis[1].get_absolute_url()}?zone=engine#vue-3d"')
+        r = self.c.get(helis[0].get_absolute_url() + "?zone=%3Cscript%3E")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, "?zone=")
+        self.assertContains(r, 'data-label="')
+
+    def test_retired_helicopter_is_only_listed_on_its_own_page(self):
+        retired = Aircraft.objects.filter(aircraft_type__category="helicopter", status="retired").first()
+        if retired is None:
+            self.skipTest("pas d'hélicoptère retiré dans la démo")
+        self.assertIn(retired, neighbours(retired)["all"])
+        other = Aircraft.objects.filter(aircraft_type__category="helicopter").exclude(status="retired").first()
+        self.assertNotIn(retired, neighbours(other)["all"])
+
+    def test_empty_fleet_list_spans_all_columns(self):
+        r = self.c.get("/flotte/aeronefs/?q=aucun-appareil-de-ce-nom")
+        self.assertContains(r, 'colspan="14"')
+        r = self.c.get("/flotte/composants/?q=aucun-composant-de-ce-nom")
+        self.assertNotContains(r, 'colspan="0"')

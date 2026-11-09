@@ -89,6 +89,7 @@ class AhmisListView(PermissionRequiredMixin, ListView):
             "create_url": self.create_url if can_add else None,
             "link_column": self.link_column,
             "extra_actions": self.extra_actions,
+            "extra_cols": 0,  # colonnes ajoutées par un gabarit dérivé (bloc extra_head)
         })
         return ctx
 

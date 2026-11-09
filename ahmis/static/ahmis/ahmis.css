@@ -279,3 +279,29 @@ td.reg, .reg { white-space: nowrap; }
 .heli-info > div > div { margin-bottom: 6px; }
 @media (max-width: 900px) { .heli-body { grid-template-columns: 1fr; } .heli-view { height: 320px; } }
 @media print { .heli { display: none; } }
+.heli-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.heli-nav { display: flex; align-items: center; gap: 6px; font-weight: 400; }
+.heli-go { display: inline-flex; gap: 4px; align-items: center; }
+.heli-go[hidden] { display: none; }
+.heli-nav select { font: inherit; font-size: 13px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.heli-labels { position: absolute; inset: 0; pointer-events: none; }
+.heli-labels svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.heli-labels line { stroke: currentColor; stroke-width: 1.5; }
+.heli-label { position: absolute; pointer-events: auto; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 700; line-height: 1.3; padding: 2px 8px; border-radius: 5px; border: 1px solid currentColor; background: rgba(15, 23, 32, .85); white-space: nowrap; max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
+.heli-label.on { background: #0b1118; box-shadow: 0 0 0 2px currentColor; }
+/* Sur fond sombre : teintes claires des mêmes niveaux */
+.heli-labels .lvl-crit { color: #ff8a80; } .heli-labels .lvl-warn { color: #ffab66; } .heli-labels .lvl-ok { color: #6fdc9f; } .heli-labels .lvl-none { color: #c3ccd9; }
+.heli-names { display: inline-flex; align-items: center; gap: 6px; }
+table.data th.heli-count-h { white-space: normal; text-align: center; min-width: 50px; line-height: 1.2; }
+td.heli-count { text-align: center; }
+.heli-n { display: inline-block; min-width: 30px; padding: 1px 8px; border-radius: 999px; font-weight: 700; font-size: 12.5px; border: 1px solid transparent; }
+.heli-n:hover { text-decoration: none; border-color: currentColor; }
+.heli-n[aria-expanded="true"] { border-color: currentColor; box-shadow: 0 0 0 2px var(--muted-bg); }
+.heli-n.lvl-crit { background: var(--bad-bg); } .heli-n.lvl-warn { background: var(--tol-bg); } .heli-n.lvl-none { background: var(--muted-bg); }
+tr.heli-count-row td { background: var(--surface-2); }
+.heli-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; margin: 2px 6px 2px 0; background: var(--surface); font-weight: 600; }
+.heli-dot.lvl-none { background: var(--ink-3); }
+@media (max-width: 600px) { .heli-label { font-size: 11px; max-width: 46%; white-space: normal; text-align: left; } }
+/* Flotte : quatre colonnes de plus, donc cellules resserrées pour éviter le défilement horizontal */
+table.data.fleet-table th, table.data.fleet-table td { padding-left: 5px; padding-right: 5px; font-size: 13px; }
+table.data.fleet-table th { white-space: normal; line-height: 1.2; }

@@ -24,15 +24,15 @@
   </form>
   {% endif %}
   <div class="table-wrap">
-  <table class="data">
-    <thead><tr>{% for label, acc in columns %}<th>{{ label }}</th>{% endfor %}</tr></thead>
+  <table class="data{% block table_class %}{% endblock %}">
+    <thead><tr>{% for label, acc in columns %}<th>{{ label }}</th>{% endfor %}{% block extra_head %}{% endblock %}</tr></thead>
     <tbody>
     {% for obj in object_list %}
       <tr>{% for label, acc in columns %}
         <td>{% if forloop.counter0 == link_column and obj.get_absolute_url %}<a href="{{ obj.get_absolute_url }}">{% cell obj acc %}</a>{% else %}{% cell obj acc %}{% endif %}</td>
-      {% endfor %}</tr>
+      {% endfor %}{% block extra_cells %}{% endblock %}</tr>{% block extra_row %}{% endblock %}
     {% empty %}
-      <tr><td colspan="{{ columns|length }}" class="empty">{% trans "Aucun enregistrement." %}</td></tr>
+      <tr><td {% with extra=extra_cols|default:0 %}colspan="{{ columns|length|add:extra }}"{% endwith %} class="empty">{% trans "Aucun enregistrement." %}</td></tr>
     {% endfor %}
     </tbody>
   </table>

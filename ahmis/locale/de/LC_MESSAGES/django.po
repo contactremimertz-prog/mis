@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 21:24+0100\n"
+"POT-Creation-Date: 2026-11-10 00:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -236,8 +236,8 @@ msgstr ""
 #: apps/core/templates/core/dashboard.html:47
 #: apps/core/templates/core/retention.html:28 apps/fleet/forms.py:39
 #: apps/fleet/templates/fleet/component_detail.html:27
-#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:120
-#: apps/fleet/views.py:205 apps/logistics/views.py:249
+#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:135
+#: apps/fleet/views.py:220 apps/logistics/views.py:249
 #: apps/part145/templates/part145/planning.html:16
 #: apps/part145/templates/part145/planning.html:30 apps/part145/views.py:50
 #: apps/part145/views.py:206 apps/part145/views.py:359 apps/safety/views.py:28
@@ -337,7 +337,7 @@ msgstr "Service Bulletin (SB)"
 msgid "Lettre d'information (SIL/IN)"
 msgstr "Informationsschreiben (SIL/IN)"
 
-#: apps/camo/models.py:25 apps/fleet/views.py:24 apps/fleet/views.py:158
+#: apps/camo/models.py:25 apps/fleet/views.py:24 apps/fleet/views.py:173
 msgid "Constructeur"
 msgstr "Hersteller"
 
@@ -1503,7 +1503,7 @@ msgstr "Alle auswählen"
 #: apps/fleet/templates/fleet/component_detail.html:88
 #: apps/fleet/templates/fleet/pn_detail.html:21
 #: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:64
-#: apps/fleet/views.py:205 apps/logistics/purchasing.py:146
+#: apps/fleet/views.py:220 apps/logistics/purchasing.py:146
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/quarantine.html:12
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -1634,7 +1634,7 @@ msgstr "Überprüfung"
 #: apps/fleet/templates/fleet/aircraft_detail.html:102
 #: apps/fleet/templates/fleet/aircraft_detail.html:112
 #: apps/fleet/templates/fleet/component_detail.html:63
-#: apps/fleet/templates/fleet/component_detail.html:83 apps/fleet/views.py:120
+#: apps/fleet/templates/fleet/component_detail.html:83 apps/fleet/views.py:135
 #: apps/logistics/forms.py:84
 #: apps/logistics/templates/logistics/tool_detail.html:16
 #: apps/logistics/views.py:73
@@ -1991,7 +1991,7 @@ msgstr "Offene Fälligkeiten (%(due_alerts)s)"
 #: apps/camo/templates/camo/mod_detail.html:16 apps/camo/views.py:69
 #: apps/camo/views.py:108 apps/camo/views.py:124
 #: apps/core/templates/core/retention.html:14
-#: apps/fleet/templates/fleet/type_detail.html:26 apps/fleet/views.py:121
+#: apps/fleet/templates/fleet/type_detail.html:26 apps/fleet/views.py:136
 #: apps/logistics/views.py:305 apps/quality/views.py:113
 msgid "Référence"
 msgstr "Referenz"
@@ -2031,14 +2031,14 @@ msgstr "Eingebaute Komponenten"
 #: apps/fleet/templates/fleet/aircraft_detail.html:54
 #: apps/fleet/templates/fleet/aircraft_detail.html:119
 #: apps/fleet/templates/fleet/component_detail.html:28
-#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:205
-#: apps/fleet/views.py:243 apps/part145/forms.py:133
+#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:220
+#: apps/fleet/views.py:258 apps/part145/forms.py:133
 msgid "Position"
 msgstr ""
 
 #: apps/camo/templates/camo/dossier_synthese.html:31
-#: apps/fleet/templates/fleet/aircraft_detail.html:54 apps/fleet/views.py:158
-#: apps/fleet/views.py:204
+#: apps/fleet/templates/fleet/aircraft_detail.html:54 apps/fleet/views.py:173
+#: apps/fleet/views.py:219
 #: apps/logistics/templates/logistics/po_detail.html:23
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -2074,7 +2074,7 @@ msgstr "Lebensdauerbegrenzte Teile und Restpotenziale"
 #: apps/camo/templates/camo/task_detail.html:42
 #: apps/camo/templates/camo/task_detail.html:55 apps/camo/views.py:126
 #: apps/core/search.py:16 apps/fleet/templates/fleet/aircraft_detail.html:119
-#: apps/fleet/views.py:242 apps/part145/templates/part145/card_detail.html:24
+#: apps/fleet/views.py:257 apps/part145/templates/part145/card_detail.html:24
 #: apps/part145/templates/part145/card_print.html:8
 #: apps/safety/templates/safety/detail.html:22
 msgid "Composant"
@@ -2264,6 +2264,7 @@ msgid "en tolérance"
 msgstr "in der Toleranz"
 
 #: apps/camo/templates/camo/due.html:17
+#: apps/fleet/templates/fleet/aircraft_list.html:4
 msgid "à planifier"
 msgstr "zu planen"
 
@@ -2959,17 +2960,17 @@ msgstr "Empfangsbestätigung erfasst."
 msgid "Oui"
 msgstr "Ja"
 
-#: apps/core/crud.py:121
+#: apps/core/crud.py:122
 #, python-brace-format
 msgid "{capitalize} « {object} » enregistré(e)."
 msgstr "{capitalize} „{object}“ gespeichert."
 
-#: apps/core/crud.py:135
+#: apps/core/crud.py:136
 #, python-brace-format
 msgid "Nouveau / nouvelle {verbose_name}"
 msgstr "Neu: {verbose_name}"
 
-#: apps/core/crud.py:143
+#: apps/core/crud.py:144
 #, python-brace-format
 msgid "Modifier {obj}"
 msgstr "{obj} bearbeiten"
@@ -3594,7 +3595,7 @@ msgid "FH totales"
 msgstr "FH gesamt"
 
 #: apps/core/templates/core/dashboard.html:28 apps/fleet/models.py:29
-#: apps/fleet/views.py:65 apps/fleet/views.py:120
+#: apps/fleet/views.py:65 apps/fleet/views.py:135
 msgid "Cycles"
 msgstr "Zyklen"
 
@@ -4043,7 +4044,7 @@ msgstr "aufzubewahren bis"
 msgid "état"
 msgstr "Zustand"
 
-#: apps/core/views.py:338
+#: apps/core/views.py:338 apps/fleet/templates/fleet/aircraft_list.html:4
 msgid "sans échéance"
 msgstr "ohne Frist"
 
@@ -4099,39 +4100,39 @@ msgstr ""
 msgid "Création sans emplacement : en attente de réception"
 msgstr "Anlage ohne Lagerort: wartet auf Wareneingang"
 
-#: apps/fleet/heli3d.py:16
+#: apps/fleet/heli3d.py:19
 msgid "Rotor principal et commandes rotor"
 msgstr "Hauptrotor und Rotorsteuerung"
 
-#: apps/fleet/heli3d.py:17
+#: apps/fleet/heli3d.py:20
 msgid "Boîte de transmission principale"
 msgstr "Hauptgetriebe"
 
-#: apps/fleet/heli3d.py:18
+#: apps/fleet/heli3d.py:21
 msgid "Rotor anticouple et transmission arrière"
 msgstr "Heckrotor und Heckantrieb"
 
-#: apps/fleet/heli3d.py:19
+#: apps/fleet/heli3d.py:22
 msgid "Moteur(s)"
 msgstr "Triebwerk(e)"
 
-#: apps/fleet/heli3d.py:20
+#: apps/fleet/heli3d.py:23
 msgid "Train d'atterrissage"
 msgstr "Fahrwerk"
 
-#: apps/fleet/heli3d.py:23
+#: apps/fleet/heli3d.py:27 apps/fleet/templates/fleet/aircraft_list.html:3
 msgid "Urgence haute"
 msgstr "Hohe Dringlichkeit"
 
-#: apps/fleet/heli3d.py:24
+#: apps/fleet/heli3d.py:28 apps/fleet/templates/fleet/aircraft_list.html:3
 msgid "Urgence moyenne"
 msgstr "Mittlere Dringlichkeit"
 
-#: apps/fleet/heli3d.py:25 apps/fleet/templates/fleet/_heli3d.html:10
+#: apps/fleet/heli3d.py:29 apps/fleet/templates/fleet/_heli3d.html:16
 msgid "Aucune échéance proche"
 msgstr "Keine baldige Fälligkeit"
 
-#: apps/fleet/heli3d.py:26 apps/fleet/templates/fleet/_heli3d.html:10
+#: apps/fleet/heli3d.py:30 apps/fleet/templates/fleet/_heli3d.html:16
 msgid "Aucune échéance rattachée"
 msgstr "Keine verknüpfte Fälligkeit"
 
@@ -4838,20 +4839,40 @@ msgstr "generisches Modell"
 msgid "zones colorées selon les échéances CAMO"
 msgstr "Zonen nach CAMO-Fälligkeiten eingefärbt"
 
+#: apps/fleet/templates/fleet/_heli3d.html:4
+msgid "Hélicoptère précédent"
+msgstr "Vorheriger Hubschrauber"
+
 #: apps/fleet/templates/fleet/_heli3d.html:5
+msgid "Changer d’hélicoptère"
+msgstr "Hubschrauber wechseln"
+
+#: apps/fleet/templates/fleet/_heli3d.html:5
+msgid "Ouvrir"
+msgstr "Öffnen"
+
+#: apps/fleet/templates/fleet/_heli3d.html:6
+msgid "Hélicoptère suivant"
+msgstr "Nächster Hubschrauber"
+
+#: apps/fleet/templates/fleet/_heli3d.html:10
 #, python-format
 msgid "Vue 3D interactive de l'appareil %(reg)s (modèle générique)"
 msgstr "Interaktive 3D-Ansicht des Luftfahrzeugs %(reg)s (generisches Modell)"
 
-#: apps/fleet/templates/fleet/_heli3d.html:6
+#: apps/fleet/templates/fleet/_heli3d.html:11
 msgid ""
-"Glisser pour tourner · molette pour zoomer · cliquer une zone pour la sortir"
-" de l'appareil."
+"Glisser pour tourner · molette pour zoomer · cliquer une zone ou son nom "
+"pour la sortir de l'appareil."
 msgstr ""
-"Ziehen zum Drehen · Mausrad zum Zoomen · Zone anklicken, um sie "
-"herauszulösen."
+"Ziehen zum Drehen · Mausrad zum Zoomen · Zone oder ihren Namen anklicken, um"
+" sie herauszulösen."
 
-#: apps/fleet/templates/fleet/_heli3d.html:7
+#: apps/fleet/templates/fleet/_heli3d.html:12
+msgid "Afficher les noms"
+msgstr "Namen anzeigen"
+
+#: apps/fleet/templates/fleet/_heli3d.html:13
 msgid ""
 "La vue 3D nécessite WebGL, indisponible sur ce navigateur. Les zones restent"
 " accessibles dans la liste."
@@ -4859,19 +4880,19 @@ msgstr ""
 "Die 3D-Ansicht benötigt WebGL, das dieser Browser nicht bietet. Die Zonen "
 "bleiben in der Liste verfügbar."
 
-#: apps/fleet/templates/fleet/_heli3d.html:10
+#: apps/fleet/templates/fleet/_heli3d.html:16
 msgid "Haute"
 msgstr "Hoch"
 
-#: apps/fleet/templates/fleet/_heli3d.html:10
+#: apps/fleet/templates/fleet/_heli3d.html:16
 msgid "Moyenne"
 msgstr "Mittel"
 
-#: apps/fleet/templates/fleet/_heli3d.html:11
+#: apps/fleet/templates/fleet/_heli3d.html:17
 msgid "Zones de l’appareil"
 msgstr "Zonen des Luftfahrzeugs"
 
-#: apps/fleet/templates/fleet/_heli3d.html:15
+#: apps/fleet/templates/fleet/_heli3d.html:21
 #, python-format
 msgid ""
 "Hors de ces zones : %(c)s échéance(s) dépassée(s) et %(w)s à planifier "
@@ -4880,26 +4901,26 @@ msgstr ""
 "Außerhalb dieser Zonen: %(c)s überschrittene Fälligkeit(en) und %(w)s zu "
 "planen (Inspektionen, ARC, andere ATA-Kapitel)."
 
-#: apps/fleet/templates/fleet/_heli3d.html:15
+#: apps/fleet/templates/fleet/_heli3d.html:21
 msgid "Voir toutes les échéances"
 msgstr "Alle Fälligkeiten anzeigen"
 
-#: apps/fleet/templates/fleet/_heli3d.html:17
+#: apps/fleet/templates/fleet/_heli3d.html:23
 msgid "Cliquez une zone pour voir ses échéances."
 msgstr "Zone anklicken, um ihre Fälligkeiten zu sehen."
 
-#: apps/fleet/templates/fleet/_heli3d.html:21
+#: apps/fleet/templates/fleet/_heli3d.html:27
 msgid "Aucune échéance rattachée à cette zone."
 msgstr "Keine Fälligkeit mit dieser Zone verknüpft."
 
-#: apps/fleet/templates/fleet/_heli3d.html:22
+#: apps/fleet/templates/fleet/_heli3d.html:28
 #, python-format
 msgid "Voir l'échéance"
 msgid_plural "Voir les %(n)s échéances"
 msgstr[0] "Fälligkeit anzeigen"
 msgstr[1] "Alle %(n)s Fälligkeiten anzeigen"
 
-#: apps/fleet/templates/fleet/_heli3d.html:25
+#: apps/fleet/templates/fleet/_heli3d.html:31
 msgid ""
 "Modèle générique : la forme ne correspond pas à l'appareil réel. Seules les "
 "échéances font foi."
@@ -5117,6 +5138,70 @@ msgstr "eingebaut"
 #: apps/fleet/templates/fleet/aircraft_detail.html:121
 msgid "Aucun mouvement."
 msgstr "Keine Bewegung."
+
+#: apps/fleet/templates/fleet/aircraft_list.html:3
+msgid ""
+"Éléments de la vue 3D en urgence haute (échéance dépassée ou en tolérance)"
+msgstr ""
+"Elemente der 3D-Ansicht mit hoher Dringlichkeit (Fälligkeit überschritten "
+"oder in Toleranz)"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:3
+msgid "Éléments de la vue 3D en urgence moyenne (échéance à planifier)"
+msgstr ""
+"Elemente der 3D-Ansicht mit mittlerer Dringlichkeit (Fälligkeit zu planen)"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:3
+msgid "Éléments de la vue 3D sans échéance rattachée"
+msgstr "Elemente der 3D-Ansicht ohne verknüpfte Fälligkeit"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:3
+msgid "Sans échéance rattachée"
+msgstr "Ohne verknüpfte Fälligkeit"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:3
+msgid ""
+"Échéances urgentes qui ne relèvent d’aucun élément de la vue 3D (visites, "
+"ARC, autres chapitres ATA) : dépassées / à planifier"
+msgstr ""
+"Dringende Fälligkeiten außerhalb der Elemente der 3D-Ansicht (Inspektionen, "
+"ARC, andere ATA-Kapitel): überschritten / zu planen"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:3
+msgid "Hors éléments"
+msgstr "Außerhalb der Elemente"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:3
+msgid "dép. / à plan."
+msgstr "überschr. / zu planen"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:4
+msgid "en urgence haute"
+msgstr "mit hoher Dringlichkeit"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:4
+msgid "en urgence moyenne"
+msgstr "mit mittlerer Dringlichkeit"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:4
+msgid "dépassée(s)"
+msgstr "überschritten"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:4
+msgid "avion : pas de vue 3D"
+msgstr "Flugzeug: keine 3D-Ansicht"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:6
+msgid "urgence haute"
+msgstr "hohe Dringlichkeit"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:6
+msgid "urgence moyenne"
+msgstr "mittlere Dringlichkeit"
+
+#: apps/fleet/templates/fleet/aircraft_list.html:6
+msgid "sans échéance rattachée"
+msgstr "ohne verknüpfte Fälligkeit"
 
 #: apps/fleet/templates/fleet/component_detail.html:7
 #, python-format
@@ -5371,7 +5456,7 @@ msgstr "Lager"
 msgid "Lot"
 msgstr "Charge"
 
-#: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:206
+#: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:221
 #: apps/logistics/forms.py:79
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -5505,31 +5590,31 @@ msgstr "Kennzeichen"
 msgid "Exploitant"
 msgstr "Betreiber"
 
-#: apps/fleet/views.py:76
+#: apps/fleet/views.py:89
 msgid "Créer un aéronef"
 msgstr "Luftfahrzeug anlegen"
 
-#: apps/fleet/views.py:121
+#: apps/fleet/views.py:136
 msgid "Total FH après"
 msgstr "FH gesamt danach"
 
-#: apps/fleet/views.py:121
+#: apps/fleet/views.py:136
 msgid "Total cycles après"
 msgstr "Zyklen gesamt danach"
 
-#: apps/fleet/views.py:122 apps/part145/views.py:360
+#: apps/fleet/views.py:137 apps/part145/views.py:360
 msgid "Source"
 msgstr "Quelle"
 
-#: apps/fleet/views.py:122
+#: apps/fleet/views.py:137
 msgid "Saisi par"
 msgstr "Erfasst von"
 
-#: apps/fleet/views.py:125
+#: apps/fleet/views.py:140
 msgid "Heures de vol et cycles"
 msgstr "Flugstunden und Zyklen"
 
-#: apps/fleet/views.py:126
+#: apps/fleet/views.py:141
 msgid ""
 "Chaque saisie incrémente les compteurs de la cellule et de tous les "
 "composants installés."
@@ -5537,57 +5622,57 @@ msgstr ""
 "Jede Erfassung erhöht die Zähler der Zelle und aller eingebauten "
 "Komponenten."
 
-#: apps/fleet/views.py:148
+#: apps/fleet/views.py:163
 #, python-brace-format
 msgid "{rec} enregistré. Nouveaux totaux : {fh_after} FH / {fc_after} cycles."
 msgstr "{rec} erfasst. Neue Summen: {fh_after} FH / {fc_after} Zyklen."
 
-#: apps/fleet/views.py:159
+#: apps/fleet/views.py:174
 msgid "Sérialisé"
 msgstr "Serialisiert"
 
-#: apps/fleet/views.py:159
+#: apps/fleet/views.py:174
 msgid "Vie FH"
 msgstr "Lebensdauer FH"
 
-#: apps/fleet/views.py:159
+#: apps/fleet/views.py:174
 msgid "Vie cycles"
 msgstr "Lebensdauer Zyklen"
 
-#: apps/fleet/views.py:163
+#: apps/fleet/views.py:178
 msgid "Références articles (P/N)"
 msgstr "Artikelnummern (P/N)"
 
-#: apps/fleet/views.py:180
+#: apps/fleet/views.py:195
 msgid "Nouvelle référence article"
 msgstr "Neue Artikelnummer"
 
-#: apps/fleet/views.py:210
+#: apps/fleet/views.py:225
 msgid "Composants sérialisés"
 msgstr "Serialisierte Komponenten"
 
-#: apps/fleet/views.py:216
+#: apps/fleet/views.py:231
 msgid "Nouveau composant"
 msgstr "Neue Komponente"
 
-#: apps/fleet/views.py:244
+#: apps/fleet/views.py:259
 msgid "Date de pose (historique)"
 msgstr "Einbaudatum (Historie)"
 
-#: apps/fleet/views.py:245
+#: apps/fleet/views.py:260
 msgid "Référence documentaire de la reprise"
 msgstr "Dokumentreferenz der Übernahme"
 
-#: apps/fleet/views.py:246
+#: apps/fleet/views.py:261
 msgid "ex. relevé de configuration, logbook, dossier de transfert"
 msgstr "z. B. Konfigurationsaufnahme, Logbuch, Übergabeakte"
 
-#: apps/fleet/views.py:260
+#: apps/fleet/views.py:275
 #, python-brace-format
 msgid "Reprise de configuration {registration} : {note}"
 msgstr "Konfigurationsübernahme {registration}: {note}"
 
-#: apps/fleet/views.py:265
+#: apps/fleet/views.py:280
 #, python-brace-format
 msgid "{component} rattaché à {registration} ({position})."
 msgstr "{component} {registration} zugeordnet ({position})."
