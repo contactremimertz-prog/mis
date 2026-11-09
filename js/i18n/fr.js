@@ -240,5 +240,20 @@ window.I18N.fr = {
   "chat.clarify": "Votre question est un peu large. Voulez-vous dire :",
   "chat.none": "Je n'ai pas trouvé de réponse validée à cette question. Essayez un autre mot-clé ou une question fréquente. Pour un cas précis, voyez le responsable qualité ou la documentation complète.",
   "chat.fab_open": "Ouvrir l'assistant MIS",
-  "chat.fab_close": "Fermer l'assistant MIS"
+  "chat.fab_close": "Fermer l'assistant MIS",
+  "heli.title": "Vue 3D de l'appareil",
+  "heli.aria": "Vue 3D interactive de l'appareil {reg}",
+  "heli.hint": "Glisser pour tourner · Molette pour zoomer · Cliquer une zone pour la sortir de l'appareil",
+  "heli.zones": "Zones de l'appareil",
+  "heli.pick": "Cliquez une zone pour voir ses tâches et son niveau d'urgence.",
+  "heli.none": "Aucune tâche liée à cette zone.",
+  "heli.demo": "Modèle générique à titre de démonstration : la forme ne correspond pas à l'appareil réel.",
+  "heli.nogl": "La vue 3D nécessite WebGL, indisponible sur ce navigateur. Les zones restent accessibles dans la liste.",
+  "heli.lvl_crit": "Urgence haute : tâche échue",
+  "heli.lvl_warn": "Urgence moyenne : échéance proche",
+  "heli.lvl_ok": "Conforme",
+  "heli.zone.rotor": "Rotor principal",
+  "heli.zone.bte": "Boîte de transmission",
+  "heli.zone.turb": "Turbine",
+  "heli.zone.train": "Train d'atterrissage"
 };

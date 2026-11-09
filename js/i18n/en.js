@@ -240,5 +240,20 @@ window.I18N.en = {
   "chat.clarify": "Your question is a little broad. Do you mean:",
   "chat.none": "I found no validated answer to this question. Try another keyword or a frequent question. For a specific case, ask the quality manager or see the full documentation.",
   "chat.fab_open": "Open the MIS assistant",
-  "chat.fab_close": "Close the MIS assistant"
+  "chat.fab_close": "Close the MIS assistant",
+  "heli.title": "Aircraft 3D view",
+  "heli.aria": "Interactive 3D view of aircraft {reg}",
+  "heli.hint": "Drag to rotate · Wheel to zoom · Click a zone to move it out of the airframe",
+  "heli.zones": "Aircraft zones",
+  "heli.pick": "Click a zone to see its tasks and urgency.",
+  "heli.none": "No task linked to this zone.",
+  "heli.demo": "Generic model for demonstration: the shape does not match the real aircraft.",
+  "heli.nogl": "The 3D view needs WebGL, which this browser does not provide. Zones remain available in the list.",
+  "heli.lvl_crit": "High urgency: task overdue",
+  "heli.lvl_warn": "Medium urgency: due soon",
+  "heli.lvl_ok": "Conforming",
+  "heli.zone.rotor": "Main rotor",
+  "heli.zone.bte": "Gearbox",
+  "heli.zone.turb": "Turbine",
+  "heli.zone.train": "Landing gear"
 };
