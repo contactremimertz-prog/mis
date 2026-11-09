@@ -252,6 +252,7 @@ window.I18N.es = {
   "heli.lvl_crit": "Urgencia alta: tarea vencida",
   "heli.lvl_warn": "Urgencia media: vencimiento próximo",
   "heli.lvl_ok": "Conforme",
+  "heli.lvl_none": "Ninguna tarea vinculada a esta zona",
   "heli.zone.rotor": "Rotor principal",
   "heli.zone.bte": "Caja de transmisión",
   "heli.zone.turb": "Turbina",

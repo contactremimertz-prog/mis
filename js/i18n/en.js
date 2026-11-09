@@ -252,6 +252,7 @@ window.I18N.en = {
   "heli.lvl_crit": "High urgency: task overdue",
   "heli.lvl_warn": "Medium urgency: due soon",
   "heli.lvl_ok": "Conforming",
+  "heli.lvl_none": "No task linked to this zone",
   "heli.zone.rotor": "Main rotor",
   "heli.zone.bte": "Gearbox",
   "heli.zone.turb": "Turbine",

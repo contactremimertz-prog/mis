@@ -252,6 +252,7 @@ window.I18N.de = {
   "heli.lvl_crit": "Hohe Dringlichkeit: Aufgabe überfällig",
   "heli.lvl_warn": "Mittlere Dringlichkeit: bald fällig",
   "heli.lvl_ok": "Konform",
+  "heli.lvl_none": "Keine Aufgabe mit dieser Zone verknüpft",
   "heli.zone.rotor": "Hauptrotor",
   "heli.zone.bte": "Getriebe",
   "heli.zone.turb": "Turbine",

@@ -252,6 +252,7 @@ window.I18N.fr = {
   "heli.lvl_crit": "Urgence haute : tâche échue",
   "heli.lvl_warn": "Urgence moyenne : échéance proche",
   "heli.lvl_ok": "Conforme",
+  "heli.lvl_none": "Aucune tâche liée à cette zone",
   "heli.zone.rotor": "Rotor principal",
   "heli.zone.bte": "Boîte de transmission",
   "heli.zone.turb": "Turbine",

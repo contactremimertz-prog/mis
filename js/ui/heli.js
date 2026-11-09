@@ -26,7 +26,8 @@
   const LEVEL = {
     crit: { hex: 0xb42318, css: "var(--crit)", key: "heli.lvl_crit" },
     warn: { hex: 0xc2410c, css: "var(--warn)", key: "heli.lvl_warn" },
-    ok: { hex: 0x64748b, css: "var(--muted)", key: "heli.lvl_ok" }
+    ok: { hex: 0x64748b, css: "var(--muted)", key: "heli.lvl_ok" },
+    none: { hex: 0x475569, css: "var(--muted)", key: "heli.lvl_none" }
   };
 
   /** Data of the block being rendered, read by mount() once the page is in the DOM. */
@@ -39,7 +40,7 @@
     const out = {};
     ZONES.forEach(z => {
       const rows = a.s.tasks.filter(x => z.codes.includes(x.code));
-      const k = rows.some(x => x.st === "overdue") ? "crit" : rows.some(x => x.st === "soon") ? "warn" : "ok";
+      const k = !rows.length ? "none" : rows.some(x => x.st === "overdue") ? "crit" : rows.some(x => x.st === "soon") ? "warn" : "ok";
       out[z.id] = { k, rows };
     });
     return out;
@@ -250,7 +251,9 @@
     };
     const onWheel = e => {
       e.preventDefault();
-      camGoal.sub(targetGoal).multiplyScalar(1 + Math.sign(e.deltaY) * 0.08).add(targetGoal);
+      const offset = camGoal.clone().sub(targetGoal);
+      const dist = THREE.MathUtils.clamp(offset.length() * (1 + Math.sign(e.deltaY) * 0.08), 1.5, 14);
+      camGoal = targetGoal.clone().add(offset.setLength(dist));
     };
     const onButton = e => {
       const b = e.target.closest(".heli-zone");
