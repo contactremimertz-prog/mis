@@ -2,14 +2,15 @@
 
 Chaque échéance est rattachée à une zone par son chapitre ATA (tâche, P/N du
 composant, défaut ou consigne). La zone prend le niveau le plus urgent :
-dépassé ou en tolérance = haute, à planifier = moyenne, sinon conforme.
+dépassé ou en tolérance = haute, à planifier = moyenne, sinon « aucune échéance proche »
+(jamais « conforme » : la vue ne se prononce pas sur la navigabilité).
 Les autres chapitres (visites ATA 05, ARC, 29 hydraulique, 49 APU…) ne sont
 rattachés à aucune zone : outside_zones() les compte et la carte les signale.
 Le modèle 3D est générique : il sert à situer les zones, pas à représenter l'appareil réel.
 """
 import re
 
-from django.utils.translation import gettext_lazy, pgettext_lazy
+from django.utils.translation import gettext_lazy
 
 ZONES = [
     ("rotor", gettext_lazy("Rotor principal et commandes rotor"), ("62", "67")),
@@ -21,7 +22,7 @@ ZONES = [
 LEVELS = {
     "crit": gettext_lazy("Urgence haute"),
     "warn": gettext_lazy("Urgence moyenne"),
-    "ok": pgettext_lazy("vue 3D", "Conforme"),
+    "ok": gettext_lazy("Aucune échéance proche"),
     "none": gettext_lazy("Aucune échéance rattachée"),
 }
 _LEVEL_OF = {"overdue": "crit", "tolerance": "crit", "due_soon": "warn", "ok": "ok"}
@@ -32,7 +33,7 @@ def item_ata(item):
     """Chapitre ATA (2 chiffres) d'une échéance, ou chaîne vide.
 
     Sources dans l'ordre : tâche, défaut, consigne, P/N du composant. Une valeur
-    non exploitable est ignorée et la source suivante est essayée.
+    qui ne commence pas par deux chiffres est ignorée et la source suivante est essayée.
     """
     comp = item.component
     sources = [getattr(o, "ata", "") for o in (item.task, item.defect, item.directive) if o is not None]

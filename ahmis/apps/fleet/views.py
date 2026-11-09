@@ -12,8 +12,8 @@ from apps.camo.services import aircraft_due_list
 from apps.core.crud import AhmisCreateView, AhmisListView, AhmisUpdateView, error_messages
 from apps.core.models import AuditLog, SignatureRecord
 
-from .heli3d import outside_zones, zone_states
 from .forms import AircraftForm, AircraftTypeForm, ComponentForm, PartNumberForm, UtilisationForm
+from .heli3d import outside_zones, zone_states
 from .models import Aircraft, AircraftType, Component, InstallationRecord, PartNumber, UtilisationRecord, install_component
 from django.utils.translation import gettext, gettext_lazy
 
@@ -85,6 +85,7 @@ class AircraftUpdate(AhmisUpdateView):
 def aircraft_detail(request, pk):
     ac = get_object_or_404(Aircraft.objects.select_related("aircraft_type"), pk=pk)
     items = aircraft_due_list(ac)
+    is_heli = ac.aircraft_type.category == "helicopter"
     today = timezone.localdate()
     components = []
     for c in ac.components.filter(status="installed").select_related("part_number").order_by("position", "part_number__ata"):
@@ -106,8 +107,8 @@ def aircraft_detail(request, pk):
         "reviews": ac.airworthiness_reviews.all()[:5],
         "modifications": ac.modifications.select_related("component__part_number").order_by("-embodied_on"),
         "util_form": UtilisationForm(initial={"aircraft": ac}),
-        "heli_zones": zone_states(items) if ac.aircraft_type.category == "helicopter" else None,
-        "heli_outside": outside_zones(items),
+        "heli_zones": zone_states(items) if is_heli else None,
+        "heli_outside": outside_zones(items) if is_heli else None,
     }
     return render(request, "fleet/aircraft_detail.html", ctx)
 

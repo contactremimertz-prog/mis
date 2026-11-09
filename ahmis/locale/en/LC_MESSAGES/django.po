@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 21:20+0100\n"
+"POT-Creation-Date: 2026-11-09 21:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -233,8 +233,8 @@ msgstr ""
 #: apps/core/templates/core/dashboard.html:47
 #: apps/core/templates/core/retention.html:28 apps/fleet/forms.py:39
 #: apps/fleet/templates/fleet/component_detail.html:27
-#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:119
-#: apps/fleet/views.py:204 apps/logistics/views.py:249
+#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:120
+#: apps/fleet/views.py:205 apps/logistics/views.py:249
 #: apps/part145/templates/part145/planning.html:16
 #: apps/part145/templates/part145/planning.html:30 apps/part145/views.py:50
 #: apps/part145/views.py:206 apps/part145/views.py:359 apps/safety/views.py:28
@@ -334,7 +334,7 @@ msgstr "Service bulletin (SB)"
 msgid "Lettre d'information (SIL/IN)"
 msgstr "Information letter (SIL/IN)"
 
-#: apps/camo/models.py:25 apps/fleet/views.py:24 apps/fleet/views.py:157
+#: apps/camo/models.py:25 apps/fleet/views.py:24 apps/fleet/views.py:158
 msgid "Constructeur"
 msgstr "Manufacturer"
 
@@ -1491,7 +1491,7 @@ msgstr "Select all"
 #: apps/fleet/templates/fleet/component_detail.html:88
 #: apps/fleet/templates/fleet/pn_detail.html:21
 #: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:64
-#: apps/fleet/views.py:204 apps/logistics/purchasing.py:146
+#: apps/fleet/views.py:205 apps/logistics/purchasing.py:146
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/quarantine.html:12
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -1622,7 +1622,7 @@ msgstr "Review"
 #: apps/fleet/templates/fleet/aircraft_detail.html:102
 #: apps/fleet/templates/fleet/aircraft_detail.html:112
 #: apps/fleet/templates/fleet/component_detail.html:63
-#: apps/fleet/templates/fleet/component_detail.html:83 apps/fleet/views.py:119
+#: apps/fleet/templates/fleet/component_detail.html:83 apps/fleet/views.py:120
 #: apps/logistics/forms.py:84
 #: apps/logistics/templates/logistics/tool_detail.html:16
 #: apps/logistics/views.py:73
@@ -1977,7 +1977,7 @@ msgstr "Outstanding due items (%(due_alerts)s)"
 #: apps/camo/templates/camo/mod_detail.html:16 apps/camo/views.py:69
 #: apps/camo/views.py:108 apps/camo/views.py:124
 #: apps/core/templates/core/retention.html:14
-#: apps/fleet/templates/fleet/type_detail.html:26 apps/fleet/views.py:120
+#: apps/fleet/templates/fleet/type_detail.html:26 apps/fleet/views.py:121
 #: apps/logistics/views.py:305 apps/quality/views.py:113
 msgid "Référence"
 msgstr "Reference"
@@ -2017,14 +2017,14 @@ msgstr "Installed components"
 #: apps/fleet/templates/fleet/aircraft_detail.html:54
 #: apps/fleet/templates/fleet/aircraft_detail.html:119
 #: apps/fleet/templates/fleet/component_detail.html:28
-#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:204
-#: apps/fleet/views.py:242 apps/part145/forms.py:133
+#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:205
+#: apps/fleet/views.py:243 apps/part145/forms.py:133
 msgid "Position"
 msgstr ""
 
 #: apps/camo/templates/camo/dossier_synthese.html:31
-#: apps/fleet/templates/fleet/aircraft_detail.html:54 apps/fleet/views.py:157
-#: apps/fleet/views.py:203
+#: apps/fleet/templates/fleet/aircraft_detail.html:54 apps/fleet/views.py:158
+#: apps/fleet/views.py:204
 #: apps/logistics/templates/logistics/po_detail.html:23
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -2060,7 +2060,7 @@ msgstr "Life-limited parts and remaining potential"
 #: apps/camo/templates/camo/task_detail.html:42
 #: apps/camo/templates/camo/task_detail.html:55 apps/camo/views.py:126
 #: apps/core/search.py:16 apps/fleet/templates/fleet/aircraft_detail.html:119
-#: apps/fleet/views.py:241 apps/part145/templates/part145/card_detail.html:24
+#: apps/fleet/views.py:242 apps/part145/templates/part145/card_detail.html:24
 #: apps/part145/templates/part145/card_print.html:8
 #: apps/safety/templates/safety/detail.html:22
 msgid "Composant"
@@ -3575,7 +3575,7 @@ msgid "FH totales"
 msgstr "Total FH"
 
 #: apps/core/templates/core/dashboard.html:28 apps/fleet/models.py:29
-#: apps/fleet/views.py:65 apps/fleet/views.py:119
+#: apps/fleet/views.py:65 apps/fleet/views.py:120
 msgid "Cycles"
 msgstr ""
 
@@ -3857,7 +3857,6 @@ msgid "Total"
 msgstr ""
 
 #: apps/core/templates/core/retention.html:15
-#: apps/fleet/templates/fleet/_heli3d.html:10
 msgid "Sans échéance"
 msgstr "No due item"
 
@@ -4079,40 +4078,39 @@ msgstr ""
 msgid "Création sans emplacement : en attente de réception"
 msgstr "Creation without location: awaiting receipt"
 
-#: apps/fleet/heli3d.py:15
+#: apps/fleet/heli3d.py:16
 msgid "Rotor principal et commandes rotor"
 msgstr "Main rotor and rotor controls"
 
-#: apps/fleet/heli3d.py:16
+#: apps/fleet/heli3d.py:17
 msgid "Boîte de transmission principale"
 msgstr "Main gearbox"
 
-#: apps/fleet/heli3d.py:17
+#: apps/fleet/heli3d.py:18
 msgid "Rotor anticouple et transmission arrière"
 msgstr "Tail rotor and tail drive"
 
-#: apps/fleet/heli3d.py:18
+#: apps/fleet/heli3d.py:19
 msgid "Moteur(s)"
 msgstr "Engine(s)"
 
-#: apps/fleet/heli3d.py:19
+#: apps/fleet/heli3d.py:20
 msgid "Train d'atterrissage"
 msgstr "Landing gear"
 
-#: apps/fleet/heli3d.py:22
+#: apps/fleet/heli3d.py:23
 msgid "Urgence haute"
 msgstr "High urgency"
 
-#: apps/fleet/heli3d.py:23
+#: apps/fleet/heli3d.py:24
 msgid "Urgence moyenne"
 msgstr "Medium urgency"
 
-#: apps/fleet/heli3d.py:24 apps/fleet/templates/fleet/_heli3d.html:10
-msgctxt "vue 3D"
-msgid "Conforme"
-msgstr "Compliant"
+#: apps/fleet/heli3d.py:25 apps/fleet/templates/fleet/_heli3d.html:10
+msgid "Aucune échéance proche"
+msgstr "No item due soon"
 
-#: apps/fleet/heli3d.py:25
+#: apps/fleet/heli3d.py:26 apps/fleet/templates/fleet/_heli3d.html:10
 msgid "Aucune échéance rattachée"
 msgstr "No linked due item"
 
@@ -4870,11 +4868,11 @@ msgstr[1] "See the %(n)s due items"
 
 #: apps/fleet/templates/fleet/_heli3d.html:25
 msgid ""
-"Modèle générique de démonstration : la forme ne correspond pas à l'appareil "
-"réel. Seules les échéances font foi."
+"Modèle générique : la forme ne correspond pas à l'appareil réel. Seules les "
+"échéances font foi."
 msgstr ""
-"Generic demonstration model: the shape does not match the real aircraft. "
-"Only the due items are authoritative."
+"Generic model: the shape does not match the real aircraft. Only the due "
+"items are authoritative."
 
 #: apps/fleet/templates/fleet/aircraft_detail.html:8
 #, python-format
@@ -5341,7 +5339,7 @@ msgstr ""
 msgid "Lot"
 msgstr "Batch"
 
-#: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:205
+#: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:206
 #: apps/logistics/forms.py:79
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -5478,27 +5476,27 @@ msgstr "Operator"
 msgid "Créer un aéronef"
 msgstr "Create an aircraft"
 
-#: apps/fleet/views.py:120
+#: apps/fleet/views.py:121
 msgid "Total FH après"
 msgstr "Total FH after"
 
-#: apps/fleet/views.py:120
+#: apps/fleet/views.py:121
 msgid "Total cycles après"
 msgstr "Total cycles after"
 
-#: apps/fleet/views.py:121 apps/part145/views.py:360
+#: apps/fleet/views.py:122 apps/part145/views.py:360
 msgid "Source"
 msgstr ""
 
-#: apps/fleet/views.py:121
+#: apps/fleet/views.py:122
 msgid "Saisi par"
 msgstr "Entered by"
 
-#: apps/fleet/views.py:124
+#: apps/fleet/views.py:125
 msgid "Heures de vol et cycles"
 msgstr "Flight hours and cycles"
 
-#: apps/fleet/views.py:125
+#: apps/fleet/views.py:126
 msgid ""
 "Chaque saisie incrémente les compteurs de la cellule et de tous les "
 "composants installés."
@@ -5506,57 +5504,57 @@ msgstr ""
 "Each entry increments the counters of the airframe and of all installed "
 "components."
 
-#: apps/fleet/views.py:147
+#: apps/fleet/views.py:148
 #, python-brace-format
 msgid "{rec} enregistré. Nouveaux totaux : {fh_after} FH / {fc_after} cycles."
 msgstr "{rec} recorded. New totals: {fh_after} FH / {fc_after} cycles."
 
-#: apps/fleet/views.py:158
+#: apps/fleet/views.py:159
 msgid "Sérialisé"
 msgstr "Serialised"
 
-#: apps/fleet/views.py:158
+#: apps/fleet/views.py:159
 msgid "Vie FH"
 msgstr "Life FH"
 
-#: apps/fleet/views.py:158
+#: apps/fleet/views.py:159
 msgid "Vie cycles"
 msgstr "Life cycles"
 
-#: apps/fleet/views.py:162
+#: apps/fleet/views.py:163
 msgid "Références articles (P/N)"
 msgstr "Part numbers (P/N)"
 
-#: apps/fleet/views.py:179
+#: apps/fleet/views.py:180
 msgid "Nouvelle référence article"
 msgstr "New part number"
 
-#: apps/fleet/views.py:209
+#: apps/fleet/views.py:210
 msgid "Composants sérialisés"
 msgstr "Serialised components"
 
-#: apps/fleet/views.py:215
+#: apps/fleet/views.py:216
 msgid "Nouveau composant"
 msgstr "New component"
 
-#: apps/fleet/views.py:243
+#: apps/fleet/views.py:244
 msgid "Date de pose (historique)"
 msgstr "Installation date (history)"
 
-#: apps/fleet/views.py:244
+#: apps/fleet/views.py:245
 msgid "Référence documentaire de la reprise"
 msgstr "Document reference of the take-over"
 
-#: apps/fleet/views.py:245
+#: apps/fleet/views.py:246
 msgid "ex. relevé de configuration, logbook, dossier de transfert"
 msgstr "e.g. configuration survey, logbook, transfer records"
 
-#: apps/fleet/views.py:259
+#: apps/fleet/views.py:260
 #, python-brace-format
 msgid "Reprise de configuration {registration} : {note}"
 msgstr "Configuration take-over {registration}: {note}"
 
-#: apps/fleet/views.py:264
+#: apps/fleet/views.py:265
 #, python-brace-format
 msgid "{component} rattaché à {registration} ({position})."
 msgstr "{component} linked to {registration} ({position})."

@@ -35,6 +35,7 @@
     });
 
     view = build(host, level, function (id) { current = id; select(id); });
+    select(null);  // sans JS, toutes les fiches de zone restent visibles
     if (!view) {
       host.hidden = true;
       card.querySelector(".heli-hint").hidden = true;
