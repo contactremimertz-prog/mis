@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 18:24+0100\n"
+"POT-Creation-Date: 2026-11-09 21:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -233,8 +233,8 @@ msgstr ""
 #: apps/core/templates/core/dashboard.html:47
 #: apps/core/templates/core/retention.html:28 apps/fleet/forms.py:39
 #: apps/fleet/templates/fleet/component_detail.html:27
-#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:116
-#: apps/fleet/views.py:201 apps/logistics/views.py:249
+#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:119
+#: apps/fleet/views.py:204 apps/logistics/views.py:249
 #: apps/part145/templates/part145/planning.html:16
 #: apps/part145/templates/part145/planning.html:30 apps/part145/views.py:50
 #: apps/part145/views.py:206 apps/part145/views.py:359 apps/safety/views.py:28
@@ -334,7 +334,7 @@ msgstr "Service bulletin (SB)"
 msgid "Lettre d'information (SIL/IN)"
 msgstr "Information letter (SIL/IN)"
 
-#: apps/camo/models.py:25 apps/fleet/views.py:23 apps/fleet/views.py:154
+#: apps/camo/models.py:25 apps/fleet/views.py:24 apps/fleet/views.py:157
 msgid "Constructeur"
 msgstr "Manufacturer"
 
@@ -1052,7 +1052,7 @@ msgstr "Other approved data"
 msgid "Prévue"
 msgstr "Planned"
 
-#: apps/camo/models.py:492 apps/fleet/templates/fleet/aircraft_detail.html:64
+#: apps/camo/models.py:492 apps/fleet/templates/fleet/aircraft_detail.html:67
 msgid "Appliquée"
 msgstr "Embodied"
 
@@ -1397,7 +1397,7 @@ msgid "À planifier"
 msgstr "To plan"
 
 #: apps/camo/services.py:85
-#: apps/fleet/templates/fleet/aircraft_detail.html:109
+#: apps/fleet/templates/fleet/aircraft_detail.html:112
 #: apps/fleet/templates/fleet/component_detail.html:83
 msgid "Tâche"
 msgstr "Task"
@@ -1411,7 +1411,7 @@ msgid "Défaut reporté"
 msgstr "Deferred defect"
 
 #: apps/camo/services.py:86 apps/camo/views.py:307
-#: apps/fleet/templates/fleet/aircraft_detail.html:75
+#: apps/fleet/templates/fleet/aircraft_detail.html:78
 msgid "Consigne"
 msgstr "Directive"
 
@@ -1484,14 +1484,14 @@ msgstr "Select all"
 #: apps/camo/views.py:308 apps/camo/views.py:356 apps/camo/views.py:370
 #: apps/core/templates/core/dashboard.html:28
 #: apps/core/templates/core/dashboard.html:47
-#: apps/fleet/templates/fleet/aircraft_detail.html:64
-#: apps/fleet/templates/fleet/aircraft_detail.html:75
-#: apps/fleet/templates/fleet/aircraft_detail.html:82
-#: apps/fleet/templates/fleet/aircraft_detail.html:92
+#: apps/fleet/templates/fleet/aircraft_detail.html:67
+#: apps/fleet/templates/fleet/aircraft_detail.html:78
+#: apps/fleet/templates/fleet/aircraft_detail.html:85
+#: apps/fleet/templates/fleet/aircraft_detail.html:95
 #: apps/fleet/templates/fleet/component_detail.html:88
 #: apps/fleet/templates/fleet/pn_detail.html:21
-#: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:63
-#: apps/fleet/views.py:201 apps/logistics/purchasing.py:146
+#: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:64
+#: apps/fleet/views.py:204 apps/logistics/purchasing.py:146
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/quarantine.html:12
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -1597,7 +1597,7 @@ msgstr "New review"
 #: apps/camo/templates/camo/amp_review_detail.html:9
 #: apps/camo/templates/camo/mod_detail.html:9
 #: apps/camo/templates/camo/transfer_detail.html:9
-#: apps/fleet/templates/fleet/aircraft_detail.html:17
+#: apps/fleet/templates/fleet/aircraft_detail.html:18
 #: apps/fleet/templates/fleet/component_detail.html:12
 #: apps/fleet/templates/fleet/history.html:2
 #: apps/logistics/templates/logistics/po_detail.html:13
@@ -1619,10 +1619,10 @@ msgstr "Review"
 #: apps/camo/templates/camo/task_detail.html:55
 #: apps/camo/templates/camo/transfer_detail.html:17 apps/camo/views.py:471
 #: apps/core/templates/core/signature_list.html:12 apps/fleet/forms.py:40
-#: apps/fleet/templates/fleet/aircraft_detail.html:99
-#: apps/fleet/templates/fleet/aircraft_detail.html:109
+#: apps/fleet/templates/fleet/aircraft_detail.html:102
+#: apps/fleet/templates/fleet/aircraft_detail.html:112
 #: apps/fleet/templates/fleet/component_detail.html:63
-#: apps/fleet/templates/fleet/component_detail.html:83 apps/fleet/views.py:116
+#: apps/fleet/templates/fleet/component_detail.html:83 apps/fleet/views.py:119
 #: apps/logistics/forms.py:84
 #: apps/logistics/templates/logistics/tool_detail.html:16
 #: apps/logistics/views.py:73
@@ -1668,7 +1668,7 @@ msgstr "New revision"
 #: apps/camo/templates/camo/amp_review_list.html:20
 #: apps/camo/templates/camo/dossier_synthese.html:48
 #: apps/camo/templates/camo/mod_detail.html:14 apps/camo/views.py:356
-#: apps/fleet/templates/fleet/aircraft_detail.html:64
+#: apps/fleet/templates/fleet/aircraft_detail.html:67
 msgid "Approbation"
 msgstr "Approval"
 
@@ -1712,7 +1712,7 @@ msgstr ""
 "%(AMP_REVIEW_MONTHS)s months) and amended if necessary."
 
 #: apps/camo/templates/camo/amp_review_list.html:7
-#: apps/fleet/templates/fleet/aircraft_detail.html:27
+#: apps/fleet/templates/fleet/aircraft_detail.html:28
 #: apps/fleet/templates/fleet/type_detail.html:18
 msgid "Enregistrer une revue"
 msgstr "Record a review"
@@ -1726,7 +1726,7 @@ msgstr "Status per operated type"
 #: apps/camo/templates/camo/directive_detail.html:31 apps/camo/views.py:124
 #: apps/camo/views.py:226 apps/camo/views.py:318
 #: apps/core/templates/core/dashboard.html:28
-#: apps/fleet/templates/fleet/component_detail.html:63 apps/fleet/views.py:63
+#: apps/fleet/templates/fleet/component_detail.html:63 apps/fleet/views.py:64
 #: apps/logistics/purchasing.py:123 apps/logistics/views.py:72
 #: apps/part145/templates/part145/staff_detail.html:24
 #: apps/part145/templates/part145/staff_detail.html:37
@@ -1787,7 +1787,7 @@ msgstr "Create the follow-up task (%(code)s)"
 #: apps/camo/templates/camo/directive_detail.html:9
 #: apps/camo/templates/camo/mod_detail.html:8
 #: apps/camo/templates/camo/task_detail.html:9
-#: apps/fleet/templates/fleet/aircraft_detail.html:14
+#: apps/fleet/templates/fleet/aircraft_detail.html:15
 #: apps/fleet/templates/fleet/component_detail.html:11
 #: apps/fleet/templates/fleet/pn_detail.html:6
 #: apps/fleet/templates/fleet/type_detail.html:8
@@ -1860,7 +1860,7 @@ msgstr "Justification / method"
 
 #: apps/camo/templates/camo/directive_detail.html:31
 #: apps/camo/templates/camo/dossier_synthese.html:42
-#: apps/fleet/templates/fleet/aircraft_detail.html:75
+#: apps/fleet/templates/fleet/aircraft_detail.html:78
 msgid "Conformité"
 msgstr "Compliance"
 
@@ -1954,17 +1954,17 @@ msgid "Heures cellule"
 msgstr "Airframe hours"
 
 #: apps/camo/templates/camo/dossier_synthese.html:19
-#: apps/core/templates/core/dashboard.html:28 apps/fleet/views.py:65
+#: apps/core/templates/core/dashboard.html:28 apps/fleet/views.py:66
 msgid "Compteurs au"
 msgstr "Counters as of"
 
 #: apps/camo/templates/camo/dossier_synthese.html:20
-#: apps/fleet/templates/fleet/aircraft_detail.html:27
+#: apps/fleet/templates/fleet/aircraft_detail.html:28
 msgid "ARC valable jusqu'au"
 msgstr "ARC valid until"
 
 #: apps/camo/templates/camo/dossier_synthese.html:20
-#: apps/fleet/templates/fleet/aircraft_detail.html:36
+#: apps/fleet/templates/fleet/aircraft_detail.html:37
 msgid "Certificat de navigabilité"
 msgstr "Certificate of airworthiness"
 
@@ -1977,7 +1977,7 @@ msgstr "Outstanding due items (%(due_alerts)s)"
 #: apps/camo/templates/camo/mod_detail.html:16 apps/camo/views.py:69
 #: apps/camo/views.py:108 apps/camo/views.py:124
 #: apps/core/templates/core/retention.html:14
-#: apps/fleet/templates/fleet/type_detail.html:26 apps/fleet/views.py:117
+#: apps/fleet/templates/fleet/type_detail.html:26 apps/fleet/views.py:120
 #: apps/logistics/views.py:305 apps/quality/views.py:113
 msgid "Référence"
 msgstr "Reference"
@@ -2014,17 +2014,17 @@ msgid "Composants installés"
 msgstr "Installed components"
 
 #: apps/camo/templates/camo/dossier_synthese.html:31
-#: apps/fleet/templates/fleet/aircraft_detail.html:51
-#: apps/fleet/templates/fleet/aircraft_detail.html:116
+#: apps/fleet/templates/fleet/aircraft_detail.html:54
+#: apps/fleet/templates/fleet/aircraft_detail.html:119
 #: apps/fleet/templates/fleet/component_detail.html:28
-#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:201
-#: apps/fleet/views.py:239 apps/part145/forms.py:133
+#: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:204
+#: apps/fleet/views.py:242 apps/part145/forms.py:133
 msgid "Position"
 msgstr ""
 
 #: apps/camo/templates/camo/dossier_synthese.html:31
-#: apps/fleet/templates/fleet/aircraft_detail.html:51 apps/fleet/views.py:154
-#: apps/fleet/views.py:200
+#: apps/fleet/templates/fleet/aircraft_detail.html:54 apps/fleet/views.py:157
+#: apps/fleet/views.py:203
 #: apps/logistics/templates/logistics/po_detail.html:23
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -2034,19 +2034,19 @@ msgid "Désignation"
 msgstr "Description"
 
 #: apps/camo/templates/camo/dossier_synthese.html:31
-#: apps/fleet/templates/fleet/aircraft_detail.html:51
+#: apps/fleet/templates/fleet/aircraft_detail.html:54
 #: apps/fleet/templates/fleet/pn_detail.html:21
 msgid "TSN"
 msgstr ""
 
 #: apps/camo/templates/camo/dossier_synthese.html:31
-#: apps/fleet/templates/fleet/aircraft_detail.html:51
+#: apps/fleet/templates/fleet/aircraft_detail.html:54
 #: apps/fleet/templates/fleet/pn_detail.html:21
 msgid "CSN"
 msgstr ""
 
 #: apps/camo/templates/camo/dossier_synthese.html:31
-#: apps/fleet/templates/fleet/aircraft_detail.html:51
+#: apps/fleet/templates/fleet/aircraft_detail.html:54
 #: apps/fleet/templates/fleet/pn_detail.html:21
 msgid "TSO"
 msgstr ""
@@ -2059,8 +2059,8 @@ msgstr "Life-limited parts and remaining potential"
 #: apps/camo/templates/camo/task_detail.html:24
 #: apps/camo/templates/camo/task_detail.html:42
 #: apps/camo/templates/camo/task_detail.html:55 apps/camo/views.py:126
-#: apps/core/search.py:16 apps/fleet/templates/fleet/aircraft_detail.html:116
-#: apps/fleet/views.py:238 apps/part145/templates/part145/card_detail.html:24
+#: apps/core/search.py:16 apps/fleet/templates/fleet/aircraft_detail.html:119
+#: apps/fleet/views.py:241 apps/part145/templates/part145/card_detail.html:24
 #: apps/part145/templates/part145/card_print.html:8
 #: apps/safety/templates/safety/detail.html:22
 msgid "Composant"
@@ -2068,7 +2068,7 @@ msgstr "Component"
 
 #: apps/camo/templates/camo/dossier_synthese.html:36
 #: apps/camo/templates/camo/dossier_synthese.html:54
-#: apps/fleet/templates/fleet/aircraft_detail.html:82
+#: apps/fleet/templates/fleet/aircraft_detail.html:85
 #: apps/fleet/templates/fleet/component_detail.html:52
 #: apps/part145/views.py:360
 msgid "Limite"
@@ -2099,13 +2099,13 @@ msgstr ""
 
 #: apps/camo/templates/camo/dossier_synthese.html:47
 #: apps/core/retention.py:155
-#: apps/fleet/templates/fleet/aircraft_detail.html:63
+#: apps/fleet/templates/fleet/aircraft_detail.html:66
 msgid "Modifications et réparations"
 msgstr "Modifications and repairs"
 
 #: apps/camo/templates/camo/dossier_synthese.html:48 apps/camo/views.py:124
 #: apps/camo/views.py:356 apps/camo/views.py:368
-#: apps/fleet/templates/fleet/aircraft_detail.html:64
+#: apps/fleet/templates/fleet/aircraft_detail.html:67
 #: apps/fleet/templates/fleet/type_detail.html:26 apps/part145/forms.py:155
 #: apps/part145/templates/part145/card_print.html:5
 #: apps/part145/templates/part145/planning.html:30
@@ -2131,7 +2131,7 @@ msgstr "Reported on"
 
 #: apps/camo/templates/camo/dossier_synthese.html:54
 #: apps/camo/templates/camo/task_detail.html:29
-#: apps/fleet/templates/fleet/aircraft_detail.html:82
+#: apps/fleet/templates/fleet/aircraft_detail.html:85
 #: apps/part145/templates/part145/defect_detail.html:9
 #: apps/part145/views.py:360 apps/safety/templates/safety/detail.html:27
 msgid "Description"
@@ -2167,8 +2167,8 @@ msgstr "Records"
 
 #: apps/camo/templates/camo/due.html:2 apps/camo/templates/camo/due.html:5
 #: apps/camo/templates/camo/forecast.html:24
-#: apps/fleet/templates/fleet/aircraft_detail.html:26
-#: apps/fleet/templates/fleet/aircraft_detail.html:44 templates/base.html:22
+#: apps/fleet/templates/fleet/aircraft_detail.html:27
+#: apps/fleet/templates/fleet/aircraft_detail.html:47 templates/base.html:22
 msgid "Échéances"
 msgstr "Due items"
 
@@ -2184,13 +2184,13 @@ msgstr ""
 
 #: apps/camo/templates/camo/due.html:7
 #: apps/camo/templates/camo/forecast.html:7
-#: apps/fleet/templates/fleet/aircraft_detail.html:44
+#: apps/fleet/templates/fleet/aircraft_detail.html:47
 msgid "Export CSV"
 msgstr "CSV export"
 
 #: apps/camo/templates/camo/due.html:7
 #: apps/camo/templates/camo/forecast.html:2
-#: apps/fleet/templates/fleet/aircraft_detail.html:13 templates/base.html:23
+#: apps/fleet/templates/fleet/aircraft_detail.html:14 templates/base.html:23
 msgid "Forecast"
 msgstr ""
 
@@ -2365,7 +2365,7 @@ msgid "Suivi à solder :"
 msgstr "Follow-up to complete:"
 
 #: apps/camo/templates/camo/mod_detail.html:15
-#: apps/fleet/templates/fleet/aircraft_detail.html:33 apps/fleet/views.py:64
+#: apps/fleet/templates/fleet/aircraft_detail.html:34 apps/fleet/views.py:65
 msgid "Base"
 msgstr "Basis"
 
@@ -2585,12 +2585,12 @@ msgid "Réalisations"
 msgstr "Accomplishments"
 
 #: apps/camo/templates/camo/task_detail.html:55
-#: apps/fleet/templates/fleet/aircraft_detail.html:109
+#: apps/fleet/templates/fleet/aircraft_detail.html:112
 msgid "FH / cyc"
 msgstr ""
 
 #: apps/camo/templates/camo/task_detail.html:55 apps/camo/views.py:125
-#: apps/fleet/templates/fleet/aircraft_detail.html:109
+#: apps/fleet/templates/fleet/aircraft_detail.html:112
 #: apps/fleet/templates/fleet/type_detail.html:26
 #: apps/part145/templates/part145/wp_detail.html:23 apps/part145/views.py:207
 msgid "Origine"
@@ -2841,7 +2841,7 @@ msgid "Enregistrer un examen de navigabilité"
 msgstr "Record an airworthiness review"
 
 #: apps/camo/views.py:355 apps/camo/views.py:368
-#: apps/fleet/templates/fleet/aircraft_detail.html:64
+#: apps/fleet/templates/fleet/aircraft_detail.html:67
 msgid "Classe"
 msgstr "Class"
 
@@ -2954,7 +2954,6 @@ msgstr "New {verbose_name}"
 
 #: apps/core/crud.py:143
 #, python-brace-format
-#| msgid "Modifier"
 msgid "Modifier {obj}"
 msgstr "Edit {obj}"
 
@@ -3566,7 +3565,7 @@ msgstr "document(s) to review"
 msgid "Revue du programme d'entretien (M.A.302(g)) :"
 msgstr "Maintenance programme review (M.A.302(g)):"
 
-#: apps/core/templates/core/dashboard.html:26 apps/fleet/views.py:69
+#: apps/core/templates/core/dashboard.html:26 apps/fleet/views.py:70
 #: templates/base.html:21
 msgid "Flotte"
 msgstr "Fleet"
@@ -3576,17 +3575,17 @@ msgid "FH totales"
 msgstr "Total FH"
 
 #: apps/core/templates/core/dashboard.html:28 apps/fleet/models.py:29
-#: apps/fleet/views.py:64 apps/fleet/views.py:116
+#: apps/fleet/views.py:65 apps/fleet/views.py:119
 msgid "Cycles"
 msgstr ""
 
-#: apps/core/templates/core/dashboard.html:28 apps/fleet/views.py:65
+#: apps/core/templates/core/dashboard.html:28 apps/fleet/views.py:66
 msgid "ARC jusqu'au"
 msgstr "ARC until"
 
 #: apps/core/templates/core/dashboard.html:33
 #: apps/core/templates/core/my_account.html:10
-#: apps/fleet/templates/fleet/aircraft_detail.html:27
+#: apps/fleet/templates/fleet/aircraft_detail.html:28
 msgid "Aucun"
 msgstr "None"
 
@@ -3595,9 +3594,9 @@ msgid "Échéances prioritaires"
 msgstr "Priority due items"
 
 #: apps/core/templates/core/dashboard.html:42
-#: apps/fleet/templates/fleet/aircraft_detail.html:63
-#: apps/fleet/templates/fleet/aircraft_detail.html:74
-#: apps/fleet/templates/fleet/aircraft_detail.html:98
+#: apps/fleet/templates/fleet/aircraft_detail.html:66
+#: apps/fleet/templates/fleet/aircraft_detail.html:77
+#: apps/fleet/templates/fleet/aircraft_detail.html:101
 msgid "Tout voir →"
 msgstr "See all →"
 
@@ -3614,7 +3613,7 @@ msgid "WP"
 msgstr ""
 
 #: apps/core/templates/core/dashboard.html:47
-#: apps/fleet/templates/fleet/aircraft_detail.html:92
+#: apps/fleet/templates/fleet/aircraft_detail.html:95
 #: apps/part145/templates/part145/planning.html:30
 msgid "Dates"
 msgstr ""
@@ -3858,8 +3857,9 @@ msgid "Total"
 msgstr ""
 
 #: apps/core/templates/core/retention.html:15
+#: apps/fleet/templates/fleet/_heli3d.html:10
 msgid "Sans échéance"
-msgstr "No deadline"
+msgstr "No due item"
 
 #: apps/core/templates/core/retention.html:15 apps/part145/models.py:264
 #: apps/part145/models.py:360 apps/quality/models.py:41
@@ -4078,6 +4078,43 @@ msgstr ""
 #: apps/fleet/forms.py:86
 msgid "Création sans emplacement : en attente de réception"
 msgstr "Creation without location: awaiting receipt"
+
+#: apps/fleet/heli3d.py:15
+msgid "Rotor principal et commandes rotor"
+msgstr "Main rotor and rotor controls"
+
+#: apps/fleet/heli3d.py:16
+msgid "Boîte de transmission principale"
+msgstr "Main gearbox"
+
+#: apps/fleet/heli3d.py:17
+msgid "Rotor anticouple et transmission arrière"
+msgstr "Tail rotor and tail drive"
+
+#: apps/fleet/heli3d.py:18
+msgid "Moteur(s)"
+msgstr "Engine(s)"
+
+#: apps/fleet/heli3d.py:19
+msgid "Train d'atterrissage"
+msgstr "Landing gear"
+
+#: apps/fleet/heli3d.py:22
+msgid "Urgence haute"
+msgstr "High urgency"
+
+#: apps/fleet/heli3d.py:23
+msgid "Urgence moyenne"
+msgstr "Medium urgency"
+
+#: apps/fleet/heli3d.py:24 apps/fleet/templates/fleet/_heli3d.html:10
+msgctxt "vue 3D"
+msgid "Conforme"
+msgstr "Compliant"
+
+#: apps/fleet/heli3d.py:25
+msgid "Aucune échéance rattachée"
+msgstr "No linked due item"
 
 #: apps/fleet/models.py:15
 msgid "Hélicoptère"
@@ -4758,38 +4795,119 @@ msgstr "position {position} already taken by a {pn}"
 msgid "Pose refusée : "
 msgstr "Installation refused: "
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:7
+#: apps/fleet/templates/fleet/_heli3d.html:2
+msgid "Vue 3D de l'appareil"
+msgstr "3D aircraft view"
+
+#: apps/fleet/templates/fleet/_heli3d.html:2
+msgid "modèle générique"
+msgstr "generic model"
+
+#: apps/fleet/templates/fleet/_heli3d.html:2
+msgid "zones colorées selon les échéances CAMO"
+msgstr "zones coloured by CAMO due items"
+
+#: apps/fleet/templates/fleet/_heli3d.html:5
+#, python-format
+msgid "Vue 3D interactive de l'appareil %(reg)s (modèle générique)"
+msgstr "Interactive 3D view of aircraft %(reg)s (generic model)"
+
+#: apps/fleet/templates/fleet/_heli3d.html:6
+msgid ""
+"Glisser pour tourner · molette pour zoomer · cliquer une zone pour la sortir"
+" de l'appareil."
+msgstr ""
+"Drag to rotate · scroll to zoom · click a zone to pull it out of the "
+"aircraft."
+
+#: apps/fleet/templates/fleet/_heli3d.html:7
+msgid ""
+"La vue 3D nécessite WebGL, indisponible sur ce navigateur. Les zones restent"
+" accessibles dans la liste."
+msgstr ""
+"The 3D view needs WebGL, which this browser does not provide. The zones "
+"remain available in the list."
+
+#: apps/fleet/templates/fleet/_heli3d.html:10
+msgid "Haute"
+msgstr "High"
+
+#: apps/fleet/templates/fleet/_heli3d.html:10
+msgid "Moyenne"
+msgstr "Medium"
+
+#: apps/fleet/templates/fleet/_heli3d.html:11
+msgid "Zones de l’appareil"
+msgstr "Aircraft zones"
+
+#: apps/fleet/templates/fleet/_heli3d.html:15
+#, python-format
+msgid ""
+"Hors de ces zones : %(c)s échéance(s) dépassée(s) et %(w)s à planifier "
+"(visites, ARC, autres chapitres ATA)."
+msgstr ""
+"Outside these zones: %(c)s overdue item(s) and %(w)s to plan (inspections, "
+"ARC, other ATA chapters)."
+
+#: apps/fleet/templates/fleet/_heli3d.html:15
+msgid "Voir toutes les échéances"
+msgstr "See all due items"
+
+#: apps/fleet/templates/fleet/_heli3d.html:17
+msgid "Cliquez une zone pour voir ses échéances."
+msgstr "Click a zone to see its due items."
+
+#: apps/fleet/templates/fleet/_heli3d.html:21
+msgid "Aucune échéance rattachée à cette zone."
+msgstr "No due item linked to this zone."
+
+#: apps/fleet/templates/fleet/_heli3d.html:22
+#, python-format
+msgid "Voir l'échéance"
+msgid_plural "Voir les %(n)s échéances"
+msgstr[0] "See the due item"
+msgstr[1] "See the %(n)s due items"
+
+#: apps/fleet/templates/fleet/_heli3d.html:25
+msgid ""
+"Modèle générique de démonstration : la forme ne correspond pas à l'appareil "
+"réel. Seules les échéances font foi."
+msgstr ""
+"Generic demonstration model: the shape does not match the real aircraft. "
+"Only the due items are authoritative."
+
+#: apps/fleet/templates/fleet/aircraft_detail.html:8
 #, python-format
 msgid "· MSN %(msn)s · %(category)s ·"
 msgstr ""
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:7
+#: apps/fleet/templates/fleet/aircraft_detail.html:8
 msgid "exploitant non renseigné"
 msgstr "operator not entered"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:10
+#: apps/fleet/templates/fleet/aircraft_detail.html:11
 msgid "Saisir des heures"
 msgstr "Enter hours"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:11
+#: apps/fleet/templates/fleet/aircraft_detail.html:12
 #: apps/part145/templates/part145/planning.html:10 apps/part145/views.py:61
 msgid "Nouveau work package"
 msgstr "New work package"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:12
+#: apps/fleet/templates/fleet/aircraft_detail.html:13
 #: apps/part145/views.py:370
 msgid "Signaler un défaut"
 msgstr "Report a defect"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:15
+#: apps/fleet/templates/fleet/aircraft_detail.html:16
 msgid "Reprise de configuration"
 msgstr "Configuration take-over"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:16
+#: apps/fleet/templates/fleet/aircraft_detail.html:17
 msgid "Exporter le dossier"
 msgstr "Export the records"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:20
+#: apps/fleet/templates/fleet/aircraft_detail.html:21
 #, python-format
 msgid ""
 "Aéronef retiré définitivement du service le %(withdrawn_on)s : ses "
@@ -4798,7 +4916,7 @@ msgstr ""
 "Aircraft permanently withdrawn from service on %(withdrawn_on)s: its status "
 "records"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:21
+#: apps/fleet/templates/fleet/aircraft_detail.html:22
 #, python-format
 msgid ""
 "(temps totaux, AD, LLP, modifications) sont conservés au minimum jusqu'au "
@@ -4807,16 +4925,16 @@ msgstr ""
 "(total times, AD, LLP, modifications) are retained at least until "
 "%(retention_until)s (M.A.305(h))."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:24
+#: apps/fleet/templates/fleet/aircraft_detail.html:25
 msgid "Heures totales"
 msgstr "Total hours"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:24
+#: apps/fleet/templates/fleet/aircraft_detail.html:25
 #: apps/part145/models.py:173
 msgid "au"
 msgstr "as of"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:25
+#: apps/fleet/templates/fleet/aircraft_detail.html:26
 #, python-format
 msgid ""
 "utilisation prévue : %(planned_daily_fh)s FH / %(planned_daily_fc)s cyc par "
@@ -4825,58 +4943,58 @@ msgstr ""
 "planned utilisation: %(planned_daily_fh)s FH / %(planned_daily_fc)s cyc per "
 "day"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:26
+#: apps/fleet/templates/fleet/aircraft_detail.html:27
 msgid "dépassées (dont tolérance) / à planifier"
 msgstr "overdue (incl. tolerance) / to plan"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:32
+#: apps/fleet/templates/fleet/aircraft_detail.html:33
 msgid "Propriétaire"
 msgstr "Owner"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:34
+#: apps/fleet/templates/fleet/aircraft_detail.html:35
 #: apps/fleet/templates/fleet/component_detail.html:30
 msgid "Fabrication"
 msgstr "Manufacture"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:35
+#: apps/fleet/templates/fleet/aircraft_detail.html:36
 msgid "Mise en service"
 msgstr "Entry into service"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:37
+#: apps/fleet/templates/fleet/aircraft_detail.html:38
 msgid "Cadre réglementaire"
 msgstr "Regulatory framework"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:38
+#: apps/fleet/templates/fleet/aircraft_detail.html:39
 #: apps/fleet/templates/fleet/type_detail.html:12
 msgid "Motorisation"
 msgstr "Engines"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:44
+#: apps/fleet/templates/fleet/aircraft_detail.html:47
 msgid "Vue complète / planifier"
 msgstr "Full view / plan"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:49
+#: apps/fleet/templates/fleet/aircraft_detail.html:52
 msgid "Configuration installée"
 msgstr "Installed configuration"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:49
+#: apps/fleet/templates/fleet/aircraft_detail.html:52
 msgid "composant(s) suivi(s)"
 msgstr "component(s) tracked"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:51
+#: apps/fleet/templates/fleet/aircraft_detail.html:54
 #: apps/fleet/templates/fleet/component_detail.html:20
 msgid "CSO"
 msgstr ""
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:51
+#: apps/fleet/templates/fleet/aircraft_detail.html:54
 msgid "Limites (restant)"
 msgstr "Limits (remaining)"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:57
+#: apps/fleet/templates/fleet/aircraft_detail.html:60
 msgid "Sans limite (on condition)"
 msgstr "No limit (on condition)"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:58
+#: apps/fleet/templates/fleet/aircraft_detail.html:61
 msgid ""
 "Aucun composant installé. Utilisez « Reprise de configuration » pour un "
 "aéronef entrant en flotte."
@@ -4884,89 +5002,89 @@ msgstr ""
 "No component installed. Use “Configuration take-over” for an aircraft "
 "entering the fleet."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:63
+#: apps/fleet/templates/fleet/aircraft_detail.html:66
 msgid "+ Enregistrer"
 msgstr "+ Record"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:64
+#: apps/fleet/templates/fleet/aircraft_detail.html:67
 msgid "Suivi"
 msgstr "Follow-up"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:69
+#: apps/fleet/templates/fleet/aircraft_detail.html:72
 msgid "Aucune modification ni réparation enregistrée."
 msgstr "No modification or repair recorded."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:74
+#: apps/fleet/templates/fleet/aircraft_detail.html:77
 msgid "Consignes (AD/SB)"
 msgstr "Directives (AD/SB)"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:77
+#: apps/fleet/templates/fleet/aircraft_detail.html:80
 msgid "Aucune consigne évaluée."
 msgstr "No directive assessed."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:81
+#: apps/fleet/templates/fleet/aircraft_detail.html:84
 msgid "Défauts en cours"
 msgstr "Current defects"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:84
+#: apps/fleet/templates/fleet/aircraft_detail.html:87
 msgid "Aucun défaut ouvert."
 msgstr "No open defect."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:91 apps/part145/views.py:55
+#: apps/fleet/templates/fleet/aircraft_detail.html:94 apps/part145/views.py:55
 #: templates/base.html:36
 msgid "Work packages"
 msgstr ""
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:94
+#: apps/fleet/templates/fleet/aircraft_detail.html:97
 msgid "Aucun work package."
 msgstr "No work package."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:98
+#: apps/fleet/templates/fleet/aircraft_detail.html:101
 msgid "Dernières saisies d'utilisation"
 msgstr "Latest utilisation entries"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:99
+#: apps/fleet/templates/fleet/aircraft_detail.html:102
 msgid "Cyc."
 msgstr ""
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:99
+#: apps/fleet/templates/fleet/aircraft_detail.html:102
 msgid "Totaux après"
 msgstr "Totals after"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:99
+#: apps/fleet/templates/fleet/aircraft_detail.html:102
 msgid "Réf."
 msgstr "Ref."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:101
+#: apps/fleet/templates/fleet/aircraft_detail.html:104
 msgid "Aucune saisie."
 msgstr "No entry."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:108
+#: apps/fleet/templates/fleet/aircraft_detail.html:111
 msgid "Historique des réalisations"
 msgstr "Accomplishment history"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:111
+#: apps/fleet/templates/fleet/aircraft_detail.html:114
 msgid "Aucune réalisation."
 msgstr "No accomplishment."
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:115
+#: apps/fleet/templates/fleet/aircraft_detail.html:118
 msgid "Mouvements de composants"
 msgstr "Component movements"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:116
+#: apps/fleet/templates/fleet/aircraft_detail.html:119
 msgid "Pose"
 msgstr "Installation"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:116
+#: apps/fleet/templates/fleet/aircraft_detail.html:119
 #: apps/part145/services.py:352
 msgid "Dépose"
 msgstr "Removal"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:117
+#: apps/fleet/templates/fleet/aircraft_detail.html:120
 msgid "installé"
 msgstr "installed"
 
-#: apps/fleet/templates/fleet/aircraft_detail.html:118
+#: apps/fleet/templates/fleet/aircraft_detail.html:121
 msgid "Aucun mouvement."
 msgstr "No movement."
 
@@ -5223,7 +5341,7 @@ msgstr ""
 msgid "Lot"
 msgstr "Batch"
 
-#: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:202
+#: apps/fleet/templates/fleet/pn_detail.html:25 apps/fleet/views.py:205
 #: apps/logistics/forms.py:79
 #: apps/logistics/templates/logistics/quarantine.html:7
 #: apps/logistics/templates/logistics/stock_list.html:14
@@ -5275,7 +5393,7 @@ msgstr "Maintenance programme review (M.A.302(g))"
 msgid "Aucune revue enregistrée."
 msgstr "No review recorded."
 
-#: apps/fleet/templates/fleet/type_detail.html:22 apps/fleet/views.py:24
+#: apps/fleet/templates/fleet/type_detail.html:22 apps/fleet/views.py:25
 msgid "Aéronefs"
 msgstr "Aircraft"
 
@@ -5326,61 +5444,61 @@ msgstr ""
 msgid "Historique des saisies"
 msgstr "Entry history"
 
-#: apps/fleet/views.py:23 apps/logistics/views.py:372
+#: apps/fleet/views.py:24 apps/logistics/views.py:372
 msgid "Code"
 msgstr ""
 
-#: apps/fleet/views.py:23
+#: apps/fleet/views.py:24
 msgid "Modèle"
 msgstr "Model"
 
-#: apps/fleet/views.py:23 apps/part145/forms.py:70
+#: apps/fleet/views.py:24 apps/part145/forms.py:70
 #: apps/part145/templates/part145/staff_detail.html:24
 #: apps/part145/templates/part145/staff_detail.html:31 apps/safety/views.py:28
 msgid "Catégorie"
 msgstr "Category"
 
-#: apps/fleet/views.py:24
+#: apps/fleet/views.py:25
 msgid "Cadre"
 msgstr "Framework"
 
-#: apps/fleet/views.py:24
+#: apps/fleet/views.py:25
 msgid "Moteurs"
 msgstr "Engines"
 
-#: apps/fleet/views.py:63
+#: apps/fleet/views.py:64
 msgid "Immatriculation"
 msgstr "Registration"
 
-#: apps/fleet/views.py:64
+#: apps/fleet/views.py:65
 msgid "Exploitant"
 msgstr "Operator"
 
-#: apps/fleet/views.py:75
+#: apps/fleet/views.py:76
 msgid "Créer un aéronef"
 msgstr "Create an aircraft"
 
-#: apps/fleet/views.py:117
+#: apps/fleet/views.py:120
 msgid "Total FH après"
 msgstr "Total FH after"
 
-#: apps/fleet/views.py:117
+#: apps/fleet/views.py:120
 msgid "Total cycles après"
 msgstr "Total cycles after"
 
-#: apps/fleet/views.py:118 apps/part145/views.py:360
+#: apps/fleet/views.py:121 apps/part145/views.py:360
 msgid "Source"
 msgstr ""
 
-#: apps/fleet/views.py:118
+#: apps/fleet/views.py:121
 msgid "Saisi par"
 msgstr "Entered by"
 
-#: apps/fleet/views.py:121
+#: apps/fleet/views.py:124
 msgid "Heures de vol et cycles"
 msgstr "Flight hours and cycles"
 
-#: apps/fleet/views.py:122
+#: apps/fleet/views.py:125
 msgid ""
 "Chaque saisie incrémente les compteurs de la cellule et de tous les "
 "composants installés."
@@ -5388,57 +5506,57 @@ msgstr ""
 "Each entry increments the counters of the airframe and of all installed "
 "components."
 
-#: apps/fleet/views.py:144
+#: apps/fleet/views.py:147
 #, python-brace-format
 msgid "{rec} enregistré. Nouveaux totaux : {fh_after} FH / {fc_after} cycles."
 msgstr "{rec} recorded. New totals: {fh_after} FH / {fc_after} cycles."
 
-#: apps/fleet/views.py:155
+#: apps/fleet/views.py:158
 msgid "Sérialisé"
 msgstr "Serialised"
 
-#: apps/fleet/views.py:155
+#: apps/fleet/views.py:158
 msgid "Vie FH"
 msgstr "Life FH"
 
-#: apps/fleet/views.py:155
+#: apps/fleet/views.py:158
 msgid "Vie cycles"
 msgstr "Life cycles"
 
-#: apps/fleet/views.py:159
+#: apps/fleet/views.py:162
 msgid "Références articles (P/N)"
 msgstr "Part numbers (P/N)"
 
-#: apps/fleet/views.py:176
+#: apps/fleet/views.py:179
 msgid "Nouvelle référence article"
 msgstr "New part number"
 
-#: apps/fleet/views.py:206
+#: apps/fleet/views.py:209
 msgid "Composants sérialisés"
 msgstr "Serialised components"
 
-#: apps/fleet/views.py:212
+#: apps/fleet/views.py:215
 msgid "Nouveau composant"
 msgstr "New component"
 
-#: apps/fleet/views.py:240
+#: apps/fleet/views.py:243
 msgid "Date de pose (historique)"
 msgstr "Installation date (history)"
 
-#: apps/fleet/views.py:241
+#: apps/fleet/views.py:244
 msgid "Référence documentaire de la reprise"
 msgstr "Document reference of the take-over"
 
-#: apps/fleet/views.py:242
+#: apps/fleet/views.py:245
 msgid "ex. relevé de configuration, logbook, dossier de transfert"
 msgstr "e.g. configuration survey, logbook, transfer records"
 
-#: apps/fleet/views.py:256
+#: apps/fleet/views.py:259
 #, python-brace-format
 msgid "Reprise de configuration {registration} : {note}"
 msgstr "Configuration take-over {registration}: {note}"
 
-#: apps/fleet/views.py:261
+#: apps/fleet/views.py:264
 #, python-brace-format
 msgid "{component} rattaché à {registration} ({position})."
 msgstr "{component} linked to {registration} ({position})."
@@ -8896,8 +9014,6 @@ msgid "constats d'audit"
 msgstr "audit findings"
 
 #: apps/quality/models.py:153
-#| msgid ""
-#| "Rapport émis : seule la clôture de l'audit est encore possible."
 msgid ""
 "Rapport émis, audit clôturé ou annulé : aucun nouveau constat possible."
 msgstr ""
@@ -9983,6 +10099,3 @@ msgstr "Demo accounts"
 #: templates/registration/login.html:20
 msgid "(mot de passe :"
 msgstr "(password:"
-
-#~ msgid "Cet audit est clôturé ou annulé."
-#~ msgstr "This audit is closed or cancelled."

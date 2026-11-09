@@ -1,5 +1,6 @@
 {% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ ac.registration }}{% endblock %}
+{% block scripts %}{% if heli_zones %}{% load static %}<script src="{% static 'ahmis/vendor/three.min.js' %}" defer></script><script src="{% static 'ahmis/heli3d.js' %}" defer></script>{% endif %}{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
@@ -39,6 +40,8 @@
   </dl>
   {% if ac.notes %}<p class="small muted" style="margin-bottom:0">{{ ac.notes|linebreaksbr }}</p>{% endif %}
 </div>
+
+{% if heli_zones %}{% include "fleet/_heli3d.html" %}{% endif %}
 
 <div class="card" id="echeances">
   <h2>{% trans "Échéances" %} <span class="actions"><a class="btn small" href="{% url 'camo:due' %}?aircraft={{ ac.pk }}">{% trans "Vue complète / planifier" %}</a><a class="btn small" href="{% url 'camo:due_csv' %}?aircraft={{ ac.pk }}">{% trans "Export CSV" %}</a></span></h2>

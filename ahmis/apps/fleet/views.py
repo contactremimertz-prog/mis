@@ -12,6 +12,7 @@ from apps.camo.services import aircraft_due_list
 from apps.core.crud import AhmisCreateView, AhmisListView, AhmisUpdateView, error_messages
 from apps.core.models import AuditLog, SignatureRecord
 
+from .heli3d import outside_zones, zone_states
 from .forms import AircraftForm, AircraftTypeForm, ComponentForm, PartNumberForm, UtilisationForm
 from .models import Aircraft, AircraftType, Component, InstallationRecord, PartNumber, UtilisationRecord, install_component
 from django.utils.translation import gettext, gettext_lazy
@@ -105,6 +106,8 @@ def aircraft_detail(request, pk):
         "reviews": ac.airworthiness_reviews.all()[:5],
         "modifications": ac.modifications.select_related("component__part_number").order_by("-embodied_on"),
         "util_form": UtilisationForm(initial={"aircraft": ac}),
+        "heli_zones": zone_states(items) if ac.aircraft_type.category == "helicopter" else None,
+        "heli_outside": outside_zones(items),
     }
     return render(request, "fleet/aircraft_detail.html", ctx)
 

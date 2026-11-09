@@ -1,0 +1,28 @@
+{% load i18n %}<div class="card heli" id="vue-3d" data-heli3d>
+  <h2>{% trans "Vue 3D de l'appareil" %} <span class="badge">{% trans "modèle générique" %}</span> <span class="small muted">{% trans "zones colorées selon les échéances CAMO" %}</span></h2>
+  <div class="heli-body">
+    <div class="heli-stage">
+      <div class="heli-view" id="heli-view" role="img" aria-label="{% blocktrans with reg=ac.registration %}Vue 3D interactive de l'appareil {{ reg }} (modèle générique){% endblocktrans %}"></div>
+      <p class="small muted heli-hint">{% trans "Glisser pour tourner · molette pour zoomer · cliquer une zone pour la sortir de l'appareil." %}</p>
+      <p class="small muted heli-nogl" hidden>{% trans "La vue 3D nécessite WebGL, indisponible sur ce navigateur. Les zones restent accessibles dans la liste." %}</p>
+    </div>
+    <div class="heli-side">
+      <div class="heli-legend"><span class="heli-key"><i class="lvl-crit"></i>{% trans "Haute" %}</span><span class="heli-key"><i class="lvl-warn"></i>{% trans "Moyenne" %}</span><span class="heli-key"><i class="lvl-ok"></i>{% trans "Conforme" context "vue 3D" %}</span><span class="heli-key"><i class="lvl-none"></i>{% trans "Sans échéance" %}</span></div>
+      <ul class="heli-list" aria-label="{% trans 'Zones de l’appareil' %}">{% for z in heli_zones %}
+        <li><button type="button" class="heli-zone" data-zone="{{ z.id }}" data-level="{{ z.level }}" aria-pressed="false" aria-controls="heli-info-{{ z.id }}">
+          <span>{{ z.label }} <span class="small muted">ATA {{ z.chapters }}</span></span><span class="heli-lvl lvl-{{ z.level }}">{{ z.level_label }}</span></button></li>{% endfor %}
+      </ul>
+      {% if heli_outside.crit or heli_outside.warn %}<div class="alert {% if heli_outside.crit %}bad{% else %}warn{% endif %} small">{% blocktrans with c=heli_outside.crit w=heli_outside.warn %}Hors de ces zones : {{ c }} échéance(s) dépassée(s) et {{ w }} à planifier (visites, ARC, autres chapitres ATA).{% endblocktrans %} <a href="#echeances">{% trans "Voir toutes les échéances" %}</a></div>{% endif %}
+      <div class="heli-info" aria-live="polite">
+        <p class="small muted" data-zone-info="">{% trans "Cliquez une zone pour voir ses échéances." %}</p>
+        {% for z in heli_zones %}<div id="heli-info-{{ z.id }}" data-zone-info="{{ z.id }}" hidden>
+          <h3>{{ z.label }}</h3>
+          {% for i in z.items|slice:":8" %}<div class="small"><span class="heli-dot lvl-{% if i.status == 'overdue' or i.status == 'tolerance' %}crit{% elif i.status == 'due_soon' %}warn{% else %}ok{% endif %}"></span>{% if i.url %}<a href="{{ i.url }}">{{ i.reference }}</a>{% else %}{{ i.reference }}{% endif %} · {{ i.status_label }}{% if i.projected_date %} · {{ i.projected_date|date:"d/m/Y" }}{% endif %}<div class="muted">{{ i.label|truncatechars:70 }}</div></div>
+          {% empty %}<p class="small muted">{% trans "Aucune échéance rattachée à cette zone." %}</p>{% endfor %}
+          {% if z.items|length > 8 %}<p class="small"><a href="#echeances">{% blocktrans count n=z.items|length %}Voir l'échéance{% plural %}Voir les {{ n }} échéances{% endblocktrans %}</a></p>{% endif %}
+        </div>{% endfor %}
+      </div>
+      <p class="small muted">{% trans "Modèle générique de démonstration : la forme ne correspond pas à l'appareil réel. Seules les échéances font foi." %}</p>
+    </div>
+  </div>
+</div>

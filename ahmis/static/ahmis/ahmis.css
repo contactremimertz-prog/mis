@@ -256,3 +256,26 @@ td.reg, .reg { white-space: nowrap; }
 .assistant-list { list-style: none; padding: 0; margin: 6px 0 0; }
 .assistant-list li { margin: 4px 0; }
 .assistant-list .linklike { text-align: left; }
+
+/* Vue 3D de l'appareil (fiche aéronef, hélicoptères) */
+.heli-body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; }
+.heli-stage, .heli-side { min-width: 0; }
+.heli-view { position: relative; height: 420px; background: #1e2630; border-radius: var(--radius); overflow: hidden; }
+.heli-view canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
+.heli-view canvas:active { cursor: grabbing; }
+.heli-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12.5px; margin-bottom: 8px; }
+.heli-key { display: flex; align-items: center; gap: 6px; }
+.heli-key i, .heli-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.lvl-crit { color: var(--bad); } .lvl-warn { color: var(--tol); } .lvl-ok { color: var(--ok); } .lvl-none { color: var(--ink-2); }
+.heli-key i.lvl-crit, .heli-dot.lvl-crit { background: var(--bad); } .heli-key i.lvl-warn, .heli-dot.lvl-warn { background: var(--tol); }
+.heli-key i.lvl-ok, .heli-dot.lvl-ok { background: var(--ok); } .heli-key i.lvl-none { background: var(--ink-3); }
+.heli-list { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 6px; }
+.heli-zone { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.heli-zone[aria-pressed="true"] { border: 2px solid var(--accent); }
+.heli-zone:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.heli-lvl { font-size: 12px; font-weight: 600; text-align: right; }
+.heli-info { min-height: 80px; }
+.heli-info h3 { margin: 0 0 6px; font-size: 15px; }
+.heli-info > div > div { margin-bottom: 6px; }
+@media (max-width: 900px) { .heli-body { grid-template-columns: 1fr; } .heli-view { height: 320px; } }
+@media print { .heli { display: none; } }
