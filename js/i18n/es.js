@@ -240,5 +240,21 @@ window.I18N.es = {
   "chat.clarify": "Su pregunta es algo amplia. ¿Quiere decir:",
   "chat.none": "No he encontrado una respuesta validada a esta pregunta. Pruebe otra palabra clave o una pregunta frecuente. Para un caso concreto, consulte al responsable de calidad o la documentación completa.",
   "chat.fab_open": "Abrir el asistente MIS",
-  "chat.fab_close": "Cerrar el asistente MIS"
+  "chat.fab_close": "Cerrar el asistente MIS",
+  "heli.title": "Vista 3D de la aeronave",
+  "heli.aria": "Vista 3D interactiva de la aeronave {reg}",
+  "heli.hint": "Arrastrar para girar · Rueda para acercar · Pulsar una zona para separarla del fuselaje",
+  "heli.zones": "Zonas de la aeronave",
+  "heli.pick": "Pulse una zona para ver sus tareas y su nivel de urgencia.",
+  "heli.none": "Ninguna tarea vinculada a esta zona.",
+  "heli.demo": "Modelo genérico de demostración: la forma no corresponde a la aeronave real.",
+  "heli.nogl": "La vista 3D necesita WebGL, que este navegador no ofrece. Las zonas siguen disponibles en la lista.",
+  "heli.lvl_crit": "Urgencia alta: tarea vencida",
+  "heli.lvl_warn": "Urgencia media: vencimiento próximo",
+  "heli.lvl_ok": "Conforme",
+  "heli.lvl_none": "Ninguna tarea vinculada a esta zona",
+  "heli.zone.rotor": "Rotor principal",
+  "heli.zone.bte": "Caja de transmisión",
+  "heli.zone.turb": "Turbina",
+  "heli.zone.train": "Tren de aterrizaje"
 };

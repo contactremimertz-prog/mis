@@ -216,3 +216,23 @@ textarea.input{resize:vertical}
 .chat-hint{margin:0;font-size:11px;color:var(--muted)}
 @media (max-width:600px){.chat-panel{right:16px;left:16px;width:auto;max-width:none;bottom:88px;height:auto;top:16px;max-height:none}.chat-fab{right:16px;bottom:16px}}
 @media print{.chat-fab,.chat-panel{display:none!important}}
+
+/* 3D aircraft view (fleet screen) */
+.heli-body{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;padding:0 16px 16px}
+.heli-stage{min-width:0}
+.heli-view{position:relative;height:460px;background:#1e2630;border-radius:8px;overflow:hidden}
+.heli-view canvas{display:block;width:100%;height:100%;cursor:grab}
+.heli-view canvas:active{cursor:grabbing}
+.heli-side{min-width:0}
+.heli-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;margin-bottom:10px}
+.heli-key{display:flex;align-items:center;gap:6px}
+.heli-key i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.heli-info{min-height:88px;font-size:14px}
+.heli-info h3{margin:0 0 4px;font-size:16px}
+.heli-info ul{margin:6px 0 0;padding-left:18px}
+.heli-list{list-style:none;padding:0;margin:12px 0;display:grid;gap:8px}
+.heli-zone{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.heli-zone[aria-pressed="true"]{border:2px solid var(--accent)}
+.heli-lvl{font-size:13px;font-weight:600;text-align:right}
+.heli-zone:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (max-width:800px){.heli-body{grid-template-columns:1fr}.heli-view{height:340px}}

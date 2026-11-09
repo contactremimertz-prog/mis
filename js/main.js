@@ -107,6 +107,7 @@
     S.exportSpec = null;
     const html = canSee(screen) ? VIEWS[screen]() : renderDenied(screen);
     $("#main").innerHTML = html + footer();
+    MIS.heliMount();
     MIS.renderChat();
   }
 

@@ -240,5 +240,21 @@ window.I18N.de = {
   "chat.clarify": "Ihre Frage ist etwas allgemein. Meinen Sie:",
   "chat.none": "Ich habe keine geprüfte Antwort auf diese Frage gefunden. Versuchen Sie ein anderes Stichwort oder eine häufige Frage. Für einen konkreten Fall wenden Sie sich an den Qualitätsverantwortlichen oder an die vollständige Dokumentation.",
   "chat.fab_open": "MIS-Assistent öffnen",
-  "chat.fab_close": "MIS-Assistent schließen"
+  "chat.fab_close": "MIS-Assistent schließen",
+  "heli.title": "3D-Ansicht des Luftfahrzeugs",
+  "heli.aria": "Interaktive 3D-Ansicht des Luftfahrzeugs {reg}",
+  "heli.hint": "Ziehen zum Drehen · Mausrad zum Zoomen · Zone anklicken, um sie aus dem Rumpf zu lösen",
+  "heli.zones": "Zonen des Luftfahrzeugs",
+  "heli.pick": "Zone anklicken, um Aufgaben und Dringlichkeit zu sehen.",
+  "heli.none": "Keine Aufgabe mit dieser Zone verknüpft.",
+  "heli.demo": "Generisches Demonstrationsmodell: die Form entspricht nicht dem realen Luftfahrzeug.",
+  "heli.nogl": "Die 3D-Ansicht benötigt WebGL, das dieser Browser nicht bietet. Die Zonen bleiben in der Liste verfügbar.",
+  "heli.lvl_crit": "Hohe Dringlichkeit: Aufgabe überfällig",
+  "heli.lvl_warn": "Mittlere Dringlichkeit: bald fällig",
+  "heli.lvl_ok": "Konform",
+  "heli.lvl_none": "Keine Aufgabe mit dieser Zone verknüpft",
+  "heli.zone.rotor": "Hauptrotor",
+  "heli.zone.bte": "Getriebe",
+  "heli.zone.turb": "Turbine",
+  "heli.zone.train": "Fahrwerk"
 };
