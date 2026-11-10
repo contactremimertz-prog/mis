@@ -1,17 +1,18 @@
 /* AHMIS – feuille de style (aucune dépendance externe, fonctionne hors ligne) */
 :root {
-  --bg: #f3f5f8;
+  --bg: #f2f5f9;
   --surface: #ffffff;
   --surface-2: #f8fafc;
-  --ink: #17202c;
-  --ink-2: #4a5566;
-  --ink-3: #7a8494;
-  --line: #dde2ea;
-  --nav: #0f2238;
-  --nav-ink: #c9d4e3;
-  --nav-active: #1f3a5c;
-  --accent: #1d5fa8;
+  --ink: #071a3d;
+  --ink-2: #3d4f6e;
+  --ink-3: #6b7a92;
+  --line: #e5eaf2;
+  --nav: #00205b;
+  --nav-ink: #c9d6ea;
+  --nav-active: #0a3278;
+  --accent: #00205b;
   --accent-ink: #ffffff;
+  --cyan: #00aec7;
   --ok: #1d7a46; --ok-bg: #e4f4ea;
   --warn: #9a5b00; --warn-bg: #fff2d6;
   --tol: #b44d00; --tol-bg: #ffe6d2;
@@ -48,7 +49,20 @@ code, .mono { font-family: var(--mono); font-size: 12.5px; }
 .nav-section { padding: 14px 18px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #7f93ad; }
 .sidebar a { display: block; padding: 6px 18px; color: var(--nav-ink); border-left: 3px solid transparent; }
 .sidebar a:hover { background: var(--nav-active); text-decoration: none; color: #fff; }
-.sidebar a.active { background: var(--nav-active); color: #fff; border-left-color: #5aa0ff; }
+.sidebar a.active { background: var(--nav-active); color: #fff; border-left-color: var(--cyan); }
+
+/* Tuiles d'accès rapide (tableau de bord) */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 16px; margin-bottom: 18px; }
+.tile { display: flex; flex-direction: column; justify-content: space-between; gap: 18px; min-height: 130px; padding: 18px 20px; border-radius: 14px; background: var(--nav); color: #fff; }
+.tile:hover { background: var(--nav-active); text-decoration: none; color: #fff; }
+.tile.cyan { background: var(--cyan); color: var(--nav); }
+.tile.cyan:hover { background: #33bfd3; color: var(--nav); }
+.tile b { font-size: 17px; line-height: 1.25; }
+.tile span { font-size: 13px; opacity: .85; }
+
+/* Carrousel horizontal (cartes KPI, défilement par pas) */
+.carousel { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: thin; padding-bottom: 8px; margin-bottom: 18px; }
+.carousel > * { flex: 0 0 min(230px, 80vw); scroll-snap-align: start; }
 .main { min-width: 0; }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 28px; background: var(--surface); border-bottom: 1px solid var(--line); }
 .topbar .who { color: var(--ink-2); font-size: 13px; }

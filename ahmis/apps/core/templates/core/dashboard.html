@@ -5,7 +5,13 @@
   <div><h1>{% trans "Tableau de bord" %}</h1><div class="sub">{{ AHMIS.ORGANISATION }} {% trans "· situation au" %} {{ today|date:"l d F Y" }}</div></div>
   <div class="actions"><a class="btn" href="{% url 'camo:due' %}">{% trans "Toutes les échéances" %}</a><a class="btn primary" href="{% url 'fleet:utilisation_create' %}">{% trans "Saisir des heures de vol" %}</a></div>
 </div>
-<div class="grid grid-4" style="margin-bottom:18px">
+<div class="tiles">
+  <a class="tile" href="{% url 'fleet:aircraft_list' %}"><b>{% trans "Flotte" %}</b><span>{% trans "Aéronefs, compteurs et configuration" %}</span></a>
+  <a class="tile cyan" href="{% url 'camo:due' %}"><b>{% trans "Échéances" %}</b><span>{% trans "Tâches à faire, par aéronef" %}</span></a>
+  <a class="tile" href="{% url 'part145:planning' %}"><b>{% trans "Planning" %}</b><span>{% trans "Work packages et disponibilité" %}</span></a>
+  <a class="tile cyan" href="{% url 'part145:defect_list' %}"><b>{% trans "Défauts & reports" %}</b><span>{% trans "Ouverts et à traiter" %}</span></a>
+</div>
+<div class="carousel" aria-label="{% trans 'Indicateurs' %}" tabindex="0">
   <a class="kpi {% if kpi.overdue %}bad{% else %}ok{% endif %}" href="{% url 'camo:due' %}?status=overdue"><div class="label">{% trans "Échéances dépassées" %}</div><div class="value">{{ kpi.overdue }}</div><div class="small muted">{% blocktrans with tolerance=kpi.tolerance %}dont {{ tolerance }} en tolérance{% endblocktrans %}</div></a>
   <a class="kpi {% if kpi.due_soon %}warn{% endif %}" href="{% url 'camo:due' %}?status=due_soon"><div class="label">{% blocktrans with ALERT_DAYS=AHMIS.ALERT_DAYS %}À planifier (≤ {{ ALERT_DAYS }} j){% endblocktrans %}</div><div class="value">{{ kpi.due_soon }}</div></a>
   <a class="kpi {% if kpi.open_defects %}bad{% endif %}" href="{% url 'part145:defect_list' %}?status=open"><div class="label">{% trans "Défauts ouverts" %}</div><div class="value">{{ kpi.open_defects }}</div><div class="small muted">{{ kpi.deferred }} {% trans "reporté(s)" %}{% if kpi.deferred_overdue %}, <span style="color:var(--bad)">{{ kpi.deferred_overdue }} {% trans "hors délai" %}</span>{% endif %}</div></a>
