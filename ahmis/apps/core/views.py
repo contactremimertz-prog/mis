@@ -145,8 +145,10 @@ def dashboard(request):
         if i.status in s:
             s[i.status] += 1
     fleet_rows = []
-    for ac in aircraft:
+    for ac in sorted(aircraft, key=lambda a: a.registration):
         fleet_rows.append({"ac": ac, "counts": by_ac.get(ac.pk, {"overdue": 0, "tolerance": 0, "due_soon": 0})})
+    for n, row in enumerate(fleet_rows):  # appareil annoncé « Suivant » dans le carrousel
+        row["next"] = fleet_rows[(n + 1) % len(fleet_rows)]
     from apps.camo.models import amp_review_status
 
     amp_alerts = []
@@ -162,6 +164,7 @@ def dashboard(request):
         "occ": dashboard_kpi(request.user),
         "qual": quality_kpi(request.user),
         "amp_alerts": amp_alerts,
+        "amp_bad": any(r["status"] in ("none", "overdue") for r in amp_alerts),
         "today": today,
         "kpi": {
             "aircraft": len(aircraft),

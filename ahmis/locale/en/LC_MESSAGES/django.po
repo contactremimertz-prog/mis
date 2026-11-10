@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 00:29+0100\n"
+"POT-Creation-Date: 2026-11-10 19:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: apps/api/templates/api/tokens.html:2 templates/base.html:64
+#: apps/api/templates/api/tokens.html:2 templates/base.html:79
 msgid "Jetons API"
 msgstr "API tokens"
 
@@ -229,8 +229,8 @@ msgstr ""
 #: apps/camo/templates/camo/transfer_detail.html:30 apps/camo/views.py:69
 #: apps/camo/views.py:108 apps/camo/views.py:307 apps/camo/views.py:318
 #: apps/camo/views.py:355 apps/camo/views.py:368 apps/camo/views.py:471
-#: apps/core/search.py:15 apps/core/templates/core/dashboard.html:28
-#: apps/core/templates/core/dashboard.html:47
+#: apps/core/search.py:15 apps/core/templates/core/dashboard.html:60
+#: apps/core/templates/core/dashboard.html:118
 #: apps/core/templates/core/retention.html:28 apps/fleet/forms.py:39
 #: apps/fleet/templates/fleet/component_detail.html:27
 #: apps/fleet/templates/fleet/component_detail.html:72 apps/fleet/views.py:135
@@ -1384,7 +1384,7 @@ msgstr "Enter who confirmed receipt."
 msgid "La réception ne peut précéder l'envoi."
 msgstr "Receipt cannot precede dispatch."
 
-#: apps/camo/services.py:24 apps/core/templates/core/dashboard.html:28
+#: apps/camo/services.py:24 apps/core/templates/core/dashboard.html:60
 msgid "Dépassé"
 msgstr "Overdue"
 
@@ -1392,7 +1392,7 @@ msgstr "Overdue"
 msgid "En tolérance"
 msgstr "Within tolerance"
 
-#: apps/camo/services.py:26 apps/core/templates/core/dashboard.html:28
+#: apps/camo/services.py:26 apps/core/templates/core/dashboard.html:60
 msgid "À planifier"
 msgstr "To plan"
 
@@ -1482,8 +1482,8 @@ msgstr "Select all"
 #: apps/camo/templates/camo/due.html:12
 #: apps/camo/templates/camo/task_detail.html:42 apps/camo/views.py:69
 #: apps/camo/views.py:308 apps/camo/views.py:356 apps/camo/views.py:370
-#: apps/core/templates/core/dashboard.html:28
-#: apps/core/templates/core/dashboard.html:47
+#: apps/core/templates/core/dashboard.html:60
+#: apps/core/templates/core/dashboard.html:118
 #: apps/fleet/templates/fleet/aircraft_detail.html:67
 #: apps/fleet/templates/fleet/aircraft_detail.html:78
 #: apps/fleet/templates/fleet/aircraft_detail.html:85
@@ -1725,7 +1725,7 @@ msgstr "Status per operated type"
 #: apps/camo/templates/camo/amp_review_list.html:20
 #: apps/camo/templates/camo/directive_detail.html:31 apps/camo/views.py:124
 #: apps/camo/views.py:226 apps/camo/views.py:318
-#: apps/core/templates/core/dashboard.html:28
+#: apps/core/templates/core/dashboard.html:60
 #: apps/fleet/templates/fleet/component_detail.html:63 apps/fleet/views.py:64
 #: apps/logistics/purchasing.py:123 apps/logistics/views.py:72
 #: apps/part145/templates/part145/staff_detail.html:24
@@ -1954,7 +1954,7 @@ msgid "Heures cellule"
 msgstr "Airframe hours"
 
 #: apps/camo/templates/camo/dossier_synthese.html:19
-#: apps/core/templates/core/dashboard.html:28 apps/fleet/views.py:66
+#: apps/core/templates/core/dashboard.html:60 apps/fleet/views.py:66
 msgid "Compteurs au"
 msgstr "Counters as of"
 
@@ -2079,7 +2079,7 @@ msgid "Consignes de navigabilité"
 msgstr "Airworthiness directives"
 
 #: apps/camo/templates/camo/dossier_synthese.html:42 apps/core/search.py:22
-#: templates/base.html:25
+#: templates/base.html:28
 msgid "AD / SB"
 msgstr ""
 
@@ -2167,8 +2167,9 @@ msgstr "Records"
 
 #: apps/camo/templates/camo/due.html:2 apps/camo/templates/camo/due.html:5
 #: apps/camo/templates/camo/forecast.html:24
+#: apps/core/templates/core/dashboard.html:26
 #: apps/fleet/templates/fleet/aircraft_detail.html:27
-#: apps/fleet/templates/fleet/aircraft_detail.html:47 templates/base.html:22
+#: apps/fleet/templates/fleet/aircraft_detail.html:47 templates/base.html:25
 msgid "Échéances"
 msgstr "Due items"
 
@@ -2190,7 +2191,7 @@ msgstr "CSV export"
 
 #: apps/camo/templates/camo/due.html:7
 #: apps/camo/templates/camo/forecast.html:2
-#: apps/fleet/templates/fleet/aircraft_detail.html:14 templates/base.html:23
+#: apps/fleet/templates/fleet/aircraft_detail.html:14 templates/base.html:26
 msgid "Forecast"
 msgstr ""
 
@@ -2732,7 +2733,7 @@ msgstr "Threshold"
 msgid "Active"
 msgstr ""
 
-#: apps/camo/views.py:130 apps/part145/models.py:366 templates/base.html:24
+#: apps/camo/views.py:130 apps/part145/models.py:366 templates/base.html:27
 msgid "Programme d'entretien"
 msgstr "Maintenance programme"
 
@@ -2866,7 +2867,7 @@ msgstr "Requested on"
 msgid "Approuvé le"
 msgstr "Approved on"
 
-#: apps/camo/views.py:372 templates/base.html:28
+#: apps/camo/views.py:372 templates/base.html:31
 msgid "Dossiers Part-21"
 msgstr "Part-21 files"
 
@@ -2890,7 +2891,7 @@ msgstr "Record a maintenance programme review"
 msgid "Agrément"
 msgstr "Approval"
 
-#: apps/camo/views.py:476 templates/base.html:30
+#: apps/camo/views.py:476 templates/base.html:33
 msgid "Transferts de dossiers"
 msgstr "Records transfers"
 
@@ -3270,7 +3271,9 @@ msgstr "Staff records"
 msgid "3 ans après le départ"
 msgstr "3 years after leaving"
 
-#: apps/core/retention.py:165 apps/safety/views.py:33 templates/base.html:56
+#: apps/core/retention.py:165 apps/core/templates/core/dashboard.html:83
+#: apps/core/templates/core/dashboard.html:91 apps/safety/views.py:33
+#: templates/base.html:68
 msgid "Comptes rendus d'événements"
 msgstr "Occurrence reports"
 
@@ -3317,7 +3320,7 @@ msgid "Demande de pièce"
 msgstr "Part request"
 
 #: apps/core/search.py:26 apps/logistics/views.py:310
-#: apps/part145/templates/part145/card_detail.html:82 templates/base.html:49
+#: apps/part145/templates/part145/card_detail.html:82 templates/base.html:58
 msgid "Outillage"
 msgstr "Tooling"
 
@@ -3371,7 +3374,7 @@ msgid "⚠ altérée"
 msgstr "⚠ altered"
 
 #: apps/core/templates/core/audit_list.html:2
-#: apps/core/templates/core/audit_list.html:4 templates/base.html:57
+#: apps/core/templates/core/audit_list.html:4 templates/base.html:69
 msgid "Journal d'audit"
 msgstr "Audit trail"
 
@@ -3453,179 +3456,466 @@ msgid "Suivant →"
 msgstr "Next →"
 
 #: apps/core/templates/core/dashboard.html:2
-#: apps/core/templates/core/dashboard.html:5 templates/base.html:18
+#: apps/core/templates/core/dashboard.html:5 templates/base.html:20
 msgid "Tableau de bord"
 msgstr "Dashboard"
 
-#: apps/core/templates/core/dashboard.html:5
-msgid "· situation au"
-msgstr "· status as of"
+#: apps/core/templates/core/dashboard.html:8
+msgid "carrousel"
+msgstr "carousel"
 
-#: apps/core/templates/core/dashboard.html:6
+#: apps/core/templates/core/dashboard.html:8
+#: apps/core/templates/core/dashboard.html:13 apps/fleet/views.py:70
+#: templates/base.html:24
+msgid "Flotte"
+msgstr "Fleet"
+
+#: apps/core/templates/core/dashboard.html:11
+msgid "diapositive"
+msgstr "slide"
+
+#: apps/core/templates/core/dashboard.html:15
+msgid "aucun ARC"
+msgstr "no ARC"
+
+#: apps/core/templates/core/dashboard.html:15
+#, python-format
+msgid "ARC expiré le %(d)s"
+msgstr "ARC expired on %(d)s"
+
+#: apps/core/templates/core/dashboard.html:15
+#, python-format
+msgid "ARC valable jusqu'au %(d)s"
+msgstr "ARC valid until %(d)s"
+
+#: apps/core/templates/core/dashboard.html:16
+msgid "cycles"
+msgstr "cycles"
+
+#: apps/core/templates/core/dashboard.html:16
+#, python-format
+msgid "compteurs au %(d)s"
+msgstr "counters as of %(d)s"
+
+#: apps/core/templates/core/dashboard.html:18
+#, python-format
+msgid "%(n)s échéance dépassée"
+msgid_plural "%(n)s échéances dépassées"
+msgstr[0] "%(n)s overdue item"
+msgstr[1] "%(n)s overdue items"
+
+#: apps/core/templates/core/dashboard.html:19
+#, python-format
+msgid "%(n)s à planifier"
+msgid_plural "%(n)s à planifier"
+msgstr[0] "%(n)s to plan"
+msgstr[1] "%(n)s to plan"
+
+#: apps/core/templates/core/dashboard.html:20
+msgid "Aucune échéance dépassée ni à planifier"
+msgstr "Nothing overdue or to plan"
+
+#: apps/core/templates/core/dashboard.html:21
+msgid "Aucun ARC enregistré"
+msgstr "No ARC recorded"
+
+#: apps/core/templates/core/dashboard.html:21
+msgid "ARC expiré"
+msgstr "ARC expired"
+
+#: apps/core/templates/core/dashboard.html:24
+msgid "Voir la vue 3D"
+msgstr "Open 3D view"
+
+#: apps/core/templates/core/dashboard.html:25
+msgid "Fiche appareil"
+msgstr "Aircraft record"
+
+#: apps/core/templates/core/dashboard.html:31
+msgid "Suivant"
+msgstr "Next"
+
+#: apps/core/templates/core/dashboard.html:32
+#, python-format
+msgid "%(m)s dépassée"
+msgid_plural "%(m)s dépassées"
+msgstr[0] "%(m)s overdue"
+msgstr[1] "%(m)s overdue"
+
+#: apps/core/templates/core/dashboard.html:32
+#, python-format
+msgid "%(k)s à planifier"
+msgid_plural "%(k)s à planifier"
+msgstr[0] "%(k)s to plan"
+msgstr[1] "%(k)s to plan"
+
+#: apps/core/templates/core/dashboard.html:37
+msgid "Appareil précédent"
+msgstr "Previous aircraft"
+
+#: apps/core/templates/core/dashboard.html:38
+msgid "Appareil suivant"
+msgstr "Next aircraft"
+
+#: apps/core/templates/core/dashboard.html:46
+msgid "situation au"
+msgstr "status as of"
+
+#: apps/core/templates/core/dashboard.html:46
+msgid "Ce qui demande votre attention"
+msgstr "What needs your attention"
+
+#: apps/core/templates/core/dashboard.html:47
 msgid "Toutes les échéances"
 msgstr "All due items"
 
-#: apps/core/templates/core/dashboard.html:6
+#: apps/core/templates/core/dashboard.html:47
 msgid "Saisir des heures de vol"
 msgstr "Enter flight hours"
 
-#: apps/core/templates/core/dashboard.html:9
+#: apps/core/templates/core/dashboard.html:49
 msgid "Échéances dépassées"
 msgstr "Overdue items"
 
-#: apps/core/templates/core/dashboard.html:9
+#: apps/core/templates/core/dashboard.html:49
 #, python-format
 msgid "dont %(tolerance)s en tolérance"
 msgstr "including %(tolerance)s within tolerance"
 
-#: apps/core/templates/core/dashboard.html:10
+#: apps/core/templates/core/dashboard.html:50
 #, python-format
 msgid "À planifier (≤ %(ALERT_DAYS)s j)"
 msgstr "To plan (≤ %(ALERT_DAYS)s d)"
 
-#: apps/core/templates/core/dashboard.html:11
+#: apps/core/templates/core/dashboard.html:50
+#, python-format
+msgid "flotte de %(n)s appareil"
+msgid_plural "flotte de %(n)s appareils"
+msgstr[0] "fleet of %(n)s aircraft"
+msgstr[1] "fleet of %(n)s aircraft"
+
+#: apps/core/templates/core/dashboard.html:51
 msgid "Défauts ouverts"
 msgstr "Open defects"
 
-#: apps/core/templates/core/dashboard.html:11
-msgid "reporté(s)"
-msgstr "deferred"
+#: apps/core/templates/core/dashboard.html:51
+#, python-format
+msgid "%(n)s reporté"
+msgid_plural "%(n)s reportés"
+msgstr[0] "%(n)s deferred"
+msgstr[1] "%(n)s deferred"
 
-#: apps/core/templates/core/dashboard.html:11
-#: apps/core/templates/core/dashboard.html:21
+#: apps/core/templates/core/dashboard.html:51
+#: apps/core/templates/core/dashboard.html:84
 msgid "hors délai"
 msgstr "past limit"
 
-#: apps/core/templates/core/dashboard.html:12
+#: apps/core/templates/core/dashboard.html:52
 msgid "AD / SB à évaluer"
 msgstr "AD / SB to assess"
 
-#: apps/core/templates/core/dashboard.html:13
-msgid "Work packages actifs"
-msgstr "Active work packages"
+#: apps/core/templates/core/dashboard.html:52
+msgid "applicabilité à statuer"
+msgstr "applicability to assess"
 
-#: apps/core/templates/core/dashboard.html:13
-msgid "task card(s) en attente de contrôle"
-msgstr "task card(s) awaiting inspection"
+#: apps/core/templates/core/dashboard.html:57
+#: apps/core/templates/core/dashboard.html:76
+msgid "Navigabilité · CAMO"
+msgstr "Airworthiness · CAMO"
 
-#: apps/core/templates/core/dashboard.html:14 apps/logistics/views.py:252
-#: templates/base.html:46
-msgid "Demandes de pièces"
-msgstr "Part requests"
+#: apps/core/templates/core/dashboard.html:57
+msgid "Situation de la flotte"
+msgstr "Fleet status"
 
-#: apps/core/templates/core/dashboard.html:15
-msgid "En quarantaine"
-msgstr "In quarantine"
+#: apps/core/templates/core/dashboard.html:58
+#: apps/core/templates/core/dashboard.html:76
+msgid "Flotte et vue 3D"
+msgstr "Fleet and 3D view"
 
-#: apps/core/templates/core/dashboard.html:16
-msgid "Outillage hors étalonnage"
-msgstr "Tooling out of calibration"
-
-#: apps/core/templates/core/dashboard.html:16
-msgid "autorisation(s) expirant sous 60 j"
-msgstr "authorisation(s) expiring within 60 d"
-
-#: apps/core/templates/core/dashboard.html:18
-msgid "Comptes rendus d'événements :"
-msgstr "Occurrence reports:"
-
-#: apps/core/templates/core/dashboard.html:19
-msgid "ouvert(s)"
-msgstr "open"
-
-#: apps/core/templates/core/dashboard.html:19
-#, python-format
-msgid ", dont %(to_notify)s à notifier"
-msgstr ", including %(to_notify)s to notify"
-
-#: apps/core/templates/core/dashboard.html:19
-msgid "hors délai (72 h / 30 j)"
-msgstr "past deadline (72 h / 30 d)"
-
-#: apps/core/templates/core/dashboard.html:20
-msgid "Qualité :"
-msgstr "Quality:"
-
-#: apps/core/templates/core/dashboard.html:21
-msgid "constat(s) ouvert(s)"
-msgstr "open finding(s)"
-
-#: apps/core/templates/core/dashboard.html:21
-msgid "niveau 1"
-msgstr "level 1"
-
-#: apps/core/templates/core/dashboard.html:21
-msgid "révision(s) à approuver"
-msgstr "revision(s) to approve"
-
-#: apps/core/templates/core/dashboard.html:21
-msgid "document(s) à revoir"
-msgstr "document(s) to review"
-
-#: apps/core/templates/core/dashboard.html:22
-msgid "Revue du programme d'entretien (M.A.302(g)) :"
-msgstr "Maintenance programme review (M.A.302(g)):"
-
-#: apps/core/templates/core/dashboard.html:26 apps/fleet/views.py:70
-#: templates/base.html:21
-msgid "Flotte"
-msgstr "Fleet"
-
-#: apps/core/templates/core/dashboard.html:28
+#: apps/core/templates/core/dashboard.html:60
 msgid "FH totales"
 msgstr "Total FH"
 
-#: apps/core/templates/core/dashboard.html:28 apps/fleet/models.py:29
+#: apps/core/templates/core/dashboard.html:60 apps/fleet/models.py:29
 #: apps/fleet/views.py:65 apps/fleet/views.py:135
 msgid "Cycles"
 msgstr ""
 
-#: apps/core/templates/core/dashboard.html:28 apps/fleet/views.py:66
+#: apps/core/templates/core/dashboard.html:60 apps/fleet/views.py:66
 msgid "ARC jusqu'au"
 msgstr "ARC until"
 
-#: apps/core/templates/core/dashboard.html:33
+#: apps/core/templates/core/dashboard.html:65
 #: apps/core/templates/core/my_account.html:10
 #: apps/fleet/templates/fleet/aircraft_detail.html:28
 msgid "Aucun"
 msgstr "None"
 
-#: apps/core/templates/core/dashboard.html:42
+#: apps/core/templates/core/dashboard.html:73
+msgid "Accès rapides"
+msgstr "Quick access"
+
+#: apps/core/templates/core/dashboard.html:73
+msgid "Votre activité"
+msgstr "Your activity"
+
+#: apps/core/templates/core/dashboard.html:77
+#, python-format
+msgid "%(n)s appareil suivi"
+msgid_plural "%(n)s appareils suivis"
+msgstr[0] "%(n)s aircraft tracked"
+msgstr[1] "%(n)s aircraft tracked"
+
+#: apps/core/templates/core/dashboard.html:77
+msgid "urgences par zone sur chaque hélicoptère"
+msgstr "urgent items by zone on each helicopter"
+
+#: apps/core/templates/core/dashboard.html:78
+msgid "Work packages actifs"
+msgstr "Active work packages"
+
+#: apps/core/templates/core/dashboard.html:79
+#, python-format
+msgid "%(n)s task card en attente de contrôle"
+msgid_plural "%(n)s task cards en attente de contrôle"
+msgstr[0] "%(n)s task card awaiting inspection"
+msgstr[1] "%(n)s task cards awaiting inspection"
+
+#: apps/core/templates/core/dashboard.html:80
+msgid "Entretien · Part-145"
+msgstr "Maintenance · Part-145"
+
+#: apps/core/templates/core/dashboard.html:80
+#: apps/part145/templates/part145/planning.html:2 templates/base.html:41
+msgid "Planning"
+msgstr "Planning"
+
+#: apps/core/templates/core/dashboard.html:80
+msgid "Work packages et échéances par semaine"
+msgstr "Work packages and due items by week"
+
+#: apps/core/templates/core/dashboard.html:81 templates/base.html:49
+#: templates/base.html:50
+msgid "Logistique"
+msgstr "Logistics"
+
+#: apps/core/templates/core/dashboard.html:81
+msgid "Magasin et outillage"
+msgstr "Stores and tooling"
+
+#: apps/core/templates/core/dashboard.html:82
+#, python-format
+msgid "%(n)s demande de pièce"
+msgid_plural "%(n)s demandes de pièces"
+msgstr[0] "%(n)s part request"
+msgstr[1] "%(n)s part requests"
+
+#: apps/core/templates/core/dashboard.html:82
+#: apps/core/templates/core/dashboard.html:105
+msgid "en quarantaine"
+msgstr "in quarantine"
+
+#: apps/core/templates/core/dashboard.html:82
+#: apps/core/templates/core/dashboard.html:105
+#, python-format
+msgid "%(n)s outil hors étalonnage"
+msgid_plural "%(n)s outils hors étalonnage"
+msgstr[0] "%(n)s tool out of calibration"
+msgstr[1] "%(n)s tools out of calibration"
+
+#: apps/core/templates/core/dashboard.html:83
+#: apps/core/templates/core/dashboard.html:94 templates/base.html:64
+#: templates/base.html:65
+msgid "Qualité"
+msgstr "Quality"
+
+#: apps/core/templates/core/dashboard.html:83
+msgid "Audits et constats"
+msgstr "Audits and findings"
+
+#: apps/core/templates/core/dashboard.html:84
+#: apps/core/templates/core/dashboard.html:95
+#: apps/core/templates/core/dashboard.html:96
+#, python-format
+msgid "%(n)s constat ouvert"
+msgid_plural "%(n)s constats ouverts"
+msgstr[0] "%(n)s open finding"
+msgstr[1] "%(n)s open findings"
+
+#: apps/core/templates/core/dashboard.html:84
+msgid "Déclarer ou suivre un événement"
+msgstr "Report or track an occurrence"
+
+#: apps/core/templates/core/dashboard.html:89
+#: apps/core/templates/core/dashboard.html:106
+msgid "Alertes réglementaires"
+msgstr "Regulatory alerts"
+
+#: apps/core/templates/core/dashboard.html:89
+msgid "À traiter"
+msgstr "To do"
+
+#: apps/core/templates/core/dashboard.html:92
+#, python-format
+msgid "%(n)s hors délai (72 h / 30 j)"
+msgid_plural "%(n)s hors délai (72 h / 30 j)"
+msgstr[0] "%(n)s past deadline (72 h / 30 d)"
+msgstr[1] "%(n)s past deadline (72 h / 30 d)"
+
+#: apps/core/templates/core/dashboard.html:92
+#: apps/core/templates/core/dashboard.html:93
+#, python-format
+msgid "%(n)s ouvert"
+msgid_plural "%(n)s ouverts"
+msgstr[0] "%(n)s open"
+msgstr[1] "%(n)s open"
+
+#: apps/core/templates/core/dashboard.html:93
+#, python-format
+msgid "dont %(to_notify)s à notifier"
+msgstr "of which %(to_notify)s to report"
+
+#: apps/core/templates/core/dashboard.html:95
+#, python-format
+msgid "%(n)s constat hors délai"
+msgid_plural "%(n)s constats hors délai"
+msgstr[0] "%(n)s overdue finding"
+msgstr[1] "%(n)s overdue findings"
+
+#: apps/core/templates/core/dashboard.html:95
+msgid "niveau 1"
+msgstr "level 1"
+
+#: apps/core/templates/core/dashboard.html:95
+#: apps/core/templates/core/dashboard.html:96
+#, python-format
+msgid "%(n)s révision à approuver"
+msgid_plural "%(n)s révisions à approuver"
+msgstr[0] "%(n)s revision to approve"
+msgstr[1] "%(n)s revisions to approve"
+
+#: apps/core/templates/core/dashboard.html:95
+#: apps/core/templates/core/dashboard.html:96
+#, python-format
+msgid "%(n)s document à revoir"
+msgid_plural "%(n)s documents à revoir"
+msgstr[0] "%(n)s document to review"
+msgstr[1] "%(n)s documents to review"
+
+#: apps/core/templates/core/dashboard.html:97
+msgid "Revue du programme · M.A.302(g)"
+msgstr "Programme review · M.A.302(g)"
+
+#: apps/core/templates/core/dashboard.html:98
+msgid "aucune revue enregistrée"
+msgstr "no review recorded"
+
+#: apps/core/templates/core/dashboard.html:98
+#, python-format
+msgid "revue dépassée depuis le %(d)s"
+msgstr "review overdue since %(d)s"
+
+#: apps/core/templates/core/dashboard.html:98
+#, python-format
+msgid "revue avant le %(d)s"
+msgstr "review before %(d)s"
+
+#: apps/core/templates/core/dashboard.html:99
+msgid "aucune revue"
+msgstr "no review"
+
+#: apps/core/templates/core/dashboard.html:99
+#, python-format
+msgid "dépassée depuis le %(d)s"
+msgstr "overdue since %(d)s"
+
+#: apps/core/templates/core/dashboard.html:99
+#, python-format
+msgid "avant le %(d)s"
+msgstr "before %(d)s"
+
+#: apps/core/templates/core/dashboard.html:100 apps/part145/models.py:19
+msgid "Personnel certifiant"
+msgstr "Certifying staff"
+
+#: apps/core/templates/core/dashboard.html:101
+#, python-format
+msgid "%(n)s autorisation expire sous 60 j"
+msgid_plural "%(n)s autorisations expirent sous 60 j"
+msgstr[0] "%(n)s authorisation expires within 60 d"
+msgstr[1] "%(n)s authorisations expire within 60 d"
+
+#: apps/core/templates/core/dashboard.html:101
+msgid "renouvellement à prévoir"
+msgstr "renewal to plan"
+
+#: apps/core/templates/core/dashboard.html:102
+msgid "Défauts reportés"
+msgstr "Deferred defects"
+
+#: apps/core/templates/core/dashboard.html:103
+#, python-format
+msgid "%(n)s report échu"
+msgid_plural "%(n)s reports échus"
+msgstr[0] "%(n)s deferral expired"
+msgstr[1] "%(n)s deferrals expired"
+
+#: apps/core/templates/core/dashboard.html:103
+msgid "limite de report dépassée"
+msgstr "deferral limit exceeded"
+
+#: apps/core/templates/core/dashboard.html:104
+msgid "Outillage et magasin"
+msgstr "Tooling and stores"
+
+#: apps/core/templates/core/dashboard.html:106
+msgid "Aucune alerte réglementaire"
+msgstr "No regulatory alert"
+
+#: apps/core/templates/core/dashboard.html:106
+msgid "événements, qualité, programme, personnel, reports et outillage"
+msgstr "occurrences, quality, programme, staff, deferrals and tooling"
+
+#: apps/core/templates/core/dashboard.html:106
+msgid "selon vos droits d'accès"
+msgstr "based on your access rights"
+
+#: apps/core/templates/core/dashboard.html:113
 msgid "Échéances prioritaires"
 msgstr "Priority due items"
 
-#: apps/core/templates/core/dashboard.html:42
+#: apps/core/templates/core/dashboard.html:113
 #: apps/fleet/templates/fleet/aircraft_detail.html:66
 #: apps/fleet/templates/fleet/aircraft_detail.html:77
 #: apps/fleet/templates/fleet/aircraft_detail.html:101
 msgid "Tout voir →"
 msgstr "See all →"
 
-#: apps/core/templates/core/dashboard.html:46
+#: apps/core/templates/core/dashboard.html:117
 msgid "Work packages en cours"
 msgstr "Work packages in progress"
 
-#: apps/core/templates/core/dashboard.html:46
+#: apps/core/templates/core/dashboard.html:117
 msgid "Planning →"
-msgstr ""
+msgstr "Planning →"
 
-#: apps/core/templates/core/dashboard.html:47
+#: apps/core/templates/core/dashboard.html:118
 msgid "WP"
-msgstr ""
+msgstr "WP"
 
-#: apps/core/templates/core/dashboard.html:47
+#: apps/core/templates/core/dashboard.html:118
 #: apps/fleet/templates/fleet/aircraft_detail.html:95
 #: apps/part145/templates/part145/planning.html:30
 msgid "Dates"
-msgstr ""
+msgstr "Dates"
 
-#: apps/core/templates/core/dashboard.html:47
+#: apps/core/templates/core/dashboard.html:118
 #: apps/part145/templates/part145/planning.html:30
 #: apps/part145/templates/part145/wp_detail.html:15
 msgid "Avancement"
 msgstr "Progress"
 
-#: apps/core/templates/core/dashboard.html:51
+#: apps/core/templates/core/dashboard.html:122
 msgid "Aucun work package actif."
 msgstr "No active work package."
 
@@ -3636,7 +3926,7 @@ msgid "Annuler"
 msgstr "Cancel"
 
 #: apps/core/templates/core/help.html:2 apps/core/templates/core/help.html:6
-#: templates/base.html:62
+#: templates/base.html:77
 msgid "Tutoriels"
 msgstr "Tutorials"
 
@@ -3658,7 +3948,7 @@ msgid "Page %(number)s / %(num_pages)s · %(paginator_count)s enregistrements"
 msgstr "Page %(number)s / %(num_pages)s · %(paginator_count)s records"
 
 #: apps/core/templates/core/my_account.html:2
-#: apps/core/templates/core/my_account.html:4 templates/base.html:81
+#: apps/core/templates/core/my_account.html:4 templates/base.html:100
 msgid "Mon compte"
 msgstr "My account"
 
@@ -3795,7 +4085,7 @@ msgid "Se reconnecter"
 msgstr "Sign in again"
 
 #: apps/core/templates/core/retention.html:2
-#: apps/core/templates/core/retention.html:5 templates/base.html:59
+#: apps/core/templates/core/retention.html:5 templates/base.html:71
 msgid "Conservation des enregistrements"
 msgstr "Records retention"
 
@@ -3926,7 +4216,7 @@ msgstr "Enter at least 2 characters."
 msgid "Aucun résultat."
 msgstr "No result."
 
-#: apps/core/templates/core/signature_list.html:2 templates/base.html:58
+#: apps/core/templates/core/signature_list.html:2 templates/base.html:70
 msgid "Signatures électroniques"
 msgstr "Electronic signatures"
 
@@ -4015,23 +4305,23 @@ msgstr "Signature code of {username}"
 msgid "Code de signature enregistré."
 msgstr "Signature code saved."
 
-#: apps/core/views.py:336
+#: apps/core/views.py:339
 msgid "conserver jusqu'au"
 msgstr "retain until"
 
-#: apps/core/views.py:336 apps/fleet/models.py:270
+#: apps/core/views.py:339 apps/fleet/models.py:270
 msgid "état"
 msgstr "status"
 
-#: apps/core/views.py:338 apps/fleet/templates/fleet/aircraft_list.html:4
+#: apps/core/views.py:341 apps/fleet/templates/fleet/aircraft_list.html:4
 msgid "sans échéance"
 msgstr "no deadline"
 
-#: apps/core/views.py:338
+#: apps/core/views.py:341
 msgid "échue – archivable"
 msgstr "expired – archivable"
 
-#: apps/core/views.py:338
+#: apps/core/views.py:341
 msgid "en cours"
 msgstr "in progress"
 
@@ -4516,7 +4806,7 @@ msgstr "Unserviceable (U/S)"
 #: apps/fleet/models.py:261 apps/logistics/models.py:77
 #: apps/logistics/templates/logistics/quarantine.html:2
 #: apps/logistics/views.py:372 apps/part145/forms.py:131
-#: templates/base.html:47
+#: templates/base.html:56
 msgid "Quarantaine"
 msgstr "Quarantine"
 
@@ -5050,7 +5340,7 @@ msgid "Aucun défaut ouvert."
 msgstr "No open defect."
 
 #: apps/fleet/templates/fleet/aircraft_detail.html:94 apps/part145/views.py:55
-#: templates/base.html:36
+#: templates/base.html:42
 msgid "Work packages"
 msgstr ""
 
@@ -5264,7 +5554,7 @@ msgid "Aucune limite (équipement « on condition »)."
 msgstr "No limit (“on condition” equipment)."
 
 #: apps/fleet/templates/fleet/component_detail.html:62
-#: apps/logistics/views.py:77 templates/base.html:48
+#: apps/logistics/views.py:77 templates/base.html:57
 msgid "Certificats libératoires"
 msgstr "Release certificates"
 
@@ -5279,7 +5569,7 @@ msgstr "Status (block 11)"
 
 #: apps/fleet/templates/fleet/component_detail.html:63
 #: apps/logistics/models.py:123
-#: apps/logistics/templates/logistics/receive.html:2 templates/base.html:42
+#: apps/logistics/templates/logistics/receive.html:2 templates/base.html:51
 msgid "Réception"
 msgstr "Receipt"
 
@@ -6381,7 +6671,7 @@ msgstr "Ordered on"
 msgid "Livraison prévue"
 msgstr "Expected delivery"
 
-#: apps/logistics/purchasing.py:150 templates/base.html:50
+#: apps/logistics/purchasing.py:150 templates/base.html:59
 msgid "Commandes d'achat"
 msgstr "Purchase orders"
 
@@ -6824,6 +7114,10 @@ msgstr "Priority"
 msgid "Demandé le"
 msgstr "Requested on"
 
+#: apps/logistics/views.py:252 templates/base.html:55
+msgid "Demandes de pièces"
+msgstr "Part requests"
+
 #: apps/logistics/views.py:262
 msgid "Task card non modifiable."
 msgstr "Task card cannot be modified."
@@ -7004,10 +7298,6 @@ msgstr "End"
 #: apps/part145/models.py:18
 msgid "Mécanicien"
 msgstr "Mechanic"
-
-#: apps/part145/models.py:19
-msgid "Personnel certifiant"
-msgstr "Certifying staff"
 
 #: apps/part145/models.py:20
 msgid "Contrôleur / inspecteur"
@@ -8358,10 +8648,6 @@ msgstr "Create the rectification task card"
 msgid "Le défaut passe à « rectifié » à la clôture de la task card."
 msgstr "The defect becomes “rectified” when the task card is closed."
 
-#: apps/part145/templates/part145/planning.html:2 templates/base.html:35
-msgid "Planning"
-msgstr ""
-
 #: apps/part145/templates/part145/planning.html:5
 msgid "Planning hangar"
 msgstr "Hangar planning"
@@ -8572,7 +8858,7 @@ msgstr "Print the work package"
 
 #: apps/part145/templates/part145/wp_detail.html:16
 #: apps/part145/templates/part145/wp_detail.html:22 apps/part145/views.py:210
-#: templates/base.html:37
+#: templates/base.html:43
 msgid "Task cards"
 msgstr ""
 
@@ -9498,7 +9784,7 @@ msgstr "Standard"
 msgid "Activité"
 msgstr "Activity"
 
-#: apps/quality/views.py:29 templates/base.html:54
+#: apps/quality/views.py:29 templates/base.html:66
 msgid "Audits internes"
 msgstr "Internal audits"
 
@@ -9540,7 +9826,7 @@ msgstr ""
 "Level 1: immediate action. Level 2: correction within 3 months at most. "
 "Observation: 30 days."
 
-#: apps/quality/views.py:118 templates/base.html:55
+#: apps/quality/views.py:118 templates/base.html:67
 msgid "Documents maîtrisés"
 msgstr "Controlled documents"
 
@@ -10001,142 +10287,150 @@ msgstr ""
 msgid "· AHMIS"
 msgstr ""
 
-#: templates/base.html:12
+#: templates/base.html:13
+msgid "AHMIS, tableau de bord"
+msgstr "AHMIS, dashboard"
+
+#: templates/base.html:17
+msgid "Menu"
+msgstr "Menu"
+
+#: templates/base.html:18
 msgid "Navigation principale"
 msgstr "Main navigation"
 
-#: templates/base.html:15 templates/registration/login.html:6
-msgid "Maintenance Information System"
-msgstr ""
+#: templates/base.html:22
+msgid "Navigabilité"
+msgstr "Airworthiness"
 
-#: templates/base.html:20
+#: templates/base.html:23
 msgid "Navigabilité (CAMO)"
 msgstr "Airworthiness (CAMO)"
 
-#: templates/base.html:26
+#: templates/base.html:29
 msgid "Heures de vol"
 msgstr "Flight hours"
 
-#: templates/base.html:27
+#: templates/base.html:30
 msgid "Modifications &amp; réparations"
 msgstr "Modifications &amp; repairs"
 
-#: templates/base.html:29
+#: templates/base.html:32
 msgid "Revue du programme"
 msgstr "Programme review"
 
-#: templates/base.html:31
+#: templates/base.html:34
 msgid "Examens de navigabilité"
 msgstr "Airworthiness reviews"
 
-#: templates/base.html:32
+#: templates/base.html:35
 msgid "Types &amp; configuration"
 msgstr ""
 
-#: templates/base.html:34
+#: templates/base.html:39
+msgid "Entretien"
+msgstr "Maintenance"
+
+#: templates/base.html:40
 msgid "Entretien (Part-145)"
 msgstr "Maintenance (Part-145)"
 
-#: templates/base.html:38
+#: templates/base.html:44
 msgid "Défauts &amp; reports"
 msgstr "Defects &amp; deferrals"
 
-#: templates/base.html:39
+#: templates/base.html:45
 msgid "Personnel &amp; autorisations"
 msgstr "Staff &amp; authorisations"
 
-#: templates/base.html:41
-msgid "Logistique"
-msgstr "Logistics"
-
-#: templates/base.html:43
+#: templates/base.html:52
 msgid "Composants"
 msgstr "Components"
 
-#: templates/base.html:44
+#: templates/base.html:53
 msgid "Références P/N"
 msgstr "P/N references"
 
-#: templates/base.html:45
+#: templates/base.html:54
 msgid "Stock consommables"
 msgstr "Consumables stock"
 
-#: templates/base.html:51
+#: templates/base.html:60
 msgid "Magasins"
 msgstr "Stores"
 
-#: templates/base.html:53
-msgid "Qualité"
-msgstr "Quality"
-
-#: templates/base.html:61 templates/base.html:99
+#: templates/base.html:75 templates/base.html:76 templates/base.html:119
 msgid "Aide"
 msgstr "Help"
 
-#: templates/base.html:63
+#: templates/base.html:78
 msgid "Administration"
 msgstr ""
 
-#: templates/base.html:69
-msgid "Menu"
-msgstr ""
+#: templates/base.html:86
+msgid "Rechercher P/N, S/N, WP…"
+msgstr "Search P/N, S/N, WP…"
 
-#: templates/base.html:69
-msgid "☰ Menu"
-msgstr ""
-
-#: templates/base.html:71
-msgid "Rechercher immatriculation, P/N, S/N, WP, task card…"
-msgstr "Search registration, P/N, S/N, WP, task card…"
-
-#: templates/base.html:71
+#: templates/base.html:86
 msgid "Recherche globale"
 msgstr "Global search"
 
-#: templates/base.html:75
+#: templates/base.html:90
 msgid "Langue"
 msgstr "Language"
 
-#: templates/base.html:82
+#: templates/base.html:94
+msgid "OK"
+msgstr "OK"
+
+#: templates/base.html:97 templates/base.html:99
 msgid "administrateur"
 msgstr "administrator"
 
-#: templates/base.html:83
+#: templates/base.html:101
 msgid "Déconnexion"
 msgstr "Sign out"
 
-#: templates/base.html:92
+#: templates/base.html:111
+msgid "AHMIS · Maintenance Information System"
+msgstr "AHMIS · Maintenance Information System"
+
+#: templates/base.html:111 templates/registration/login.html:7
+msgid "CAMO · Part-145 · Logistique · Qualité"
+msgstr "CAMO · Part-145 · Logistics · Quality"
+
+#: templates/base.html:112
 msgid "Ouvrir l’écran"
 msgstr "Open the screen"
 
-#: templates/base.html:92
+#: templates/base.html:112
 msgid "Tutoriel"
 msgstr "Tutorial"
 
-#: templates/base.html:92
+#: templates/base.html:112
 msgid "Questions fréquentes"
 msgstr "Frequently asked questions"
 
-#: templates/base.html:92
+#: templates/base.html:112
 msgid "Assistant indisponible."
 msgstr "Assistant unavailable."
 
-#: templates/base.html:94
+#: templates/base.html:114
 msgid "Assistant"
 msgstr ""
 
-#: templates/base.html:95
+#: templates/base.html:115
 msgid ""
 "Réponses validées sur l'utilisation d'AHMIS. L'assistant ne modifie aucune "
 "donnée."
 msgstr ""
 "Validated answers on using AHMIS. The assistant does not change any data."
 
-#: templates/base.html:96
+#: templates/base.html:116
 msgid "Votre question"
 msgstr "Your question"
 
-#: templates/base.html:96
+#: templates/base.html:116
 msgid "Poser la question"
 msgstr "Ask the question"
 
@@ -10144,9 +10438,9 @@ msgstr "Ask the question"
 msgid "Connexion · AHMIS"
 msgstr "Sign in · AHMIS"
 
-#: templates/registration/login.html:7
-msgid "CAMO · Part-145 · Logistique"
-msgstr "CAMO · Part-145 · Logistics"
+#: templates/registration/login.html:6
+msgid "Maintenance Information System"
+msgstr "Maintenance Information System"
 
 #: templates/registration/login.html:8
 msgid "Identifiant ou mot de passe incorrect."
@@ -10179,3 +10473,36 @@ msgstr "Demo accounts"
 #: templates/registration/login.html:20
 msgid "(mot de passe :"
 msgstr "(password:"
+
+#~ msgid "ARC à renouveler"
+#~ msgstr "ARC to renew"
+
+#~ msgid "éléments en urgence par appareil"
+#~ msgstr "urgent items per aircraft"
+
+#~ msgid "revue dépassée"
+#~ msgstr "review overdue"
+
+#~ msgid "un seul type concerné"
+#~ msgstr "only one type affected"
+
+#~ msgid "Rien à traiter"
+#~ msgstr "Nothing to do"
+
+#~ msgid "aucune alerte en cours"
+#~ msgstr "no active alert"
+
+#~ msgid "Comptes rendus d'événements :"
+#~ msgstr "Occurrence reports:"
+
+#~ msgid "ouvert(s)"
+#~ msgstr "open"
+
+#~ msgid "Qualité :"
+#~ msgstr "Quality:"
+
+#~ msgid "constat(s) ouvert(s)"
+#~ msgstr "open finding(s)"
+
+#~ msgid "Revue du programme d'entretien (M.A.302(g)) :"
+#~ msgstr "Maintenance programme review (M.A.302(g)):"

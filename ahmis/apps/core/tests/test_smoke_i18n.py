@@ -30,9 +30,11 @@ class SmokeCrawlTests(TestCase):
         c.force_login(get_user_model().objects.get(username="admin"))
         for lang, title in [("fr", "Tableau de bord"), ("en", "Dashboard"), ("es", "Panel de control"), ("de", "Übersicht")]:
             c.cookies[settings.LANGUAGE_COOKIE_NAME] = lang
-            self.assertContains(c.get("/"), f"<h1>{title}</h1>", html=False)
+            self.assertContains(c.get("/"), f'<h1 class="sr-only">{title}</h1>', html=False)
 
     def test_quality_alert_on_dashboard(self):
         c = Client()
         c.force_login(get_user_model().objects.get(username="qualite"))
-        self.assertContains(c.get("/"), "constat(s) ouvert(s)")
+        r = c.get("/")
+        self.assertEqual(r.status_code, 200)
+        self.assertRegex(r.content.decode(), r'class="todo-item[^>]*><span class="l">Qualité</span>\s*<b>\d+ constats? ')

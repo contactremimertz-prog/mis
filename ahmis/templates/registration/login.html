@@ -2,9 +2,9 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% trans "Connexion · AHMIS" %}</title><link rel="stylesheet" href="{% static 'ahmis/ahmis.css' %}"></head>
 <body><div class="login-wrap"><div class="login-card">
-  <div class="brand"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0f2238"/><path d="M6 18h20M16 8v18M9 12l7-4 7 4" stroke="#5aa0ff" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+  <div class="brand"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="4" fill="#071a3d"/><path d="M8 17h16M16 9v14M11 12.5l5-3 5 3" stroke="#00aec7" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
     <span>AHMIS<small style="color:var(--ink-3)">{% trans "Maintenance Information System" %}</small></span></div>
-  <p class="muted small" style="margin-top:0">{% trans "CAMO · Part-145 · Logistique" %}</p>
+  <p class="muted small" style="margin-top:0">{% trans "CAMO · Part-145 · Logistique · Qualité" %}</p>
   {% if auth_error %}<div class="alert">{{ auth_error }}</div>{% elif form.errors %}<div class="alert">{% trans "Identifiant ou mot de passe incorrect." %}</div>{% endif %}
   {% if oidc_enabled %}
   <a class="btn primary" href="{% url 'oidc_authentication_init' %}{% if next %}?next={{ next|urlencode }}{% endif %}" style="width:100%;justify-content:center;margin-bottom:14px">{{ oidc_label }}</a>
