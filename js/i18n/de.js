@@ -252,6 +252,7 @@ window.I18N.de = {
   "heli.lvl_crit": "Hohe Dringlichkeit: Aufgabe überfällig",
   "heli.lvl_warn": "Mittlere Dringlichkeit: bald fällig",
   "heli.lvl_ok": "Konform",
+  "heli.sim_short": "(simuliert)",
   "heli.zone.queue": "Heck und Heckrotor",
   "heli.zone.cellule": "Zelle",
   "heli.zone.portes": "Türen und Verglasung",

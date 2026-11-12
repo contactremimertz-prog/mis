@@ -252,6 +252,7 @@ window.I18N.en = {
   "heli.lvl_crit": "High urgency: task overdue",
   "heli.lvl_warn": "Medium urgency: due soon",
   "heli.lvl_ok": "Conforming",
+  "heli.sim_short": "(simulated)",
   "heli.zone.queue": "Tail and tail rotor",
   "heli.zone.cellule": "Airframe",
   "heli.zone.portes": "Doors and glazing",
