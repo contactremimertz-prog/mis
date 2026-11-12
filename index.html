@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MIS Hélicoptères · Démo EASA</title>
 <meta name="description" content="Démonstration d'un MIS conforme aux règles EASA (Part-M, Part-CAMO, Part-145, Part-21) sur une flotte d'hélicoptères fictive.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-pSaT+MS8Xc3JiYgg+jW8ZP9n70PI1Gd/733EWPzsuoA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GjiqOuuTclibAWDvxIXE8BZkY6qsPFmVe4ImwuDCVAY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Crect width=%2724%27 height=%2724%27 rx=%275%27 fill=%27%231d4ed8%27/%3E%3Cpath d=%27M3 7h18M12 7v3M6 14a6 4 0 0 1 6-4h1a5 4 0 0 1 5 4v1H6z%27 stroke=%27white%27 stroke-width=%271.8%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,11 +65,12 @@
     ["vendor/jspdf.umd.min.js", "sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3"],
     ["vendor/jspdf.plugin.autotable.min.js", "sha384-A77YsHWitrPuAj8E0AuB033EXzymUxIajnWKPzrrzqFoYYSCEpFennDUjMG2R1L3"],
     ["vendor/three.min.js", "sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"],
+    ["vendor/GLTFLoader.js", "sha384-fljlqkjWlmSFjkESkQvm77heIZpoWmXEOzlCA7kOpGUH+95Zk0yGfQieWM2q136E"],
     // Translations and demo data
-    ["js/i18n/fr.js", "sha384-CI2id5DczTNx6cQjQqir1y3pjz43t8Z3PVfN59eqFLQfYVz+Ljva8/klyY7zU+c5"],
-    ["js/i18n/en.js", "sha384-nml8Mh+1OVml6+HvSGgDETy5LeWYYGAtkUMlh8+Ojenrz15YGhitK90piDEchL2t"],
-    ["js/i18n/es.js", "sha384-59gJ996VWVI5r2HyLChqSWvphoIGu1BcRi9MKIJNVbBTbs/mr+Rq5ytnocHtqcwl"],
-    ["js/i18n/de.js", "sha384-tP7FTzgSmuSMLLIBozEQeFOfnzogJ79KieKF5L/RwCTndCWRcHzrWe95H2dXArjD"],
+    ["js/i18n/fr.js", "sha384-jw8H8Hs3Xu5+ErRCkd5c04Hck7Vy3Pd4FYRKczk2hTXOpOAdPoubtQ2c9iaXfnzJ"],
+    ["js/i18n/en.js", "sha384-PTHDPhmdfWTH5a4DUA5/lOyS9JDJ16h1g4WUsCiwPtUm76+t5Dc5FVMzVU2bfSns"],
+    ["js/i18n/es.js", "sha384-7Gk6JqumTEKwQuuaJ+ACbiMhcUS5Ys3/wJRZ4RZSl7Ryby7NTh2l6SAG1Exv7ATb"],
+    ["js/i18n/de.js", "sha384-k6UzcCE+KvsE5xdXy/aFpjP9vGXMhUfu+pOO8ikM4ujtDysZ5zwpK7sgkCHFni5z"],
     ["js/seed.js", "sha384-TgE7js8JzTS7Ub/pLbD9NIIiwUvm8bcOvijLgIpk1eHZcPRbBAO75EbBmzxpfBFx"],
     // Core: namespace and state, i18n, rights, database, audit log, business rules, session
     ["js/core/util.js", "sha384-KPWXzDCkLwCcbwYh58EW9RH3uytDWbQJ0+epXfJCSsixL6R+X28c+A3XPTugHjf6"],
@@ -84,7 +85,7 @@
     ["js/chat/engine.js", "sha384-eUd3CPlpD4mR3YGyVcI62Yf69HIZK25qJdQ91HC7ixOb+5lWSkPdrGbP8+pREXuQ"],
     // User interface: components, screens, record dialogs, signature, sign-in, assistant
     ["js/ui/components.js", "sha384-FTZYjtVY2I976Nz6tTT1wlbYxa8qkb2npJuAsXBjTwf0MMTUdSkjMHRS+mm2Qnka"],
-    ["js/ui/heli.js", "sha384-tYjcTIIN3T7CN81nAKuz3Tb7r93cjK/RAfmCU9E1f743z/K/94rKA2rHcGjlhjL+"],
+    ["js/ui/heli.js", "sha384-Hi/gnIA2FopvQwWl95gVeDL85vGsTuxb7dFY9YkJW6JYlXOwr9BOJFF//FXHJUog"],
     ["js/ui/views.js", "sha384-d+mpkvQ7GYEV88bRWzKvbwB1Frhrmt54dMtcKID+bzU0qYwnZeO/yLVQ1PzRDII5"],
     ["js/ui/sheets.js", "sha384-hE+MIeaCueckGBbSBQdsL6lpttOvGamyNpkg5HJYRMTTPZZh/c//6kSlfd3hcniC"],
     ["js/ui/sign.js", "sha384-CKBzTnnKs8AKdrRl1J8ALm1cYwE2IxSvZC4CYZs9ceQIyx8b99qyu+DDbuecFxay"],

@@ -236,3 +236,5 @@ textarea.input{resize:vertical}
 .heli-lvl{font-size:13px;font-weight:600;text-align:right}
 .heli-zone:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (max-width:800px){.heli-body{grid-template-columns:1fr}.heli-view{height:340px}}
+.heli-models{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 16px 8px}
+.heli-status{position:absolute;left:0;right:0;top:50%;text-align:center;color:#E2E8F0;margin:0;transform:translateY(-50%);pointer-events:none}

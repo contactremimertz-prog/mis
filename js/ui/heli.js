@@ -1,12 +1,18 @@
 /**
  * @file Interactive 3D view of an aircraft, shown on the fleet screen.
  *
- * A generic helicopter is built with three.js (vendor/three.min.js). Each zone
- * is coloured by the most urgent maintenance task that feeds it:
- *   overdue -> high urgency (red), due soon -> medium urgency (orange), otherwise grey.
- * Clicking a zone moves it out of the airframe and brings the camera close to it.
+ * The aircraft is drawn with one of the four reference models in models/*.glb
+ * (loaded with three.js and its GLTF loader, both vendored). Parts are grouped
+ * into four maintenance zones by their names in the model:
+ *   rotor  : parts of the main rotor group (grp_rotor)
+ *   bte    : gearbox parts (name contains "gearbox")
+ *   turb   : engine group (grp_prop)
+ *   train  : landing gear group (grp_train)
+ * Each zone is coloured by the most urgent maintenance task that feeds it:
+ *   overdue -> high urgency (red), due soon -> medium (orange), no task -> neutral, otherwise grey.
+ * Clicking a zone moves its parts out of the airframe and brings the camera close.
  * Each zone is also a button in the page, so the information stays available
- * without WebGL. The model is a demonstration shape, not the real airframe.
+ * without WebGL. The models are reference shapes, not the configuration of the real aircraft.
  */
 (function () {
   "use strict";
@@ -22,6 +28,14 @@
     { id: "train", codes: ["LDG-CYC"] }
   ];
 
+  /** Reference models shipped in models/. */
+  const MODELS = [
+    { id: "h135", label: "H135", file: "models/h135.glb" },
+    { id: "h145", label: "H145", file: "models/h145.glb" },
+    { id: "nh90", label: "NH90", file: "models/nh90.glb" },
+    { id: "super-puma", label: "Super Puma", file: "models/super-puma.glb" }
+  ];
+
   /** Colour of each urgency level, in the 3D view (hex) and in the page. */
   const LEVEL = {
     crit: { hex: 0xb42318, css: "var(--crit)", key: "heli.lvl_crit" },
@@ -30,10 +44,22 @@
     none: { hex: 0x475569, css: "var(--muted)", key: "heli.lvl_none" }
   };
 
+  /** Largest dimension of a model in scene units, and distance a selected zone moves out. */
+  const SIZE = 6;
+  const EXPLODE = 1.3;
+
   /** Data of the block being rendered, read by mount() once the page is in the DOM. */
   let pending = null;
   /** Running 3D view, released by dispose() before the next render. */
   let live = null;
+
+  /** Model used when the user has not picked one: the closest reference to the aircraft type. */
+  function modelFor(aircraftModel) {
+    const m = String(aircraftModel || "");
+    if (/145/.test(m)) return "h145";
+    if (/125|130|135/.test(m)) return "h135";
+    return "h145";
+  }
 
   /** Urgency of each zone of an aircraft, from its maintenance tasks (a.s.tasks). */
   function zoneStates(a) {
@@ -46,12 +72,15 @@
     return out;
   }
 
-  /** Page block: aircraft chooser, 3D canvas, zone details and a text list of the zones. */
+  /** Page block: aircraft and model choosers, 3D canvas, zone details and a text list of the zones. */
   function heliBlock(a, regs) {
     const states = zoneStates(a);
-    pending = { reg: a.reg, states, selected: null };
+    const F = MIS.state.filters;
+    const modelId = MODELS.some(m => m.id === F.heliModel) ? F.heliModel : modelFor(a.model);
+    pending = { reg: a.reg, states, model: modelId };
     const chooser = MIS.chips("heli", regs, a.reg, v => v);
-    const legend = ["crit", "warn", "ok"].map(k =>
+    const modelChooser = MIS.chips("heliModel", MODELS.map(m => m.id), modelId, id => MODELS.find(m => m.id === id).label);
+    const legend = ["crit", "warn", "ok", "none"].map(k =>
       `<span class="heli-key"><i style="background:${LEVEL[k].css}"></i>${esc(t(LEVEL[k].key))}</span>`).join("");
     const list = ZONES.map(z => {
       const s = states[z.id];
@@ -61,6 +90,7 @@
     return `<section class="card heli" aria-labelledby="heli-title">
       <div class="card-head"><h2 id="heli-title">${esc(t("heli.title"))} · ${esc(a.reg)} · ${esc(a.model)}</h2></div>
       ${chooser}
+      <div class="heli-models"><span class="small muted">${esc(t("heli.model"))}</span>${modelChooser}</div>
       <div class="heli-body">
         <div class="heli-stage">
           <div class="heli-view" id="heli-view" role="application" aria-label="${esc(t("heli.aria", { reg: a.reg }))}"></div>
@@ -86,15 +116,39 @@
     return `<h3>${esc(t("heli.zone." + id))}</h3><p style="color:${LEVEL[s.k].css};font-weight:600">${esc(t(LEVEL[s.k].key))}</p>${tasks}`;
   }
 
-  /** Releases the WebGL context, the animation frame and the listeners of the running view. */
+  /** Zone of a model part, from its own name or the name of its groups; null if none. */
+  function zoneOf(obj) {
+    if (/gearbox/i.test(obj.name)) return "bte";
+    for (let o = obj; o; o = o.parent) {
+      if (o.name === "grp_train") return "train";
+      if (o.name === "grp_prop") return "turb";
+      if (o.name === "grp_rotor") return "rotor";
+    }
+    return null;
+  }
+
+  /** Releases the WebGL context, the model, the animation frame and the listeners of the running view. */
   function dispose() {
     if (!live) return;
     cancelAnimationFrame(live.raf);
     live.ro && live.ro.disconnect();
     live.listeners.forEach(([target, type, fn, opts]) => target.removeEventListener(type, fn, opts));
+    if (live.scene) {
+      live.scene.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) [].concat(o.material).forEach(m => m.dispose());
+      });
+    }
     live.renderer.dispose();
     live.renderer.forceContextLoss && live.renderer.forceContextLoss();
     live = null;
+  }
+
+  /** Parses a model file. Each mount parses its own copy, so parts can move without affecting another view. */
+  function loadModel(file) {
+    return new Promise((resolve, reject) => {
+      new window.THREE.GLTFLoader().load(file, resolve, undefined, reject);
+    });
   }
 
   /** Builds the scene for the pending block and starts the view. Called after each render. */
@@ -121,8 +175,8 @@
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x1e2630);
     const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-    const HOME = new THREE.Vector3(5.5, 2.6, 7.5);
-    const CENTER = new THREE.Vector3(0, 0.3, 0);
+    const HOME = new THREE.Vector3(8.5, 3.2, 11);
+    const CENTER = new THREE.Vector3(0, 0, 0);
     camera.position.copy(HOME);
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x334155, 0.9));
@@ -130,75 +184,15 @@
     sun.position.set(4, 8, 5);
     scene.add(sun);
     const grid = new THREE.GridHelper(14, 14, 0x334155, 0x273244);
-    grid.position.y = -1.9;
+    grid.position.y = -3.2;
     scene.add(grid);
 
     const heli = new THREE.Group();
-    heli.position.y = 0.1;
     scene.add(heli);
 
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.2, roughness: 0.5 });
-    const glassMat = new THREE.MeshStandardMaterial({ color: 0x9bb7c9, transparent: true, opacity: 0.45, roughness: 0.1 });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
     const pickable = [];
-
-    /** Mesh of a zone: coloured by its urgency, clickable, and moved out when selected. */
-    function zoneMesh(geo, pos, zoneId, rotation) {
-      const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: LEVEL[data.states[zoneId].k].hex, roughness: 0.4 }));
-      m.position.copy(pos);
-      if (rotation) m.rotation.z = rotation;
-      m.userData.zone = zoneId;
-      m.userData.home = pos.clone();
-      m.userData.dir = pos.clone().normalize().add(new THREE.Vector3(0, 0.6, 0)).normalize();
-      pickable.push(m);
-      heli.add(m);
-      return m;
-    }
-    const part = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); heli.add(m); return m; };
-
-    // Fuselage and canopy
-    const cabin = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), bodyMat);
-    cabin.scale.set(1.3, 0.85, 0.85);
-    heli.add(cabin);
-    const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 20, 0, Math.PI * 2, 0, Math.PI / 2), glassMat);
-    canopy.scale.set(1.0, 0.8, 0.8);
-    canopy.position.set(0.7, 0.1, 0);
-    heli.add(canopy);
-
-    // Tail boom and fin
-    part(new THREE.BoxGeometry(2.6, 0.22, 0.22), bodyMat, -2.6, 0.2, 0);
-    part(new THREE.BoxGeometry(0.06, 0.7, 0.3), darkMat, -3.85, 0.65, 0);
-    part(new THREE.BoxGeometry(0.06, 0.06, 0.6), darkMat, -3.85, 0.3, 0);
-
-    // Landing gear (train), mast, gearbox (bte), turbine (turb), main rotor (rotor)
-    const skidGeo = new THREE.BoxGeometry(2.8, 0.09, 0.09);
-    zoneMesh(skidGeo, new THREE.Vector3(0, -1.2, 0.75), "train");
-    zoneMesh(skidGeo, new THREE.Vector3(0, -1.2, -0.75), "train");
-    [[0.6, 0.75], [-0.6, 0.75], [0.6, -0.75], [-0.6, -0.75]].forEach(([x, z]) => part(new THREE.BoxGeometry(0.08, 0.5, 0.08), darkMat, x, -0.9, z));
-    zoneMesh(new THREE.BoxGeometry(0.7, 0.42, 0.55), new THREE.Vector3(0, 1.05, 0), "bte");
-    part(new THREE.CylinderGeometry(0.08, 0.08, 0.45, 16), darkMat, 0, 1.4, 0);
-    zoneMesh(new THREE.CylinderGeometry(0.22, 0.28, 0.95, 20), new THREE.Vector3(0.95, 0.6, 0), "turb", Math.PI / 2);
-
-    // Main rotor: fixed in this view (no spin)
-    const rotor = new THREE.Group();
-    rotor.position.set(0, 1.7, 0);
-    heli.add(rotor);
-    const bladeA = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.03, 0.24), new THREE.MeshStandardMaterial({ color: LEVEL[data.states.rotor.k].hex, roughness: 0.4 }));
-    const bladeB = bladeA.clone();
-    bladeB.rotation.y = Math.PI;
-    rotor.add(bladeA, bladeB);
-    [bladeA, bladeB].forEach(b => {
-      b.userData.zone = "rotor";
-      b.userData.home = new THREE.Vector3(0, 0, 0);
-      b.userData.dir = new THREE.Vector3(0, 1, 0);
-      pickable.push(b);
-    });
-
-    const tail = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.9, 0.12), darkMat);
-    tail.position.set(-3.9, 0.6, 0.2);
-    heli.add(tail);
-
-    // Interaction state
+    const zoneView = {};
+    const token = {};
     let selected = null;
     let camGoal = HOME.clone();
     let targetGoal = CENTER.clone();
@@ -211,6 +205,10 @@
 
     const info = document.getElementById("heli-info");
     const buttons = Array.from(document.querySelectorAll(".heli-zone"));
+    const status = document.createElement("p");
+    status.className = "heli-status muted";
+    status.textContent = t("heli.loading");
+    host.appendChild(status);
 
     /** Selects a zone (or none): moves it out, aims the camera at it, updates the page. */
     function select(id) {
@@ -222,11 +220,56 @@
         targetGoal = CENTER.clone();
         return;
       }
-      const target = pickable.find(m => m.userData.zone === selected);
-      const world = new THREE.Vector3();
-      target.getWorldPosition(world);
-      targetGoal = world.clone();
-      camGoal = world.clone().add(new THREE.Vector3(3.0, 1.2, 4.0));
+      const v = zoneView[selected];
+      if (!v) return;
+      targetGoal = v.center.clone();
+      camGoal = v.center.clone().add(v.offset);
+    }
+
+    /** Places the parts of the loaded model in the scene and records each zone's parts. */
+    function build(gltf) {
+      const src = gltf.scene;
+      const box = new THREE.Box3().setFromObject(src);
+      const size = box.getSize(new THREE.Vector3());
+      const k = SIZE / Math.max(size.x, size.y, size.z, 1e-6);
+      src.scale.setScalar(k);
+      src.position.copy(box.getCenter(new THREE.Vector3()).multiplyScalar(-k));
+      heli.add(src);
+      src.updateMatrixWorld(true);
+      scene.userData.model = src;
+
+      const byZone = { rotor: [], bte: [], turb: [], train: [] };
+      src.traverse(obj => {
+        if (!obj.isMesh) return;
+        const z = zoneOf(obj);
+        if (z) byZone[z].push(obj);
+      });
+
+      ZONES.forEach(z => {
+        const meshes = byZone[z.id];
+        if (!meshes.length) return;
+        const hex = LEVEL[data.states[z.id].k].hex;
+        const union = new THREE.Box3();
+        meshes.forEach(m => {
+          m.material = Array.isArray(m.material) ? m.material.map(x => x.clone()) : m.material.clone();
+          [].concat(m.material).forEach(x => x.color && x.color.setHex(hex));
+          const wc = new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3());
+          const off = wc.clone().sub(new THREE.Vector3(0, 0, 0));
+          if (off.lengthSq() < 1e-6) off.set(0, 1, 0);
+          off.y += 0.35;
+          off.normalize();
+          const p = m.parent;
+          const a0 = p.worldToLocal(wc.clone());
+          const a1 = p.worldToLocal(wc.clone().add(off));
+          m.userData = { zone: z.id, home: m.position.clone(), dir: a1.sub(a0).normalize() };
+          union.expandByObject(m);
+          pickable.push(m);
+        });
+        const center = union.getCenter(new THREE.Vector3());
+        const span = Math.max(1.5, union.getSize(new THREE.Vector3()).length());
+        zoneView[z.id] = { center, offset: new THREE.Vector3(0.9, 0.4, 1.2).multiplyScalar(span) };
+      });
+      status.remove();
     }
 
     const onDown = e => { dragging = true; lastX = e.clientX; moved = 0; };
@@ -252,7 +295,7 @@
     const onWheel = e => {
       e.preventDefault();
       const offset = camGoal.clone().sub(targetGoal);
-      const dist = THREE.MathUtils.clamp(offset.length() * (1 + Math.sign(e.deltaY) * 0.08), 1.5, 14);
+      const dist = THREE.MathUtils.clamp(offset.length() * (1 + Math.sign(e.deltaY) * 0.08), 1.5, 22);
       camGoal = targetGoal.clone().add(offset.setLength(dist));
     };
     const onButton = e => {
@@ -284,13 +327,13 @@
     resize();
 
     select(null);
+    live = { renderer, raf: 0, ro, listeners, scene, token };
     const loop = () => {
       live.raf = requestAnimationFrame(loop);
       if (!dragging) heli.rotation.y += 0.002;
       pickable.forEach(m => {
-        if (m.parent === rotor) return;
         const goal = m.userData.zone === selected
-          ? m.userData.home.clone().add(m.userData.dir.clone().multiplyScalar(0.9))
+          ? m.userData.home.clone().add(m.userData.dir.clone().multiplyScalar(EXPLODE))
           : m.userData.home;
         m.position.lerp(goal, 0.12);
       });
@@ -299,8 +342,17 @@
       camera.lookAt(lookAt);
       renderer.render(scene, camera);
     };
-    live = { renderer, raf: 0, ro, listeners };
     loop();
+
+    const file = (MODELS.find(m => m.id === data.model) || MODELS[1]).file;
+    loadModel(file).then(gltf => {
+      if (!live || live.token !== token) return;
+      build(gltf);
+      select(selected);
+    }).catch(() => {
+      if (!live || live.token !== token) return;
+      status.textContent = t("heli.model_error");
+    });
   }
 
   MIS.heliBlock = heliBlock;
