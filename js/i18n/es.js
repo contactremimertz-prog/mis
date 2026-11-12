@@ -252,6 +252,7 @@ window.I18N.es = {
   "heli.lvl_crit": "Urgencia alta: tarea vencida",
   "heli.lvl_warn": "Urgencia media: vencimiento próximo",
   "heli.lvl_ok": "Conforme",
+  "heli.sim_short": "(simulado)",
   "heli.zone.queue": "Cola y rotor de cola",
   "heli.zone.cellule": "Célula",
   "heli.zone.portes": "Puertas y acristalamiento",

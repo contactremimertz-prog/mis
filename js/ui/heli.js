@@ -214,8 +214,11 @@
     return ZONES.filter(z => zones[z.id] && (zones[z.id].parts || CORE.includes(z.id))).map(z => {
       const s = zones[z.id];
       const count = s.tracked ? ` <span class="small muted">(${s.tracked.length})</span>` : "";
+      // Say when the zone's level comes from simulated revisions only, not from the maintenance programme.
+      const dbK = s.rows.length ? worst(s.rows.map(x => levelOf(x.st))) : "none";
+      const sim = RANK[s.k] > RANK[dbK] ? ` <span class="small muted">${esc(t("heli.sim_short"))}</span>` : "";
       return `<li><button type="button" class="heli-zone" data-zone="${z.id}" aria-pressed="false">` +
-        `<span>${esc(t("heli.zone." + z.id))}${count}</span><span class="heli-lvl" style="color:${LEVEL[s.k].css}">${esc(t(LEVEL[s.k].key))}</span></button></li>`;
+        `<span>${esc(t("heli.zone." + z.id))}${count}</span><span class="heli-lvl" style="color:${LEVEL[s.k].css}">${esc(t(LEVEL[s.k].key))}${sim}</span></button></li>`;
     }).join("");
   }
 

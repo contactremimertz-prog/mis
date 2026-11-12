@@ -252,6 +252,7 @@ window.I18N.fr = {
   "heli.lvl_crit": "Urgence haute : tâche échue",
   "heli.lvl_warn": "Urgence moyenne : échéance proche",
   "heli.lvl_ok": "Conforme",
+  "heli.sim_short": "(simulé)",
   "heli.zone.queue": "Queue et rotor arrière",
   "heli.zone.cellule": "Cellule",
   "heli.zone.portes": "Portes et vitrages",
