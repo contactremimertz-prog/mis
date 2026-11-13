@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{% trans "Jetons API" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% trans "Jetons d'accès à l'API" %}</h1>
+  <div class="sub">{% trans "Chaque jeton agit avec les droits du compte AHMIS auquel il est lié. Utilisez un compte de service dédié par système appelant. Documentation : menu Aide, « API externe ». Point d'entrée :" %} <code>{% trans "/api/v1/" %}</code></div></div></div>
+{% if new_key %}
+<div class="alert ok"><strong>{% trans "Clé du nouveau jeton (affichée une seule fois) :" %}</strong><br>
+  <code style="font-size:15px;user-select:all">{{ new_key }}</code><br>
+  <span class="small">{% trans "À utiliser dans l'en-tête HTTP :" %} <code>{% blocktrans with new_key=new_key|slice:":8" %}Authorization: Bearer {{ new_key }}…{% endblocktrans %}</code></span></div>
+{% endif %}
+<div class="card"><h2>{% trans "Jetons" %}</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>{% trans "Système" %}</th><th>{% trans "Préfixe" %}</th><th>{% trans "Compte" %}</th><th>{% trans "Portée" %}</th><th>{% trans "IP autorisées" %}</th><th>{% trans "Expire" %}</th><th>{% trans "Dernière utilisation" %}</th><th>{% trans "État" %}</th><th></th></tr></thead><tbody>
+  {% for t in tokens %}<tr>
+    <td><strong>{{ t.name }}</strong><div class="small muted">{% blocktrans with created_at=t.created_at|date:"d/m/Y" %}créé le {{ created_at }} par{% endblocktrans %} {{ t.created_by|default:"—" }}</div></td>
+    <td><code>{{ t.prefix }}…</code></td><td>{{ t.user.username }}</td><td>{{ t.get_scope_display }}</td>
+    <td class="small">{{ t.allowed_ips|default:_("toutes") }}</td><td class="small">{{ t.expires_at|date:"d/m/Y"|default:_("jamais") }}</td>
+    <td class="small">{{ t.last_used_at|date:"d/m/Y H:i"|default:"—" }} {{ t.last_used_ip|default:"" }}</td>
+    <td>{% if t.is_valid %}<span class="badge ok">{% trans "Actif" %}</span>{% else %}<span class="badge">{% trans "Inactif" %}</span>{% endif %}</td>
+    <td>{% if t.active %}<form method="post" action="{% url 'api_token_revoke' t.pk %}">{% csrf_token %}<button class="btn small danger" type="submit">{% trans "Révoquer" %}</button></form>{% endif %}</td>
+  </tr>{% empty %}<tr><td colspan="9" class="empty">{% trans "Aucun jeton." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="card" style="max-width:900px"><h2>{% trans "Nouveau jeton" %}</h2>
+  <form method="post" class="stacked">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="form-grid">{% for f in form %}{% field f %}{% endfor %}</div>
+    <button class="btn primary" type="submit">{% trans "Créer le jeton" %}</button>
+  </form>
+</div>
+{% endblock %}

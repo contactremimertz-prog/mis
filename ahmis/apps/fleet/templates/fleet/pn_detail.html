@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{{ pn.pn }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ pn.pn }}</h1><div class="sub">{{ pn.description }} {% blocktrans with manufacturer=pn.manufacturer|default:_("constructeur non renseigné") %}· {{ manufacturer }} · ATA{% endblocktrans %} {{ pn.ata|default:"—" }}</div></div>
+  <div class="actions">{% if perms.fleet.change_partnumber %}<a class="btn" href="{% url 'fleet:pn_update' pn.pk %}">{% trans "Modifier" %}</a>{% endif %}</div>
+</div>
+<div class="card">
+  <dl class="dl">
+    <div><dt>{% trans "Suivi S/N" %}</dt><dd>{% yesno_badge pn.is_serialized %}</dd></div>
+    <div><dt>{% trans "Rotable" %}</dt><dd>{% yesno_badge pn.is_rotable %}</dd></div>
+    <div><dt>LLP</dt><dd>{% yesno_badge pn.is_llp %}</dd></div>
+    <div><dt>{% trans "Limite de vie" %}</dt><dd>{{ pn.life_limit_fh|fmt }} {% blocktrans with life_limit_fc=pn.life_limit_fc|fmt life_limit_days=pn.life_limit_days|fmt %}FH · {{ life_limit_fc }} cyc · {{ life_limit_days }} j{% endblocktrans %}</dd></div>
+    <div><dt>TBO</dt><dd>{{ pn.tbo_fh|fmt }} {% blocktrans with tbo_fc=pn.tbo_fc|fmt tbo_days=pn.tbo_days|fmt %}FH · {{ tbo_fc }} cyc · {{ tbo_days }} j{% endblocktrans %}</dd></div>
+    <div><dt>{% trans "Types applicables" %}</dt><dd>{{ pn.applicable_types.all|join:", "|default:_("Tous") }}</dd></div>
+    <div><dt>{% trans "Interchangeables" %}</dt><dd>{% for a in pn.alternates.all %}<a href="{{ a.get_absolute_url }}">{{ a.pn }}</a> {% empty %}—{% endfor %}</dd></div>
+    <div><dt>{% trans "Unité" %}</dt><dd>{{ pn.unit }}</dd></div>
+  </dl>
+</div>
+<div class="card"><h2>{% blocktrans with components=components|length %}Composants ({{ components }}){% endblocktrans %}</h2>
+  <table class="data"><thead><tr><th>S/N</th><th>{% trans "Statut" %}</th><th>{% trans "Aéronef / emplacement" %}</th><th class="num">{% trans "TSN" %}</th><th class="num">{% trans "CSN" %}</th><th class="num">{% trans "TSO" %}</th></tr></thead><tbody>
+  {% for c in components %}<tr><td><a href="{{ c.get_absolute_url }}">{{ c.serial_number }}</a></td><td>{% badge c %}</td><td>{% if c.aircraft %}{{ c.aircraft.registration }} {{ c.position }}{% else %}{{ c.location|default:"—" }}{% endif %}</td><td class="num">{{ c.tsn_fh|hours }}</td><td class="num">{{ c.csn }}</td><td class="num">{{ c.tso_fh|hours }}</td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">{% trans "Aucun." %}</td></tr>{% endfor %}</tbody></table>
+</div>
+{% if stock %}<div class="card"><h2>{% trans "Stock" %}</h2><table class="data"><thead><tr><th>{% trans "Lot" %}</th><th>{% trans "Emplacement" %}</th><th class="num">{% trans "Quantité" %}</th><th>{% trans "Péremption" %}</th><th>{% trans "Statut" %}</th></tr></thead><tbody>
+{% for s in stock %}<tr><td>{{ s.batch|default:"—" }}</td><td>{{ s.location }}</td><td class="num">{{ s.quantity|fmt }}</td><td>{{ s.shelf_life_expiry|date:"d/m/Y"|default:"—" }}</td><td>{% badge s %}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+<div class="grid grid-2">
+  <div class="card"><h2>{% trans "Tâches du programme" %}</h2><table class="data"><tbody>{% for t in tasks %}<tr><td><a href="{{ t.get_absolute_url }}">{{ t.reference }}</a> {{ t.title }}</td><td>{{ t.aircraft_type.code }}</td><td class="small">{{ t.interval_display }}</td></tr>{% empty %}<tr><td class="empty">{% trans "Aucune." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="card"><h2>{% trans "Consignes" %}</h2><table class="data"><tbody>{% for d in directives %}<tr><td><a href="{{ d.get_absolute_url }}">{{ d.number }}</a></td><td>{{ d.title }}</td></tr>{% empty %}<tr><td class="empty">{% trans "Aucune." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

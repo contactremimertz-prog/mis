@@ -1,0 +1,22 @@
+{% load i18n %}{% load static ahmis %}<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>{{ card.number }}</title><link rel="stylesheet" href="{% static 'ahmis/ahmis.css' %}"></head>
+<body style="background:#fff"><div class="print-sheet">
+<div class="head"><div><strong style="font-size:18px">{% trans "TASK CARD" %} {{ card.number }}</strong><br>{{ AHMIS.ORGANISATION }} {% trans "– agrément" %} {{ AHMIS.APPROVAL_REF_145 }}</div>
+<div class="right">WP {{ card.work_package.number }}<br>{{ card.aircraft.registration }} {% blocktrans with code=card.aircraft.aircraft_type.code %}– {{ code }} MSN{% endblocktrans %} {{ card.aircraft.msn }}<br>{% trans "Statut :" %} {{ card.get_status_display }}</div></div>
+<table><tr><th style="width:22%">{% trans "Intitulé" %}</th><td colspan="3">{{ card.title }}</td></tr>
+<tr><th>{% trans "Tâche AMP" %}</th><td>{{ card.task.reference|default:"—" }}</td><th>ATA</th><td>{{ card.ata|default:"—" }}</td></tr>
+<tr><th>{% trans "Zone / accès" %}</th><td>{{ card.zone|default:"—" }} / {{ card.access|default:"—" }}</td><th>{% trans "Qualification" %}</th><td>{{ card.get_skill_display }}{% if card.requires_independent_inspection %} {% trans "– contrôle indépendant requis" %}{% endif %}</td></tr>
+<tr><th>{% trans "Composant" %}</th><td colspan="3">{{ card.component|default:"—" }}</td></tr>
+<tr><th>{% trans "Instructions" %}</th><td colspan="3" style="white-space:pre-line">{{ card.instructions|default:"—" }}</td></tr></table>
+<h3>{% trans "Étapes" %}</h3>
+<table><tr><th style="width:6%">N°</th><th>{% trans "Étape" %}</th><th style="width:16%">{% trans "Valeur" %}</th><th style="width:28%">{% trans "Signature" %}</th></tr>
+{% for s in steps %}<tr><td>{{ s.order }}</td><td>{{ s.text }}</td><td>{{ s.measured_value }}{% if s.not_applicable %}N/A{% endif %}</td><td>{% if s.done_at %}{{ s.done_by.full_name }} {{ s.done_by.stamp }} – {{ s.done_at|date:"d/m/Y H:i" }}{% else %}{% trans "&nbsp;" %}<br>{% trans "&nbsp;" %}{% endif %}</td></tr>{% endfor %}</table>
+<h3>{% trans "Compte rendu" %}</h3><table><tr><td style="height:60px">{{ card.work_done|linebreaksbr }}</td></tr></table>
+<h3>{% trans "Pièces et outillage" %}</h3>
+<table><tr><th>{% trans "Demande" %}</th><th>P/N</th><th>{% trans "Qté" %}</th><th>{% trans "Délivré" %}</th></tr>{% for r in requests %}<tr><td>{{ r.number }}</td><td>{{ r.part_number.pn }}</td><td>{{ r.quantity|fmt }}</td><td>{{ r.issued_component|default:"" }}{{ r.issued_stock|default:"" }}</td></tr>{% empty %}<tr><td colspan="4">—</td></tr>{% endfor %}
+{% for u in tool_usages %}<tr><td>{% trans "Outil" %}</td><td>{{ u.tool.reference }}</td><td colspan="2">{{ u.tool.description }} {% trans "– étalonné jusqu'au" %} {{ u.calibration_due|date:"d/m/Y"|default:"n/a" }}</td></tr>{% endfor %}</table>
+<h3>{% trans "Signatures" %}</h3>
+<table><tr><th>{% trans "Exécution" %}</th><td>{% if card.performed_by %}{{ card.performed_by.full_name }} ({{ card.performed_by.licence_summary }}) – {{ card.performed_at|date:"d/m/Y H:i" }} – {{ card.actual_mh|fmt }} h.h{% endif %}</td></tr>
+<tr><th>{% trans "Contrôle indépendant" %}</th><td>{% if card.inspected_by %}{{ card.inspected_by.full_name }} ({{ card.inspected_by.licence_summary }}) – {{ card.inspected_at|date:"d/m/Y H:i" }}{% elif card.requires_independent_inspection %}{% trans "&nbsp;" %}{% else %}{% trans "Non requis" %}{% endif %}</td></tr></table>
+<p class="small muted">{% trans "Signatures électroniques :" %} {% for s in signatures %}{{ s.get_action_display }} {% blocktrans with signer_name=s.signer_name signed_at=s.signed_at|date:"d/m/Y H:i" digest=s.digest|slice:":12" %}{{ signer_name }} {{ signed_at }} [SHA-256 {{ digest }}…]{% endblocktrans %}{% if not forloop.last %} · {% endif %}{% empty %}{% trans "aucune" %}{% endfor %}{% trans ". Édité le" %} {% now "d/m/Y H:i" %}.</p>
+<p class="no-print"><button class="btn primary" onclick="window.print()">{% trans "Imprimer" %}</button></p>
+</div></body></html>

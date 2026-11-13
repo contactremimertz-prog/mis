@@ -1,0 +1,45 @@
+{% extends "base.html" %}{% load ahmis i18n %}
+{% block title %}{{ a.number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ a.number }} {% badge a %}</h1>
+    <div class="sub">{{ a.title }} · {{ a.get_scope_display }} · {{ a.get_kind_display }} · {{ a.area }}</div></div>
+  <div class="actions">
+    {% if perms.quality.change_internalaudit %}<a class="btn primary" href="{% url 'quality:audit_update' a.pk %}">{% trans "Modifier" %}</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'quality.internalaudit' a.pk %}">{% trans "Historique" %}</a>{% endif %}
+  </div>
+</div>
+{% if a.overdue %}<div class="alert warn">{% trans "Audit planifié non réalisé à la date prévue : replanifier ou réaliser." %}</div>{% endif %}
+{% if not a.auditor_independent and a.status == "planned" %}<div class="alert info">{% trans "Avant de démarrer, confirmez que l'auditeur est indépendant de l'activité auditée." %}</div>{% endif %}
+<div class="grid grid-2">
+  <div class="card"><h2>{% trans "Audit" %}</h2><dl class="dl">
+    <div><dt>{% trans "Date prévue" %}</dt><dd>{{ a.planned_on|date:"d/m/Y" }}</dd></div>
+    <div><dt>{% trans "Réalisé le" %}</dt><dd>{{ a.performed_on|date:"d/m/Y"|default:"—" }}</dd></div>
+    <div><dt>{% trans "Auditeur" %}</dt><dd>{{ a.auditor.get_full_name|default:a.auditor.username }} {% yesno_badge a.auditor_independent _("Indépendant") _("Indépendance non confirmée") %}</dd></div>
+    <div><dt>{% trans "Clôturé le" %}</dt><dd>{{ a.closed_on|date:"d/m/Y"|default:"—" }}</dd></div>
+  </dl>
+  {% if a.summary %}<h3>{% trans "Synthèse du rapport" %}</h3><p class="small">{{ a.summary|linebreaksbr }}</p>{% endif %}</div>
+  <div class="card"><h2>{% trans "Ajouter un constat" %}</h2>
+  {% if perms.quality.add_auditfinding and a.status != "closed" and a.status != "cancelled" %}
+    <form method="post" action="{% url 'quality:finding_add' a.pk %}" class="stacked">{% csrf_token %}
+      <div class="form-grid">{% for f in finding_form %}{% field f %}{% endfor %}</div>
+      <button class="btn primary" type="submit">{% trans "Enregistrer le constat" %}</button></form>
+  {% else %}<p class="muted small">{% trans "Aucun constat ne peut être ajouté à cet audit." %}</p>{% endif %}</div>
+</div>
+<div class="card"><h2>{% trans "Constats" %} ({{ findings|length }})</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>{% trans "N°" %}</th><th>{% trans "Niveau" %}</th><th>{% trans "Exigence" %}</th><th>{% trans "Constat" %}</th><th>{% trans "À corriger avant le" %}</th><th>{% trans "Statut" %}</th></tr></thead><tbody>
+  {% for f in findings %}<tr id="f{{ f.pk }}"><td>{{ f.number }}</td><td><span class="badge {% if f.level == 'level1' %}bad{% elif f.level == 'level2' %}warn{% endif %}">{{ f.get_level_display }}</span></td>
+    <td>{{ f.requirement }}</td><td class="small">{{ f.description|linebreaksbr }}
+      {% if f.status == "closed" %}<div class="small"><strong>{% trans "Cause" %} :</strong> {{ f.root_cause }}<br><strong>{% trans "Action" %} :</strong> {{ f.corrective_action }}</div>
+        {% if f.signature %}<div class="sig small">{% trans "Signé par" %} <strong>{{ f.signature.signer_name }}</strong> – {{ f.signature.signed_at|date:"d/m/Y H:i" }}</div>{% endif %}
+      {% elif perms.quality.change_auditfinding %}
+        <details><summary class="small">{% trans "Clôturer ce constat" %}</summary>
+        <form method="post" action="{% url 'quality:finding_close' f.pk %}" class="stacked sign-box">{% csrf_token %}
+          <div class="field wide"><label for="rc-{{ f.pk }}">{% trans "Cause racine" %}</label><textarea id="rc-{{ f.pk }}" name="root_cause" rows="2" required minlength="5">{{ f.root_cause }}</textarea></div>
+          <div class="field wide"><label for="ca-{{ f.pk }}">{% trans "Action corrective" %}</label><textarea id="ca-{{ f.pk }}" name="corrective_action" rows="2" required minlength="5">{{ f.corrective_action }}</textarea></div>
+          <div class="inline-form">{% include "core/_sign_form.html" with id=f.pk %}<button class="btn primary" type="submit">{% trans "Clôturer et signer" %}</button></div>
+        </form></details>{% endif %}</td>
+    <td>{{ f.due_date|date:"d/m/Y" }} {% if f.alert == "overdue" %}<span class="badge bad">{% trans "en retard" %}</span>{% elif f.alert == "due_soon" %}<span class="badge warn">{% trans "proche" %}</span>{% endif %}</td><td>{% badge f %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">{% trans "Aucun constat." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

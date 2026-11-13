@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% load ahmis i18n %}
+{% block title %}{{ po.number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ po.number }} {% badge po %}</h1>
+    <div class="sub">{{ po.supplier }} {% yesno_badge po.supplier.approved _("Fournisseur accepté") _("Fournisseur non accepté") %}{% if po.supplier.approval_reference %} · {{ po.supplier.approval_reference }}{% endif %}</div></div>
+  <div class="actions">
+    {% if perms.logistics.change_purchaseorder %}
+      {% if po.status == "draft" %}<a class="btn" href="{% url 'logistics:po_update' po.pk %}">{% trans "Modifier" %}</a>
+        <form method="post" action="{% url 'logistics:po_action' po.pk 'send' %}" style="display:inline">{% csrf_token %}<button class="btn primary" type="submit">{% trans "Émettre la commande" %}</button></form>{% endif %}
+      {% if po.status == "draft" or po.status == "sent" %}<form method="post" action="{% url 'logistics:po_action' po.pk 'cancel' %}" style="display:inline">{% csrf_token %}<button class="btn danger" type="submit">{% trans "Annuler" %}</button></form>{% endif %}
+    {% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'logistics.purchaseorder' po.pk %}">{% trans "Historique" %}</a>{% endif %}
+  </div>
+</div>
+{% if po.late %}<div class="alert warn">{% trans "Livraison en retard : prévue le" %} {{ po.expected_on|date:"d/m/Y" }}.</div>{% endif %}
+{% if not po.supplier.approved and po.status == "draft" %}<div class="alert">{% trans "Ce fournisseur n'est pas accepté : la commande ne pourra pas être émise." %}</div>{% endif %}
+<div class="card"><dl class="dl">
+  <div><dt>{% trans "Commandée le" %}</dt><dd>{{ po.ordered_on|date:"d/m/Y"|default:"—" }}</dd></div>
+  <div><dt>{% trans "Livraison prévue" %}</dt><dd>{{ po.expected_on|date:"d/m/Y"|default:"—" }}</dd></div>
+</dl>{% if po.notes %}<p class="small">{{ po.notes|linebreaksbr }}</p>{% endif %}</div>
+<div class="card"><h2>{% trans "Lignes" %}</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>{% trans "P/N" %}</th><th>{% trans "Désignation" %}</th><th class="num">{% trans "Commandé" %}</th><th class="num">{% trans "Reçu" %}</th><th>{% trans "Demande liée" %}</th><th>{% trans "Réceptions" %}</th></tr></thead><tbody>
+  {% for l in lines %}<tr><td><a href="{{ l.part_number.get_absolute_url }}">{{ l.part_number.pn }}</a></td><td class="small">{{ l.part_number.description }}</td>
+    <td class="num">{{ l.quantity|fmt }}</td><td class="num">{{ l.received_quantity|fmt }}</td>
+    <td>{% if l.part_request %}<a href="{% url 'logistics:request_detail' l.part_request.pk %}">{{ l.part_request.number }}</a>{% else %}—{% endif %}</td>
+    <td class="small">{% for r in l.receipts_list %}<div>{{ r.received_on|date:"d/m/Y" }} : {{ r.quantity|fmt }}{% if r.certificate %} · {{ r.certificate.get_cert_type_display }} {{ r.certificate.tracking_number }}{% endif %}</div>{% endfor %}
+      {% if l.remaining and perms.logistics.add_purchasereceipt %}{% if po.status == "sent" or po.status == "partial" %}
+      <form method="post" action="{% url 'logistics:po_receive' l.pk %}" class="inline-form">{% csrf_token %}{% for f in l.receive_form %}{% field f %}{% endfor %}<button class="btn small primary" type="submit">{% trans "Réceptionner" %}</button></form>
+      {% if l.part_number.requires_release_certificate %}<div class="muted">{% trans "Élément : enregistrez d'abord le certificat libératoire dans l'écran Réception." %}</div>{% endif %}
+      {% endif %}{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">{% trans "Aucune ligne." %}</td></tr>{% endfor %}</tbody></table></div>
+  {% if po.status == "draft" and perms.logistics.change_purchaseorder %}<h3>{% trans "Ajouter une ligne" %}</h3>
+  <form method="post" action="{% url 'logistics:po_line_add' po.pk %}" class="inline-form">{% csrf_token %}{% for f in line_form %}{% field f %}{% endfor %}<button class="btn" type="submit">{% trans "Ajouter" %}</button></form>{% endif %}
+</div>
+{% endblock %}

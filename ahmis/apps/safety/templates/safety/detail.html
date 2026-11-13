@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{{ r.number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ r.number }} {% badge r %} <span class="badge {% if r.severity == 'high' or r.severity == 'serious_incident' %}bad{% elif r.severity == 'medium' %}warn{% endif %}">{{ r.get_severity_display }}</span></h1>
+    <div class="sub">{{ r.title }} · {{ r.get_category_display }}{% if r.aircraft %} · <a href="{{ r.aircraft.get_absolute_url }}">{{ r.aircraft.registration }}</a>{% endif %}</div></div>
+  <div class="actions">
+    {% if perms.safety.change_occurrencereport %}<a class="btn primary" href="{% url 'safety:update' r.pk %}">{% trans "Traiter" %}</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'safety.occurrencereport' r.pk %}">{% trans "Historique" %}</a>{% endif %}
+  </div>
+</div>
+{% if r.status == "draft" %}
+  {% if r.hours_left < 0 %}<div class="alert"><strong>{% trans "Délai de 72 h dépassé" %}</strong> {% blocktrans with report_deadline=r.report_deadline|date:"d/m/Y H:i" %}depuis le {{ report_deadline }} : notifier l'autorité sans délai et documenter le motif du retard.{% endblocktrans %}</div>
+  {% else %}<div class="alert warn">{% trans "À notifier à l'autorité avant le" %} <strong>{{ r.report_deadline|date:"d/m/Y H:i" }}</strong> {% blocktrans with hours_left=r.hours_left %}(reste {{ hours_left }} h).{% endblocktrans %}</div>{% endif %}
+{% elif r.follow_up_late %}<div class="alert">{% blocktrans with follow_up_deadline=r.follow_up_deadline|date:"d/m/Y" %}Analyse de suivi attendue avant le {{ follow_up_deadline }} (art. 13(4)) : en retard.{% endblocktrans %}</div>
+{% elif r.status == "submitted" %}<div class="alert info">{% blocktrans with follow_up_deadline=r.follow_up_deadline|date:"d/m/Y" %}Analyse de suivi à transmettre avant le {{ follow_up_deadline }}.{% endblocktrans %}</div>{% endif %}
+<div class="grid grid-2">
+  <div class="card"><h2>{% trans "Déclaration" %}</h2><dl class="dl">
+    <div><dt>{% trans "Événement le" %}</dt><dd>{{ r.occurred_at|date:"d/m/Y H:i" }}</dd></div>
+    <div><dt>{% trans "Connu le" %}</dt><dd>{{ r.aware_at|date:"d/m/Y H:i" }}</dd></div>
+    <div><dt>{% trans "Phase / lieu" %}</dt><dd>{{ r.get_phase_display }}{% if r.location %} – {{ r.location }}{% endif %}</dd></div>
+    <div><dt>{% trans "Composant" %}</dt><dd>{% if r.component %}<a href="{{ r.component.get_absolute_url }}">{{ r.component }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>{% trans "Défaut lié" %}</dt><dd>{% if r.defect %}<a href="{{ r.defect.get_absolute_url }}">{{ r.defect.number }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>{% trans "Task card liée" %}</dt><dd>{% if r.task_card %}<a href="{{ r.task_card.get_absolute_url }}">{{ r.task_card.number }}</a>{% else %}—{% endif %}</dd></div>
+    <div><dt>{% trans "Déclarant" %}</dt><dd>{% if show_reporter %}{{ r.reporter_name|default:"—" }}{% if r.confidential %} <span class="badge">{% trans "confidentiel" %}</span>{% endif %}{% else %}<span class="muted">{% trans "Confidentiel" %}</span>{% endif %}</dd></div>
+  </dl>
+  <h3>{% trans "Description" %}</h3><p class="small">{{ r.description|linebreaksbr }}</p>
+  {% if r.immediate_actions %}<h3>{% trans "Mesures immédiates" %}</h3><p class="small">{{ r.immediate_actions|linebreaksbr }}</p>{% endif %}</div>
+  <div class="card"><h2>{% trans "Notification et suivi" %}</h2><dl class="dl">
+    <div><dt>{% trans "Échéance 72 h" %}</dt><dd>{{ r.report_deadline|date:"d/m/Y H:i" }}{% if r.submitted_at %} {% if r.report_late %}<span class="badge bad">{% trans "notifié en retard" %}</span>{% else %}<span class="badge ok">{% trans "dans les délais" %}</span>{% endif %}{% endif %}</dd></div>
+    <div><dt>{% trans "Autorité" %}</dt><dd>{{ r.authority|default:"—" }}{% if r.authority_reference %} – {{ r.authority_reference }}{% endif %}</dd></div>
+    <div><dt>{% trans "Notifié le" %}</dt><dd>{{ r.submitted_at|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+    <div><dt>{% trans "Détenteur de la conception" %}</dt><dd>{% yesno_badge r.design_holder_notified _("Informé") _("Non informé") %}{% if r.design_holder_reference %} {{ r.design_holder_reference }}{% endif %}</dd></div>
+    <div><dt>{% trans "Exploitant / CAMO client" %}</dt><dd>{% yesno_badge r.customer_notified _("Informé") _("Non informé") %}</dd></div>
+    <div><dt>{% trans "Suivi transmis le" %}</dt><dd>{{ r.follow_up_at|date:"d/m/Y"|default:"—" }}</dd></div>
+    <div><dt>{% trans "Clôturé le" %}</dt><dd>{{ r.closed_on|date:"d/m/Y"|default:"—" }}</dd></div>
+  </dl>
+  {% if r.late_reason %}<h3>{% trans "Motif du retard" %}</h3><p class="small">{{ r.late_reason|linebreaksbr }}</p>{% endif %}
+  {% if r.not_reportable_reason %}<h3>{% trans "Classement non notifiable" %}</h3><p class="small">{{ r.not_reportable_reason|linebreaksbr }}</p>{% endif %}
+  {% if r.analysis %}<h3>{% trans "Analyse" %}</h3><p class="small">{{ r.analysis|linebreaksbr }}</p>{% endif %}
+  {% if r.corrective_actions %}<h3>{% trans "Actions correctives" %}</h3><p class="small">{{ r.corrective_actions|linebreaksbr }}</p>{% endif %}</div>
+</div>
+{% endblock %}

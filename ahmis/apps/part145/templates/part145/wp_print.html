@@ -1,0 +1,14 @@
+{% load i18n %}{% load static ahmis %}<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>{{ wp.number }}</title><link rel="stylesheet" href="{% static 'ahmis/ahmis.css' %}"></head>
+<body style="background:#fff"><div class="print-sheet">
+<div class="head"><div><strong style="font-size:18px">{% trans "WORK PACKAGE" %} {{ wp.number }}</strong><br>{{ AHMIS.ORGANISATION }} {% trans "– agrément" %} {{ AHMIS.APPROVAL_REF_145 }}</div>
+<div class="right">{{ wp.aircraft.registration }} – {{ wp.aircraft.aircraft_type }}<br>MSN {{ wp.aircraft.msn }}<br>{{ wp.planned_start|date:"d/m/Y" }} → {{ wp.planned_end|date:"d/m/Y" }}</div></div>
+<table><tr><th>{% trans "Intitulé" %}</th><td>{{ wp.title }}</td><th>{% trans "Type" %}</th><td>{{ wp.get_check_type_display }}</td></tr>
+<tr><th>{% trans "Station" %}</th><td>{{ wp.station|default:"—" }}</td><th>{% trans "Commande" %}</th><td>{{ wp.ordered_by|default:"—" }} {{ wp.customer_order }}</td></tr>
+<tr><th>{% trans "Compteurs à l'entrée" %}</th><td>{{ wp.fh_at_check|hours }} {% blocktrans with fc_at_check=wp.fc_at_check|fmt %}FH / {{ fc_at_check }} cycles{% endblocktrans %}</td><th>{% trans "Statut" %}</th><td>{{ wp.get_status_display }}</td></tr></table>
+<h3>{% trans "Récapitulatif des task cards" %}</h3>
+<table><tr><th>N°</th><th>{% trans "Intitulé" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Exécution" %}</th><th>{% trans "Contrôle" %}</th></tr>
+{% for c in cards %}<tr><td>{{ c.number }}</td><td>{{ c.title }}</td><td>{{ c.get_status_display }}{% if c.deferral_reason %} – {{ c.deferral_reason }}{% endif %}</td><td>{{ c.performed_by.full_name|default:"" }}</td><td>{{ c.inspected_by.full_name|default:"" }}</td></tr>{% endfor %}</table>
+<h3>{% trans "Certificat de remise en service" %}</h3>
+<table><tr><td style="height:70px">{% if wp.crs_by %}{{ wp.crs_statement }}<br><br><strong>{{ wp.crs_by.full_name }}</strong> – {{ wp.crs_by.licence_summary }} – {{ wp.crs_date|date:"d/m/Y H:i" }}{% if crs_signature %} {% blocktrans with digest=crs_signature.digest|slice:":12" %}[SHA-256 {{ digest }}…]{% endblocktrans %}{% endif %}{% else %}{% trans "Non délivré" %}{% endif %}</td></tr></table>
+<p class="no-print"><button class="btn primary" onclick="window.print()">{% trans "Imprimer" %}</button></p>
+</div></body></html>
