@@ -10659,6 +10659,13 @@ msgid "(mot de passe :"
 msgstr "(contraseña:"
 
 #, python-format
+msgid "Photo d'un %(m)s (photo du type, pas de l'appareil)"
+msgstr "Foto de un %(m)s (foto del tipo, no de esta aeronave)"
+
+msgid "Photo"
+msgstr "Foto"
+
+#, python-format
 #~ msgid "Vue 3D interactive de l'appareil %(reg)s (modèle générique)"
 #~ msgstr "Vista 3D interactiva de la aeronave %(reg)s (modelo genérico)"
 
@@ -10668,10 +10675,6 @@ msgstr "(contraseña:"
 #~ msgstr ""
 #~ "Arrastre para girar · rueda para hacer zoom · haga clic en una zona o en su "
 #~ "nombre para extraerla de la aeronave."
-
-#, python-format
-msgid "Photo d'un %(m)s (photo du type, pas de l'appareil)"
-msgstr "Foto de un %(m)s (foto del tipo, no de esta aeronave)"
 
 #~ msgid "ARC à renouveler"
 #~ msgstr "ARC por renovar"

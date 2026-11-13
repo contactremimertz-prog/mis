@@ -26,7 +26,7 @@
           <a class="btn hero-btn ghost" href="{% url 'camo:due' %}?aircraft={{ r.ac.pk }}">{% trans "Échéances" %}</a>
         </div>
       </div>
-      {% if r.photo %}<figure class="hero-photo"><img src="{% static r.photo.file %}" alt="{% blocktrans with m=r.photo.label %}Photo d'un {{ m }} (photo du type, pas de l'appareil){% endblocktrans %}"{% if not forloop.first %} loading="lazy"{% endif %}>{% if r.photo.credit %}<figcaption>{{ r.photo.credit }}</figcaption>{% endif %}</figure>
+      {% if r.photo %}<figure class="hero-photo"><img src="{% static r.photo.file %}" alt="{% blocktrans with m=r.photo.label %}Photo d'un {{ m }} (photo du type, pas de l'appareil){% endblocktrans %}"{% if not forloop.first %} loading="lazy"{% endif %}>{% if r.photo.credit %}<figcaption>{% trans "Photo" %} : {% if r.photo.url %}<a href="{{ r.photo.url }}" target="_blank" rel="noopener noreferrer">{{ r.photo.credit }}</a>{% else %}{{ r.photo.credit }}{% endif %}</figcaption>{% endif %}</figure>
       {% else %}<div class="hero-art" aria-hidden="true">{% if cat == "helicopter" %}{% include "core/_art_heli.svg" %}{% else %}{% include "core/_art_plane.svg" %}{% endif %}</div>{% endif %}
       {% if fleet_rows|length > 1 %}{% with nxt=r.next %}<a class="hero-next" href="#slide-{{ nxt.ac.pk }}" data-carousel-next>
         <small>{% trans "Suivant" %}</small><b>{{ nxt.ac.registration }} · {{ nxt.ac.aircraft_type.code }}</b>

@@ -61,7 +61,13 @@ def model_for(type_code):
 
 # Photos du carrousel du tableau de bord (static/ahmis/photos/<id>.jpg), par modèle de référence.
 # Crédit affiché sous la photo : à renseigner pour chaque fichier ajouté.
-PHOTO_CREDITS = {}
+# Photos sous licence libre (Wikimedia Commons), redimensionnées ; détail dans static/ahmis/photos/CREDITS.md.
+PHOTO_CREDITS = {
+    "nh90": ("Ibex73, CC BY 4.0", "https://commons.wikimedia.org/wiki/File:NHIndustries_NH90_at_Paris_Air_Show_2025_(5).jpg"),
+    "super-puma": ("Peter Gronemann, CC BY 2.0", "https://commons.wikimedia.org/wiki/File:AS332_Super_Puma_Heliweekend_(6847077680).jpg"),
+    "h145": ("Asticoco, CC BY-SA 4.0 (recadrée)", "https://commons.wikimedia.org/wiki/File:H%C3%A9licopt%C3%A8re_Airbus_H145_-_S%C3%A9curit%C3%A9_civile_F-ZBPI_-_Hauts-de-Seine_(1).jpg"),
+    "h135": ("Chme82, CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:Airbus_Helicopters_H135_HB-ZUE.jpg"),
+}
 
 
 def photo_for(type_code):
@@ -74,7 +80,8 @@ def photo_for(type_code):
     path = f"ahmis/photos/{m['id']}.jpg"
     if not finders.find(path):
         return None
-    return {"file": path, "credit": PHOTO_CREDITS.get(m["id"], ""), "label": m["label"]}
+    credit, url = PHOTO_CREDITS.get(m["id"], ("", ""))
+    return {"file": path, "credit": credit, "url": url, "label": m["label"]}
 
 
 def item_ata(item):

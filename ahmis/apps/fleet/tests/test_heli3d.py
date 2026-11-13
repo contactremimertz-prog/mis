@@ -199,3 +199,26 @@ class AircraftPageTests(TestCase):
         self.assertContains(r, 'colspan="14"')
         r = self.c.get("/flotte/composants/?q=aucun-composant-de-ce-nom")
         self.assertNotContains(r, 'colspan="0"')
+
+
+class DashboardPhotoTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("load_demo", verbosity=0, stdout=io.StringIO())
+
+    def test_photo_for_exact_types_only(self):
+        from apps.fleet.heli3d import photo_for
+        for code, mid in (("NH90", "nh90"), ("Super Puma", "super-puma"), ("H135", "h135"), ("H145", "h145")):
+            p = photo_for(code)
+            self.assertEqual(p["file"], f"ahmis/photos/{mid}.jpg")
+            self.assertTrue(p["credit"] and p["url"].startswith("https://commons.wikimedia.org/"))
+        self.assertIsNone(photo_for("H125"))
+        self.assertIsNone(photo_for("A320"))
+
+    def test_dashboard_shows_type_photo_with_credit(self):
+        c = Client()
+        c.force_login(get_user_model().objects.get(username="admin"))
+        r = c.get("/")
+        self.assertContains(r, "hero-photo")
+        self.assertContains(r, "ahmis/photos/")
+        self.assertContains(r, "commons.wikimedia.org")
