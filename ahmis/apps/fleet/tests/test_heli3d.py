@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import Client, SimpleTestCase, TestCase, override_settings
 
-from apps.fleet.heli3d import fleet_counts, item_ata, neighbours, outside_zones, zone_states
+from apps.fleet.heli3d import fleet_counts, heli_texts, item_ata, model_for, neighbours, outside_zones, zone_states
 from apps.fleet.models import Aircraft
 
 
@@ -66,6 +66,36 @@ class FleetCountsTests(SimpleTestCase):
         self.assertEqual(counts[1]["outside"], {"crit": 1, "warn": 1})
 
 
+class ModelChoiceTests(SimpleTestCase):
+    def test_reference_models_by_type_code(self):
+        self.assertEqual(model_for("H135")["id"], "h135")
+        self.assertEqual(model_for("h145")["id"], "h145")
+        self.assertEqual(model_for("NH90")["id"], "nh90")
+        self.assertEqual(model_for("Super Puma")["id"], "super-puma")
+        self.assertTrue(model_for("AS332")["exact"])
+
+    def test_closest_model_is_flagged(self):
+        m = model_for("H125")
+        self.assertEqual((m["id"], m["exact"]), ("h135", False))
+        self.assertFalse(model_for("H160")["exact"])
+
+    def test_unknown_type_uses_generic_model(self):
+        self.assertIsNone(model_for("R44"))
+        self.assertIsNone(model_for(""))
+
+    def test_model_files_are_shipped(self):
+        from django.contrib.staticfiles import finders
+        for code in ("H135", "H145", "NH90", "Super Puma"):
+            self.assertIsNotNone(finders.find(model_for(code)["file"]), code)
+        self.assertIsNotNone(finders.find("ahmis/vendor/GLTFLoader.js"))
+
+    def test_texts_for_the_script(self):
+        t = heli_texts()
+        self.assertIn("{n}", t["rev_rem"])
+        self.assertEqual(set(t["zone"]), {"cellule", "portes", "feux", "interieur"})
+        self.assertIn("sim", t)
+
+
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp(prefix="ahmis-test-media-"))
 class AircraftPageTests(TestCase):
     @classmethod
@@ -83,6 +113,29 @@ class AircraftPageTests(TestCase):
         self.assertContains(r, "data-heli3d")
         self.assertContains(r, "ahmis/heli3d.js")
         self.assertContains(r, 'data-zone="engine"')
+
+    def test_helicopter_page_loads_its_reference_model(self):
+        ac = Aircraft.objects.filter(aircraft_type__code="H135").first()
+        r = self.c.get(ac.get_absolute_url())
+        self.assertContains(r, 'data-model="/static/ahmis/models/h135.glb"')
+        self.assertContains(r, "ahmis/vendor/GLTFLoader.js")
+        self.assertContains(r, 'id="heli-texts"')
+        self.assertContains(r, "data-heli-focusbar")
+        self.assertContains(r, "modèle H135")
+
+    def test_csp_lets_the_model_textures_load(self):
+        ac = Aircraft.objects.filter(aircraft_type__category="helicopter").first()
+        csp = self.c.get(ac.get_absolute_url())["Content-Security-Policy"]
+        self.assertIn("connect-src 'self' blob:", csp)
+        self.assertIn("img-src 'self' data: blob:", csp)
+        self.assertNotIn("unsafe-eval", csp)
+
+    def test_3d_texts_are_translated(self):
+        from django.utils import translation
+        with translation.override("de"):
+            self.assertEqual(heli_texts()["xray"], "Röntgen")
+        with translation.override("en"):
+            self.assertEqual(heli_texts()["iso"], "Isolated view")
 
     def test_aeroplane_page_has_no_3d_view(self):
         ac = Aircraft.objects.filter(aircraft_type__category="aeroplane").first()

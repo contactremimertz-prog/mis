@@ -6,7 +6,9 @@ dépassé ou en tolérance = haute, à planifier = moyenne, sinon « aucune éch
 (jamais « conforme » : la vue ne se prononce pas sur la navigabilité).
 Les autres chapitres (visites ATA 05, ARC, 29 hydraulique, 49 APU…) ne sont
 rattachés à aucune zone : outside_zones() les compte et la carte les signale.
-Le modèle 3D est générique : il sert à situer les zones, pas à représenter l'appareil réel.
+Le modèle 3D est l'un des quatre modèles de référence (H135, H145, NH90, Super Puma),
+choisi d'après le type de l'appareil ; à défaut, un modèle générique. Il sert à situer
+les zones, pas à représenter l'appareil réel.
 """
 import re
 
@@ -31,6 +33,30 @@ LEVELS = {
 }
 _LEVEL_OF = {"overdue": "crit", "tolerance": "crit", "due_soon": "warn", "ok": "ok"}
 _RANK = {"crit": 0, "warn": 1, "ok": 2, "none": 3}
+
+
+# Modèles 3D de référence (static/ahmis/models/) : [id, libellé, codes de type servis exactement].
+MODELS = [
+    ("h135", "H135", ("H135", "EC135")),
+    ("h145", "H145", ("H145", "BK117", "EC145")),
+    ("nh90", "NH90", ("NH90",)),
+    ("super-puma", "Super Puma", ("SUPERPUMA", "H215", "H225", "AS332", "EC225")),
+]
+# Types sans modèle propre : modèle de référence le plus proche (signalé comme approchant).
+_NEAREST = {"H125": "h135", "AS350": "h135", "H130": "h135", "EC130": "h135", "H160": "h145", "H175": "super-puma"}
+
+
+def model_for(type_code):
+    """Modèle 3D d'un type d'appareil : {id, label, file, exact} ou None (modèle générique)."""
+    code = re.sub(r"[\s_-]+", "", str(type_code or "")).upper()
+    for mid, label, codes in MODELS:
+        if code in codes:
+            return {"id": mid, "label": label, "file": f"ahmis/models/{mid}.glb", "exact": True}
+    mid = _NEAREST.get(code)
+    if mid:
+        label = next(m[1] for m in MODELS if m[0] == mid)
+        return {"id": mid, "label": label, "file": f"ahmis/models/{mid}.glb", "exact": False}
+    return None
 
 
 def item_ata(item):
@@ -109,3 +135,31 @@ def neighbours(aircraft):
     if idx is None or len(everyone) < 2:
         return {"all": everyone, "others": False, "prev": None, "next": None}
     return {"all": everyone, "others": True, "prev": everyone[idx - 1], "next": everyone[(idx + 1) % len(everyone)]}
+
+
+def heli_texts():
+    """Textes de la vue 3D lus par heli3d.js (traduits dans la langue de la requête)."""
+    from django.utils.translation import gettext as _
+    return {
+        "zone": {"cellule": _("Cellule"), "portes": _("Portes et vitrages"), "feux": _("Feux et antennes"), "interieur": _("Intérieur")},
+        "rev": {"gearbox": _("Contrôle de la boîte de transmission"), "dyn": _("Inspection des éléments dynamiques"),
+                "engine": _("Inspection moteur"), "gear": _("Inspection du train"), "door": _("Contrôle des portes et verrous"),
+                "glass": _("Inspection des vitrages"), "light": _("Contrôle des feux"), "avionics": _("Contrôle des équipements et antennes"),
+                "cabin": _("Inspection de la cabine"), "struct": _("Inspection de structure")},
+        "lvl": {"crit": _("Haute"), "warn": _("Moyenne"), "ok": _("Aucune échéance proche")},
+        "rev_every": _("Intervalle : {n} h de vol"),
+        "rev_rem": _("Reste {n} h"),
+        "rev_over": _("Dépassée de {n} h"),
+        "part_none": _("Aucune révision simulée sur cette pièce."),
+        "sim": _("Révision simulée pour la démonstration : sans valeur de navigabilité. Seules les échéances CAMO font foi."),
+        "summary": _("{n} pièces avec révision simulée : {c} dépassée(s), {w} à planifier."),
+        "urgent": _("Pièces à traiter (simulé)"),
+        "zone_of": _("Zone : {z}"),
+        "zone_camo": _("Échéances CAMO de la zone : {l}"),
+        "iso": _("Vue isolée"),
+        "xray": _("Rayons X"),
+        "back": _("Retour à la vue globale"),
+        "loading": _("Chargement du modèle 3D…"),
+        "model_error": _("Le modèle 3D n'a pas pu être chargé : modèle générique affiché."),
+        "pick": _("Cliquez une pièce pour voir sa révision ; double-cliquez pour l'isoler."),
+    }

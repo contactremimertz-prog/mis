@@ -10550,6 +10550,125 @@ msgstr "Demo-Konten"
 msgid "(mot de passe :"
 msgstr "(Passwort:"
 
+msgid "Aucune révision simulée sur cette pièce."
+msgstr "Keine simulierte Revision an diesem Teil."
+
+msgid "Chargement du modèle 3D…"
+msgstr "3D-Modell wird geladen…"
+
+msgid ""
+"Cliquez une pièce pour voir sa révision ; double-cliquez pour l'isoler."
+msgstr ""
+"Teil anklicken, um seine Revision zu sehen; Doppelklick, um es zu isolieren."
+
+msgid "Contrôle de la boîte de transmission"
+msgstr "Getriebeprüfung"
+
+msgid "Contrôle des feux"
+msgstr "Prüfung der Leuchten"
+
+msgid "Contrôle des portes et verrous"
+msgstr "Prüfung der Türen und Verriegelungen"
+
+msgid "Contrôle des équipements et antennes"
+msgstr "Prüfung der Ausrüstung und Antennen"
+
+msgid "Dépassée de {n} h"
+msgstr "Um {n} h überschritten"
+
+msgid "Feux et antennes"
+msgstr "Leuchten und Antennen"
+
+msgid ""
+"Glisser pour tourner · molette pour zoomer · cliquer une pièce ou une zone "
+"pour la sortir de l'appareil · double-cliquer une pièce pour l'isoler."
+msgstr ""
+"Ziehen zum Drehen · Mausrad zum Zoomen · Teil oder Zone anklicken, um es "
+"herauszulösen · Doppelklick auf ein Teil, um es zu isolieren."
+
+msgid "Inspection de la cabine"
+msgstr "Kabineninspektion"
+
+msgid "Inspection de structure"
+msgstr "Strukturinspektion"
+
+msgid "Inspection des vitrages"
+msgstr "Inspektion der Verglasung"
+
+msgid "Inspection des éléments dynamiques"
+msgstr "Inspektion der dynamischen Bauteile"
+
+msgid "Inspection du train"
+msgstr "Fahrwerksinspektion"
+
+msgid "Inspection moteur"
+msgstr "Triebwerksinspektion"
+
+msgid "Intervalle : {n} h de vol"
+msgstr "Intervall: {n} Flugstunden"
+
+msgid "Intérieur"
+msgstr "Innenraum"
+
+msgid "Le modèle 3D n'a pas pu être chargé : modèle générique affiché."
+msgstr ""
+"Das 3D-Modell konnte nicht geladen werden: generisches Modell angezeigt."
+
+msgid ""
+"Modèle de référence : il ne représente pas l'appareil réel. Les révisions "
+"par pièce sont simulées pour la démonstration ; seules les échéances CAMO "
+"font foi."
+msgstr ""
+"Referenzmodell: Es stellt nicht das tatsächliche Luftfahrzeug dar. Die "
+"Revisionen je Teil sind für die Demonstration simuliert; maßgeblich sind nur"
+" die CAMO-Fälligkeiten."
+
+msgid "Pièces à traiter (simulé)"
+msgstr "Zu bearbeitende Teile (simuliert)"
+
+msgid "Portes et vitrages"
+msgstr "Türen und Verglasung"
+
+msgid "Rayons X"
+msgstr "Röntgen"
+
+msgid "Reste {n} h"
+msgstr "Noch {n} h"
+
+msgid "Retour à la vue globale"
+msgstr "Zurück zur Gesamtansicht"
+
+msgid ""
+"Révision simulée pour la démonstration : sans valeur de navigabilité. Seules"
+" les échéances CAMO font foi."
+msgstr ""
+"Für die Demonstration simulierte Revision: ohne Lufttüchtigkeitswert. "
+"Maßgeblich sind nur die CAMO-Fälligkeiten."
+
+#, python-format
+msgid "Vue 3D interactive de l'appareil %(reg)s"
+msgstr "Interaktive 3D-Ansicht des Luftfahrzeugs %(reg)s"
+
+msgid "Vue isolée"
+msgstr "Isolierte Ansicht"
+
+msgid "Zone : {z}"
+msgstr "Zone: {z}"
+
+#, python-format
+msgid "modèle approchant (%(m)s)"
+msgstr "ähnliches Modell (%(m)s)"
+
+#, python-format
+msgid "modèle %(m)s"
+msgstr "Modell %(m)s"
+
+msgid "{n} pièces avec révision simulée : {c} dépassée(s), {w} à planifier."
+msgstr "{n} Teile mit simulierter Revision: {c} überschritten, {w} zu planen."
+
+msgid "Échéances CAMO de la zone : {l}"
+msgstr "CAMO-Fälligkeiten der Zone: {l}"
+
 #~ msgid "ARC à renouveler"
 #~ msgstr "ARC zu erneuern"
 

@@ -10474,6 +10474,122 @@ msgstr "Demo accounts"
 msgid "(mot de passe :"
 msgstr "(password:"
 
+msgid "Aucune révision simulée sur cette pièce."
+msgstr "No simulated revision on this part."
+
+msgid "Chargement du modèle 3D…"
+msgstr "Loading the 3D model…"
+
+msgid ""
+"Cliquez une pièce pour voir sa révision ; double-cliquez pour l'isoler."
+msgstr "Click a part to see its revision; double-click to isolate it."
+
+msgid "Contrôle de la boîte de transmission"
+msgstr "Gearbox check"
+
+msgid "Contrôle des feux"
+msgstr "Lights check"
+
+msgid "Contrôle des portes et verrous"
+msgstr "Doors and locks check"
+
+msgid "Contrôle des équipements et antennes"
+msgstr "Equipment and antennas check"
+
+msgid "Dépassée de {n} h"
+msgstr "Overdue by {n} h"
+
+msgid "Feux et antennes"
+msgstr "Lights and antennas"
+
+msgid ""
+"Glisser pour tourner · molette pour zoomer · cliquer une pièce ou une zone "
+"pour la sortir de l'appareil · double-cliquer une pièce pour l'isoler."
+msgstr ""
+"Drag to rotate · wheel to zoom · click a part or a zone to pull it out of "
+"the aircraft · double-click a part to isolate it."
+
+msgid "Inspection de la cabine"
+msgstr "Cabin inspection"
+
+msgid "Inspection de structure"
+msgstr "Structural inspection"
+
+msgid "Inspection des vitrages"
+msgstr "Glazing inspection"
+
+msgid "Inspection des éléments dynamiques"
+msgstr "Dynamic components inspection"
+
+msgid "Inspection du train"
+msgstr "Landing gear inspection"
+
+msgid "Inspection moteur"
+msgstr "Engine inspection"
+
+msgid "Intervalle : {n} h de vol"
+msgstr "Interval: {n} flight hours"
+
+msgid "Intérieur"
+msgstr "Interior"
+
+msgid "Le modèle 3D n'a pas pu être chargé : modèle générique affiché."
+msgstr "The 3D model could not be loaded: generic model shown."
+
+msgid ""
+"Modèle de référence : il ne représente pas l'appareil réel. Les révisions "
+"par pièce sont simulées pour la démonstration ; seules les échéances CAMO "
+"font foi."
+msgstr ""
+"Reference model: it does not represent the actual aircraft. Part revisions "
+"are simulated for the demonstration; only CAMO due items are authoritative."
+
+msgid "Pièces à traiter (simulé)"
+msgstr "Parts to action (simulated)"
+
+msgid "Portes et vitrages"
+msgstr "Doors and glazing"
+
+msgid "Rayons X"
+msgstr "X-ray"
+
+msgid "Reste {n} h"
+msgstr "{n} h left"
+
+msgid "Retour à la vue globale"
+msgstr "Back to full view"
+
+msgid ""
+"Révision simulée pour la démonstration : sans valeur de navigabilité. Seules"
+" les échéances CAMO font foi."
+msgstr ""
+"Simulated revision for the demonstration: no airworthiness value. Only CAMO "
+"due items are authoritative."
+
+#, python-format
+msgid "Vue 3D interactive de l'appareil %(reg)s"
+msgstr "Interactive 3D view of aircraft %(reg)s"
+
+msgid "Vue isolée"
+msgstr "Isolated view"
+
+msgid "Zone : {z}"
+msgstr "Zone: {z}"
+
+#, python-format
+msgid "modèle approchant (%(m)s)"
+msgstr "closest model (%(m)s)"
+
+#, python-format
+msgid "modèle %(m)s"
+msgstr "%(m)s model"
+
+msgid "{n} pièces avec révision simulée : {c} dépassée(s), {w} à planifier."
+msgstr "{n} parts with a simulated revision: {c} overdue, {w} to plan."
+
+msgid "Échéances CAMO de la zone : {l}"
+msgstr "Zone CAMO due items: {l}"
+
 #~ msgid "ARC à renouveler"
 #~ msgstr "ARC to renew"
 

@@ -13,7 +13,7 @@ from apps.core.crud import AhmisCreateView, AhmisListView, AhmisUpdateView, erro
 from apps.core.models import AuditLog, SignatureRecord
 
 from .forms import AircraftForm, AircraftTypeForm, ComponentForm, PartNumberForm, UtilisationForm
-from .heli3d import ZONE_IDS, fleet_counts, neighbours, outside_zones, zone_states
+from .heli3d import ZONE_IDS, fleet_counts, heli_texts, model_for, neighbours, outside_zones, zone_states
 from .models import Aircraft, AircraftType, Component, InstallationRecord, PartNumber, UtilisationRecord, install_component
 from django.utils.translation import gettext, gettext_lazy
 
@@ -123,6 +123,8 @@ def aircraft_detail(request, pk):
         "heli_zones": zone_states(items) if is_heli else None,
         "heli_outside": outside_zones(items) if is_heli else None,
         "heli_nav": neighbours(ac) if is_heli else None,
+        "heli_model": model_for(ac.aircraft_type.code) if is_heli else None,
+        "heli_texts": heli_texts() if is_heli else None,
         "heli_zone": request.GET.get("zone") if request.GET.get("zone") in ZONE_IDS else "",
     }
     return render(request, "fleet/aircraft_detail.html", ctx)
