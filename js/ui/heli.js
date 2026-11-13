@@ -261,7 +261,9 @@
     }
     const zoneTask = !p.rev && k !== "none"
       ? `<p style="color:${LEVEL[k].css}">${esc(t(LEVEL[k].key))} · ${esc(t("heli.zone_tasks"))}</p>` : "";
-    return `<h3>${esc(p.label)}</h3>${zone}${body}${zoneTask}`;
+    const focusBtns = `<div class="heli-focus-btns"><button type="button" class="btn" data-focus="iso" data-part="${p.idx}">${esc(t("heli.iso"))}</button>` +
+      `<button type="button" class="btn" data-focus="xray" data-part="${p.idx}">${esc(t("heli.xray"))}</button></div>`;
+    return `<h3>${esc(p.label)}</h3>${zone}${body}${zoneTask}${focusBtns}`;
   }
 
   /** Page block: aircraft and model choosers, 3D canvas, details and zone list. */
@@ -338,6 +340,8 @@
     let meshes = [];
     let zones = data.states;
     let sel = null;
+    /** Double-click view of one part: "iso" shows it alone, "xray" shows the rest as a ghost. */
+    let focus = null;
 
     let renderer = null;
     try {
@@ -379,6 +383,10 @@
 
     /** Updates the side panel and the camera for the current selection. */
     function select(next) {
+      if (focus && !(next && next.kind === "part" && next.id === focus.idx)) {
+        focus = null;
+        applyFocus();
+      }
       sel = next;
       if (!sel) info.innerHTML = overviewHtml(parts);
       else if (sel.kind === "zone") info.innerHTML = zoneHtml(zones[sel.id]);
@@ -454,8 +462,62 @@
       });
     }
 
+    // Focus view: bar over the canvas, ghost material for the x-ray mode
+    const bar = document.createElement("div");
+    bar.className = "heli-focusbar";
+    bar.hidden = true;
+    bar.innerHTML = `<button type="button" class="btn" data-focus="iso">${esc(t("heli.iso"))}</button>` +
+      `<button type="button" class="btn" data-focus="xray">${esc(t("heli.xray"))}</button>` +
+      `<button type="button" class="btn" data-focus="exit">${esc(t("heli.back"))}</button>`;
+    if (renderer) host.appendChild(bar);
+    const ghost = renderer ? new THREE.MeshBasicMaterial({ color: 0x9bb7c9, transparent: true, opacity: 0.08, depthWrite: false }) : null;
+
+    /** Shows, hides or ghosts the parts for the current focus, and updates the bar. */
+    function applyFocus() {
+      if (!parts || !renderer) return;
+      parts.forEach(p => {
+        const isSel = !!focus && p.idx === focus.idx;
+        p.obj.visible = !focus || isSel || focus.mode === "xray";
+        p.meshes.forEach(m => {
+          if (!m.userData.orig) m.userData.orig = m.material;
+          m.material = focus && focus.mode === "xray" && !isSel ? ghost : m.userData.orig;
+        });
+      });
+      bar.hidden = !focus;
+      bar.querySelectorAll("[data-focus]").forEach(b => b.setAttribute("aria-pressed", String(!!focus && b.dataset.focus === focus.mode)));
+    }
+
+    /** Opens the focus view of a part and aims the camera at it. */
+    function enterFocus(idx, mode) {
+      if (!renderer || !parts || idx == null || !parts[idx]) return;
+      const obj = parts[idx].obj;
+      obj.position.copy(obj.userData.home);
+      obj.updateMatrixWorld(true);
+      select({ kind: "part", id: idx });
+      focus = { idx, mode: mode === "xray" ? "xray" : "iso" };
+      applyFocus();
+      const box = new THREE.Box3().setFromObject(obj);
+      const center = box.getCenter(new THREE.Vector3());
+      const dist = Math.max(0.8, box.getSize(new THREE.Vector3()).length() * (focus.mode === "xray" ? 3.2 : 2.2));
+      targetGoal = center.clone();
+      camGoal = center.clone().add(new THREE.Vector3(0.9, 0.4, 1.2).normalize().multiplyScalar(dist));
+    }
+
+    /** Back to the whole aircraft. */
+    function exitFocus() {
+      focus = null;
+      applyFocus();
+      select(null);
+    }
+
     // Clicks on the side panel: zones and parts
     const onSide = e => {
+      const f = e.target.closest("[data-focus]");
+      if (f) {
+        if (f.dataset.focus === "exit") exitFocus();
+        else enterFocus(f.dataset.part != null ? Number(f.dataset.part) : (focus && focus.idx), f.dataset.focus);
+        return;
+      }
       const z = e.target.closest(".heli-zone");
       if (z) { select(sel && sel.kind === "zone" && sel.id === z.dataset.zone ? null : { kind: "zone", id: z.dataset.zone }); return; }
       const p = e.target.closest("[data-part]");
@@ -475,26 +537,46 @@
         if (!dragging) return;
         dragging = false;
         if (moved >= 5 || !parts) return;
+        const hit = pick(e);
+        if (!hit) { if (!focus) select(null); return; }
+        const idx = hit.object.userData.part;
+        if (focus && focus.idx === idx) return;
+        select(sel && sel.kind === "part" && sel.id === idx ? null : { kind: "part", id: idx });
+      };
+      /** Part under the pointer, among the parts shown (hidden and ghost parts are skipped). */
+      function pick(e) {
         const rect = canvas.getBoundingClientRect();
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster.setFromCamera(mouse, camera);
-        const hit = raycaster.intersectObjects(meshes, false)[0];
-        if (!hit) { select(null); return; }
-        const idx = hit.object.userData.part;
-        select(sel && sel.kind === "part" && sel.id === idx ? null : { kind: "part", id: idx });
+        const shown = meshes.filter(m => {
+          const p = parts[m.userData.part];
+          return p.obj.visible && (!focus || focus.mode !== "xray" || p.idx === focus.idx);
+        });
+        return raycaster.intersectObjects(shown, false)[0];
+      }
+      const onDbl = e => {
+        if (!parts) return;
+        const hit = pick(e);
+        if (hit) enterFocus(hit.object.userData.part, focus ? focus.mode : "iso");
       };
       const onMove = e => {
         if (!dragging) return;
         const dx = e.clientX - lastX;
         moved += Math.abs(dx);
         lastX = e.clientX;
-        heli.rotation.y += dx * 0.01;
+        if (focus) {
+          const off = camGoal.clone().sub(targetGoal).applyAxisAngle(new THREE.Vector3(0, 1, 0), -dx * 0.01);
+          camGoal = targetGoal.clone().add(off);
+          camera.position.copy(targetGoal.clone().add(camera.position.clone().sub(targetGoal).applyAxisAngle(new THREE.Vector3(0, 1, 0), -dx * 0.01)));
+        } else {
+          heli.rotation.y += dx * 0.01;
+        }
       };
       const onWheel = e => {
         e.preventDefault();
         const offset = camGoal.clone().sub(targetGoal);
-        const dist = THREE.MathUtils.clamp(offset.length() * (1 + Math.sign(e.deltaY) * 0.08), 1.2, 22);
+        const dist = THREE.MathUtils.clamp(offset.length() * (1 + Math.sign(e.deltaY) * 0.08), focus ? 0.3 : 1.2, 22);
         camGoal = targetGoal.clone().add(offset.setLength(dist));
       };
       const resize = () => {
@@ -505,7 +587,7 @@
         camera.updateProjectionMatrix();
       };
       [[canvas, "pointerdown", onDown], [window, "pointerup", onUp], [window, "pointermove", onMove],
-        [canvas, "wheel", onWheel, { passive: false }], [window, "resize", resize]].forEach(l => {
+        [canvas, "wheel", onWheel, { passive: false }], [canvas, "dblclick", onDbl], [window, "resize", resize]].forEach(l => {
         listeners.push(l);
         l[0].addEventListener(l[1], l[2], l[3]);
       });
@@ -515,12 +597,12 @@
 
       const loop = () => {
         live.raf = requestAnimationFrame(loop);
-        if (!dragging) heli.rotation.y += 0.002;
+        if (!dragging && !focus) heli.rotation.y += 0.002;
         if (parts) {
           parts.forEach(p => {
             const m = p.obj;
             if (!m.userData.home) return;
-            const out = sel && ((sel.kind === "zone" && p.zone === sel.id) || (sel.kind === "part" && p.idx === sel.id));
+            const out = !focus && sel && ((sel.kind === "zone" && p.zone === sel.id) || (sel.kind === "part" && p.idx === sel.id));
             const goal = out ? m.userData.home.clone().add(m.userData.dir.clone().multiplyScalar(EXPLODE)) : m.userData.home;
             m.position.lerp(goal, 0.12);
           });
