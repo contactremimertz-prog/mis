@@ -1,43 +1,43 @@
-{% extends "base.html" %}{% load ahmis %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ d.number }}{% endblock %}
 {% block content %}
 <div class="page-head">
   <div><h1>{{ d.number }} {% badge d %}</h1>
-    <div class="sub"><a href="{{ d.aircraft.get_absolute_url }}">{{ d.aircraft.registration }}</a> · signalé le {{ d.reported_on|date:"d/m/Y" }} par {{ d.reported_by }} · {{ d.get_source_display }}{% if d.techlog_ref %} ({{ d.techlog_ref }}){% endif %} · ATA {{ d.ata|default:"—" }}</div></div>
-  <div class="actions">{% if perms.safety.add_occurrencereport %}<a class="btn" href="{% url 'safety:create' %}?defect={{ d.pk }}">Déclarer un événement</a>{% endif %}{% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'part145.defect' d.pk %}">Historique</a>{% endif %}</div>
+    <div class="sub"><a href="{{ d.aircraft.get_absolute_url }}">{{ d.aircraft.registration }}</a> {% blocktrans with reported_on=d.reported_on|date:"d/m/Y" reported_by=d.reported_by %}· signalé le {{ reported_on }} par {{ reported_by }} ·{% endblocktrans %} {{ d.get_source_display }}{% if d.techlog_ref %} ({{ d.techlog_ref }}){% endif %} {% trans "· ATA" %} {{ d.ata|default:"—" }}</div></div>
+  <div class="actions">{% if perms.safety.add_occurrencereport %}<a class="btn" href="{% url 'safety:create' %}?defect={{ d.pk }}">{% trans "Déclarer un événement" %}</a>{% endif %}{% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'part145.defect' d.pk %}">{% trans "Historique" %}</a>{% endif %}</div>
 </div>
-<div class="card"><h2>Description</h2><p>{{ d.description|linebreaksbr }}</p>
-  {% if d.status == "deferred" %}<div class="alert warn"><strong>Reporté</strong> – {{ d.mel_reference|default:"MEL —" }} cat. {{ d.deferral_category }} · limite {{ d.deferral_limit_date|date:"d/m/Y"|default:"—" }}{% if d.deferral_limit_fh %} / {{ d.deferral_limit_fh|hours }} FH{% endif %}{% if d.deferral_limit_fc %} / {{ d.deferral_limit_fc }} cycles{% endif %}<br>Reporté par {{ d.deferred_by.full_name }} le {{ d.deferred_at|date:"d/m/Y H:i" }}{% if d.operational_procedure %}<br>Procédures : {{ d.operational_procedure }}{% endif %}</div>{% endif %}
-  {% if d.extended %}<div class="alert info"><strong>Délai prorogé une fois (RIE {{ d.extension_reference }})</strong> par {{ d.extended_by.get_full_name|default:d.extended_by.username }} le {{ d.extended_at|date:"d/m/Y H:i" }}.
-    Limite initiale : {{ d.original_limit_date|date:"d/m/Y"|default:"—" }}{% if d.original_limit_fh %} / {{ d.original_limit_fh|hours }} FH{% endif %}{% if d.original_limit_fc %} / {{ d.original_limit_fc }} cycles{% endif %}
-    {% if d.authority_notified %}· autorité informée{% else %}· <span style="color:var(--bad)">autorité non informée</span>{% endif %}<br>{{ d.extension_reason|linebreaksbr }}</div>{% endif %}
-  {% if d.status == "rectified" %}<div class="alert ok"><strong>Rectifié le {{ d.rectified_on|date:"d/m/Y" }}</strong><br>{{ d.rectification|linebreaksbr }}</div>{% endif %}
+<div class="card"><h2>{% trans "Description" %}</h2><p>{{ d.description|linebreaksbr }}</p>
+  {% if d.status == "deferred" %}<div class="alert warn"><strong>{% trans "Reporté" %}</strong> {% blocktrans with mel_reference=d.mel_reference|default:_("MEL —") deferral_category=d.deferral_category %}– {{ mel_reference }} cat. {{ deferral_category }} · limite{% endblocktrans %} {{ d.deferral_limit_date|date:"d/m/Y"|default:"—" }}{% if d.deferral_limit_fh %} {% blocktrans with deferral_limit_fh=d.deferral_limit_fh|hours %}/ {{ deferral_limit_fh }} FH{% endblocktrans %}{% endif %}{% if d.deferral_limit_fc %} {% blocktrans with deferral_limit_fc=d.deferral_limit_fc %}/ {{ deferral_limit_fc }} cycles{% endblocktrans %}{% endif %}<br>{% blocktrans with full_name=d.deferred_by.full_name %}Reporté par {{ full_name }} le{% endblocktrans %} {{ d.deferred_at|date:"d/m/Y H:i" }}{% if d.operational_procedure %}<br>{% trans "Procédures :" %} {{ d.operational_procedure }}{% endif %}</div>{% endif %}
+  {% if d.extended %}<div class="alert info"><strong>{% blocktrans with extension_reference=d.extension_reference %}Délai prorogé une fois (RIE {{ extension_reference }}){% endblocktrans %}</strong> {% blocktrans with get_full_name=d.extended_by.get_full_name|default:d.extended_by.username extended_at=d.extended_at|date:"d/m/Y H:i" %}par {{ get_full_name }} le {{ extended_at }}.{% endblocktrans %}
+    {% trans "Limite initiale :" %} {{ d.original_limit_date|date:"d/m/Y"|default:"—" }}{% if d.original_limit_fh %} {% blocktrans with original_limit_fh=d.original_limit_fh|hours %}/ {{ original_limit_fh }} FH{% endblocktrans %}{% endif %}{% if d.original_limit_fc %} {% blocktrans with original_limit_fc=d.original_limit_fc %}/ {{ original_limit_fc }} cycles{% endblocktrans %}{% endif %}
+    {% if d.authority_notified %}{% trans "· autorité informée" %}{% else %}· <span style="color:var(--bad)">{% trans "autorité non informée" %}</span>{% endif %}<br>{{ d.extension_reason|linebreaksbr }}</div>{% endif %}
+  {% if d.status == "rectified" %}<div class="alert ok"><strong>{% trans "Rectifié le" %} {{ d.rectified_on|date:"d/m/Y" }}</strong><br>{{ d.rectification|linebreaksbr }}</div>{% endif %}
   {% for s in signatures %}{% signature s s.get_action_display %}{% endfor %}
 </div>
 <div class="grid grid-2">
   {% if d.status == "open" and perms.part145.defer_defect %}
-  <div class="card"><h2>Reporter selon la MEL / CDL</h2>
+  <div class="card"><h2>{% trans "Reporter selon la MEL / CDL" %}</h2>
     <form method="post" action="{% url 'part145:defect_defer' d.pk %}" class="stacked sign-box">{% csrf_token %}
       <div class="form-grid">{% for f in defer_form %}{% field f %}{% endfor %}</div>
-      <button class="btn primary" type="submit">Signer le report</button>
-      <p class="small muted">Réservé au personnel certifiant sur le type. Le défaut reporté apparaît dans les échéances avec sa limite.</p>
+      <button class="btn primary" type="submit">{% trans "Signer le report" %}</button>
+      <p class="small muted">{% trans "Réservé au personnel certifiant sur le type. Le défaut reporté apparaît dans les échéances avec sa limite." %}</p>
     </form></div>{% endif %}
   {% if d.status == "deferred" and not d.extended and perms.part145.extend_deferral %}
-  <div class="card"><h2>Proroger le délai (RIE)</h2>
+  <div class="card"><h2>{% trans "Proroger le délai (RIE)" %}</h2>
     {% if extension_blockers %}<div class="alert warn small">{% for p in extension_blockers %}{{ p }}<br>{% endfor %}</div>{% endif %}
     <form method="post" action="{% url 'part145:defect_extend' d.pk %}" class="stacked sign-box">{% csrf_token %}
       <div class="form-grid">{% for f in extend_form %}{% field f %}{% endfor %}</div>
-      <button class="btn primary" type="submit">Approuver et signer la prorogation</button>
-      <p class="small muted">Catégories B et C, une seule fois, avant l'échéance, pour une durée au plus égale à l'intervalle initial. Réservé à la CAMO.</p>
+      <button class="btn primary" type="submit">{% trans "Approuver et signer la prorogation" %}</button>
+      <p class="small muted">{% trans "Catégories B et C, une seule fois, avant l'échéance, pour une durée au plus égale à l'intervalle initial. Réservé à la CAMO." %}</p>
     </form></div>{% endif %}
   {% if d.status == "open" or d.status == "deferred" %}{% if perms.part145.add_taskcard %}
-  <div class="card"><h2>Rectifier</h2>
+  <div class="card"><h2>{% trans "Rectifier" %}</h2>
     <form method="post" action="{% url 'part145:defect_to_wp' d.pk %}" class="inline-form">{% csrf_token %}
-      <div class="field"><label for="wp">Work package</label><select id="wp" name="wp"><option value="new">+ Nouveau WP de dépannage</option>{% for wp in wps %}<option value="{{ wp.pk }}">{{ wp.number }} – {{ wp.title }}</option>{% endfor %}</select></div>
-      <button class="btn primary" type="submit">Créer la task card de rectification</button>
+      <div class="field"><label for="wp">{% trans "Work package" %}</label><select id="wp" name="wp"><option value="new">{% trans "+ Nouveau WP de dépannage" %}</option>{% for wp in wps %}<option value="{{ wp.pk }}">{{ wp.number }} – {{ wp.title }}</option>{% endfor %}</select></div>
+      <button class="btn primary" type="submit">{% trans "Créer la task card de rectification" %}</button>
     </form>
-    <p class="small muted">Le défaut passe à « rectifié » à la clôture de la task card.</p>
+    <p class="small muted">{% trans "Le défaut passe à « rectifié » à la clôture de la task card." %}</p>
   </div>{% endif %}{% endif %}
 </div>
-<div class="card"><h2>Task cards liées</h2><table class="data"><tbody>{% for c in cards %}<tr><td><a href="{{ c.get_absolute_url }}">{{ c.number }}</a></td><td>{{ c.work_package.number }}</td><td>{% badge c %}</td></tr>{% empty %}<tr><td class="empty">Aucune.</td></tr>{% endfor %}</tbody></table></div>
+<div class="card"><h2>{% trans "Task cards liées" %}</h2><table class="data"><tbody>{% for c in cards %}<tr><td><a href="{{ c.get_absolute_url }}">{{ c.number }}</a></td><td>{{ c.work_package.number }}</td><td>{% badge c %}</td></tr>{% empty %}<tr><td class="empty">{% trans "Aucune." %}</td></tr>{% endfor %}</tbody></table></div>
 {% endblock %}

@@ -6,6 +6,7 @@ from apps.core.crud import AhmisModelForm
 from apps.fleet.models import Aircraft, Component
 
 from .models import AmpReview, TransferRecord, AirworthinessReview, Directive, ModificationRepair, DirectiveApplicability, MaintenanceTask, TaskAccomplishment, TaskRequiredPart
+from django.utils.translation import gettext, gettext_lazy
 
 
 class MaintenanceTaskForm(AhmisModelForm):
@@ -20,8 +21,8 @@ class MaintenanceTaskForm(AhmisModelForm):
         widgets = {"effectivity": forms.CheckboxSelectMultiple}
         help_texts = {
             "interval_days": "Ex. 365 = 12 mois. Le premier critère atteint (FH, cycles, jours) détermine l'échéance.",
-            "threshold_fh": "Première échéance depuis neuf si différente de l'intervalle. Pour une tâche liée à une consigne, seuils et intervalle comptent depuis la date d'entrée en vigueur.",
-            "steps": "Une étape par ligne : elles deviennent les étapes à signer sur la task card.",
+            "threshold_fh": gettext_lazy("Première échéance depuis neuf si différente de l'intervalle. Pour une tâche liée à une consigne, seuils et intervalle comptent depuis la date d'entrée en vigueur."),
+            "steps": gettext_lazy("Une étape par ligne : elles deviennent les étapes à signer sur la task card."),
         }
 
     def clean(self):
@@ -31,7 +32,7 @@ class MaintenanceTaskForm(AhmisModelForm):
         if t and eff:
             wrong = [a.registration for a in eff if a.aircraft_type_id != t.pk]
             if wrong:
-                raise ValidationError(f"Aéronefs hors type dans l'effectivité : {', '.join(wrong)}")
+                raise ValidationError(gettext("Aéronefs hors type dans l'effectivité : {wrong}").format(wrong=', '.join(wrong)))
         return data
 
 
@@ -70,14 +71,14 @@ class AccomplishmentForm(AhmisModelForm):
         data = super().clean()
         ac = data.get("aircraft")
         if ac and data.get("fh") is not None and data["fh"] > ac.total_fh:
-            self.add_error("fh", f"Supérieur aux heures actuelles de l'aéronef ({ac.total_fh}).")
+            self.add_error("fh", gettext("Supérieur aux heures actuelles de l'aéronef ({total_fh}).").format(total_fh=ac.total_fh))
         if ac and data.get("fc") is not None and data["fc"] > ac.total_fc:
-            self.add_error("fc", f"Supérieur aux cycles actuels de l'aéronef ({ac.total_fc}).")
+            self.add_error("fc", gettext("Supérieur aux cycles actuels de l'aéronef ({total_fc}).").format(total_fc=ac.total_fc))
         if data.get("date") and data["date"] > timezone.localdate():
-            self.add_error("date", "Date future interdite.")
+            self.add_error("date", gettext("Date future interdite."))
         comp = data.get("component")
         if comp and ac and comp.aircraft_id and comp.aircraft_id != ac.pk:
-            self.add_error("component", "Ce composant est installé sur un autre aéronef.")
+            self.add_error("component", gettext("Ce composant est installé sur un autre aéronef."))
         return data
 
 
@@ -93,7 +94,7 @@ class ApplicabilityForm(AhmisModelForm):
     class Meta:
         model = DirectiveApplicability
         fields = ["status", "justification", "compliance_date", "compliance_fh", "compliance_fc"]
-        help_texts = {"status": "Une consigne applicable doit être suivie par une tâche du programme (bouton « Créer la tâche de suivi »)."}
+        help_texts = {"status": gettext_lazy("Une consigne applicable doit être suivie par une tâche du programme (bouton « Créer la tâche de suivi »).")}
 
 
 class ArcForm(AhmisModelForm):
@@ -111,9 +112,9 @@ class AmpReviewForm(AhmisModelForm):
 
 
 class ForecastForm(forms.Form):
-    aircraft = forms.ModelChoiceField(Aircraft.objects.exclude(status="retired"), required=False, label="Aéronef", empty_label="Toute la flotte")
-    horizon = forms.IntegerField(label="Horizon (jours)", min_value=7, max_value=1825, initial=365)
-    util = forms.IntegerField(label="Utilisation (% du prévu)", min_value=10, max_value=300, initial=100,
+    aircraft = forms.ModelChoiceField(Aircraft.objects.exclude(status="retired"), required=False, label=gettext_lazy("Aéronef"), empty_label=gettext_lazy("Toute la flotte"))
+    horizon = forms.IntegerField(label=gettext_lazy("Horizon (jours)"), min_value=7, max_value=1825, initial=365)
+    util = forms.IntegerField(label=gettext_lazy("Utilisation (% du prévu)"), min_value=10, max_value=300, initial=100,
                               help_text="Simulation : 120 = 20 % d'heures de vol en plus que prévu")
 
 
@@ -123,10 +124,11 @@ class ModificationForm(AhmisModelForm):
         fields = ["aircraft", "component", "kind", "classification", "title", "ata", "approval_basis", "approval_reference",
                   "directive", "description", "status", "embodied_on", "fh_at_embodiment", "fc_at_embodiment",
                   "ica_reference", "ica_none", "ica_in_amp", "affects_mass_balance", "affects_flight_manual", "follow_up_done",
-                  "removed_on", "removal_reason"]
+                  "removed_on", "removal_reason", "part21_status", "design_holder", "design_approval_number",
+                  "part21_requested_on", "part21_approved_on", "part21_reference"]
         help_texts = {
             "fh_at_embodiment": "Vide = compteurs actuels de l'aéronef.",
-            "ica_in_amp": "Cochez quand les tâches issues des ICA ont été ajoutées au programme d'entretien.",
+            "ica_in_amp": gettext_lazy("Cochez quand les tâches issues des ICA ont été ajoutées au programme d'entretien."),
         }
 
     def __init__(self, *args, **kwargs):
@@ -147,21 +149,21 @@ class TransferForm(AhmisModelForm):
     class Meta:
         model = TransferRecord
         fields = ["aircraft", "direction", "transfer_date", "counterparty", "counterparty_approval", "reason", "archive", "notes"]
-        help_texts = {"archive": "Transfert entrant uniquement : archive ZIP reçue. Pour un transfert sortant ou une copie, "
-                                 "AHMIS génère l'archive complète du dossier."}
+        help_texts = {"archive": gettext_lazy("Transfert entrant uniquement : archive ZIP reçue. Pour un transfert sortant ou une copie, "
+                                 "AHMIS génère l'archive complète du dossier.")}
 
     def clean(self):
         data = super().clean()
         if data.get("direction") == "in" and not data.get("archive"):
-            self.add_error("archive", "Joignez l'archive reçue de l'organisme précédent.")
+            self.add_error("archive", gettext("Joignez l'archive reçue de l'organisme précédent."))
         if data.get("direction") in ("out", "copy") and data.get("archive"):
-            self.add_error("archive", "L'archive d'un transfert sortant est générée par AHMIS : ne joignez pas de fichier.")
+            self.add_error("archive", gettext("L'archive d'un transfert sortant est générée par AHMIS : ne joignez pas de fichier."))
         f = data.get("archive")
         if f and f.size > 500 * 1024 * 1024:
-            self.add_error("archive", "Archive trop volumineuse (500 Mo maximum).")
+            self.add_error("archive", gettext("Archive trop volumineuse (500 Mo maximum)."))
         return data
 
 
 class TransferAckForm(forms.Form):
-    acknowledged_on = forms.DateField(label="Réception confirmée le", widget=forms.DateInput(attrs={"type": "date"}))
-    acknowledged_by = forms.CharField(label="Par (nom, fonction, organisme)", max_length=120)
+    acknowledged_on = forms.DateField(label=gettext_lazy("Réception confirmée le"), widget=forms.DateInput(attrs={"type": "date"}))
+    acknowledged_by = forms.CharField(label=gettext_lazy("Par (nom, fonction, organisme)"), max_length=120)

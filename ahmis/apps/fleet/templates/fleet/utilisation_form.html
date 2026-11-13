@@ -1,14 +1,14 @@
-{% extends "base.html" %}{% load ahmis %}
-{% block title %}Saisie des heures de vol{% endblock %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{% trans "Saisie des heures de vol" %}{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>Saisie des heures de vol et cycles</h1>
-  <div class="sub">La saisie incrémente la cellule et tous les composants installés (TSN/CSN/TSO/CSO). Elle est tracée et ne peut pas être modifiée : une erreur se corrige par une nouvelle saisie justifiée (contacter la CAMO).</div></div>
-  <div class="actions"><a class="btn" href="{% url 'fleet:utilisation_list' %}">Historique des saisies</a></div></div>
+<div class="page-head"><div><h1>{% trans "Saisie des heures de vol et cycles" %}</h1>
+  <div class="sub">{% trans "La saisie incrémente la cellule et tous les composants installés (TSN/CSN/TSO/CSO). Elle est tracée et ne peut pas être modifiée : une erreur se corrige par une nouvelle saisie justifiée (contacter la CAMO)." %}</div></div>
+  <div class="actions"><a class="btn" href="{% url 'fleet:utilisation_list' %}">{% trans "Historique des saisies" %}</a></div></div>
 <div class="card" style="max-width:820px">
   <form method="post" class="stacked">{% csrf_token %}
     {% if form.non_field_errors %}<div class="alert">{{ form.non_field_errors }}</div>{% endif %}
     <div class="form-grid">{% for f in form %}{% field f %}{% endfor %}</div>
-    <div class="actions"><button class="btn primary" type="submit">Enregistrer</button></div>
+    <div class="actions"><button class="btn primary" type="submit">{% trans "Enregistrer" %}</button></div>
   </form>
 </div>
 {% endblock %}

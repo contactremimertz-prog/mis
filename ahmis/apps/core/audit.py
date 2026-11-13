@@ -30,11 +30,19 @@ def _value(instance, field):
 
 
 def _snapshot(instance):
+    # Libellés enregistrés dans la langue de référence (français), quelle que soit la langue de
+    # l'utilisateur : le journal reste homogène ; l'écran le traduit à l'affichage.
+    from django.conf import settings
+    from django.utils import translation
+
     data = {}
-    for field in instance._meta.concrete_fields:
-        if field.name in IGNORED or field.primary_key:
-            continue
-        data[field.verbose_name] = _value(instance, field)
+    masked = set(getattr(instance, "audit_masked_fields", lambda: ())())
+    with translation.override(settings.LANGUAGE_CODE):
+        for field in instance._meta.concrete_fields:
+            if field.name in IGNORED or field.primary_key:
+                continue
+            value = _value(instance, field)
+            data[str(field.verbose_name)] = "[confidentiel]" if field.name in masked and value not in (None, "") else value
     return data
 
 

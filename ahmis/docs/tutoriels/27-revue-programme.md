@@ -11,19 +11,19 @@ Le **tableau de bord** affiche un bandeau « Revue du programme d'entretien » p
 | Type | Situation de la démo |
 |---|---|
 | ATR72-600 | Aucune revue enregistrée |
-| H160 | Revue dépassée (dernière revue il y a 13 mois) |
+| Super Puma | Revue dépassée (dernière revue il y a 13 mois) |
 | H135 | Revue à faire sous 30 jours |
-| H125, H145 | À jour (H125 amendé en « DEMO rév. 4 ») |
+| NH90, H145 | À jour (NH90 amendé en « DEMO rév. 4 ») |
 
 La fiche **type d'aéronef** (Flotte → Types & configuration) montre aussi l'état et les dernières revues.
 
 ## 2. Enregistrer une revue sans changement
 
-1. Ligne **H160** → **Nouvelle revue**. Programme et révision examinée sont repris de la revue précédente.
+1. Ligne **Super Puma** → **Nouvelle revue**. Programme et révision examinée sont repris de la revue précédente.
 2. Réalisée par `Julien MOREAU (CAMO)`. Cochez **les deux** cases d'examen (fiabilité et nouvelles instructions).
 3. Constatations `Aucun défaut répétitif, pas de nouvelle révision MSM` ; résultat « Programme confirmé sans changement » → **Enregistrer**.
 
-**Résultat** : H160 passe « À jour », prochaine revue dans 12 mois.
+**Résultat** : Super Puma passe « À jour », prochaine revue dans 12 mois.
 
 ## 3. Enregistrer un amendement
 

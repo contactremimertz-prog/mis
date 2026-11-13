@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
+from django.utils.translation import gettext, gettext_lazy
 
 
 class TrackedModel(models.Model):
@@ -15,14 +16,14 @@ class TrackedModel(models.Model):
     Le détail champ par champ des modifications est conservé dans AuditLog.
     """
 
-    created_at = models.DateTimeField("créé le", auto_now_add=True)
+    created_at = models.DateTimeField(gettext_lazy("créé le"), auto_now_add=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name="créé par", null=True, blank=True,
+        settings.AUTH_USER_MODEL, verbose_name=gettext_lazy("créé par"), null=True, blank=True,
         on_delete=models.PROTECT, related_name="+", editable=False,
     )
-    updated_at = models.DateTimeField("modifié le", auto_now=True)
+    updated_at = models.DateTimeField(gettext_lazy("modifié le"), auto_now=True)
     updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name="modifié par", null=True, blank=True,
+        settings.AUTH_USER_MODEL, verbose_name=gettext_lazy("modifié par"), null=True, blank=True,
         on_delete=models.PROTECT, related_name="+", editable=False,
     )
 
@@ -45,28 +46,28 @@ class TrackedModel(models.Model):
     def delete(self, *args, **kwargs):
         if getattr(self, "ahmis_no_delete", False):
             raise ValidationError(
-                "Suppression interdite : cet enregistrement doit être conservé "
-                "(utilisez le statut « annulé » ou « retiré »)."
+                gettext("Suppression interdite : cet enregistrement doit être conservé "
+                "(utilisez le statut « annulé » ou « retiré »).")
             )
         return super().delete(*args, **kwargs)
 
 
 class AuditLog(models.Model):
-    ACTIONS = [("create", "Création"), ("update", "Modification"), ("delete", "Suppression")]
+    ACTIONS = [("create", gettext_lazy("Création")), ("update", gettext_lazy("Modification")), ("delete", gettext_lazy("Suppression"))]
 
-    timestamp = models.DateTimeField("horodatage", default=timezone.now, db_index=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, verbose_name="utilisateur")
-    username = models.CharField("identifiant", max_length=150, blank=True)
+    timestamp = models.DateTimeField(gettext_lazy("horodatage"), default=timezone.now, db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, verbose_name=gettext_lazy("utilisateur"))
+    username = models.CharField(gettext_lazy("identifiant"), max_length=150, blank=True)
     action = models.CharField(max_length=10, choices=ACTIONS)
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.CharField(max_length=64, db_index=True)
-    object_repr = models.CharField("objet", max_length=255)
-    changes = models.TextField("modifications (JSON)", blank=True)
+    object_repr = models.CharField(gettext_lazy("objet"), max_length=255)
+    changes = models.TextField(gettext_lazy("modifications (JSON)"), blank=True)
 
     class Meta:
         ordering = ["-timestamp", "-id"]
-        verbose_name = "entrée d'audit"
-        verbose_name_plural = "journal d'audit"
+        verbose_name = gettext_lazy("entrée d'audit")
+        verbose_name_plural = gettext_lazy("journal d'audit")
         indexes = [models.Index(fields=["content_type", "object_id"])]
 
     def __str__(self):
@@ -74,11 +75,11 @@ class AuditLog(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk:
-            raise ValidationError("Le journal d'audit est en écriture seule.")
+            raise ValidationError(gettext("Le journal d'audit est en écriture seule."))
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        raise ValidationError("Le journal d'audit ne peut pas être supprimé.")
+        raise ValidationError(gettext("Le journal d'audit ne peut pas être supprimé."))
 
     @property
     def changes_list(self):
@@ -94,32 +95,34 @@ class SignatureRecord(models.Model):
     horodatage, déclaration signée et empreinte SHA-256 pour détecter toute altération."""
 
     ACTIONS = [
-        ("perform", "Exécution"),
-        ("inspect", "Inspection / contrôle indépendant"),
-        ("crs", "Certificat de remise en service (CRS)"),
-        ("defer", "Report de défaut"),
-        ("extend", "Prorogation de report (RIE)"),
-        ("scrap", "Mise au rebut / mutilation"),
-        ("accept_part", "Réception pièce"),
-        ("camo_review", "Revue CAMO"),
-        ("step", "Étape de task card"),
+        ("perform", gettext_lazy("Exécution")),
+        ("inspect", gettext_lazy("Inspection / contrôle indépendant")),
+        ("crs", gettext_lazy("Certificat de remise en service (CRS)")),
+        ("defer", gettext_lazy("Report de défaut")),
+        ("extend", gettext_lazy("Prorogation de report (RIE)")),
+        ("scrap", gettext_lazy("Mise au rebut / mutilation")),
+        ("accept_part", gettext_lazy("Réception pièce")),
+        ("camo_review", gettext_lazy("Revue CAMO")),
+        ("step", gettext_lazy("Étape de task card")),
+        ("finding_close", gettext_lazy("Clôture de constat d'audit")),
+        ("doc_approve", gettext_lazy("Approbation de révision documentaire")),
     ]
 
-    signed_at = models.DateTimeField("signé le", default=timezone.now)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="utilisateur")
-    signer_name = models.CharField("nom du signataire", max_length=150)
-    signer_licence = models.CharField("licence / autorisation", max_length=150, blank=True)
+    signed_at = models.DateTimeField(gettext_lazy("signé le"), default=timezone.now)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name=gettext_lazy("utilisateur"))
+    signer_name = models.CharField(gettext_lazy("nom du signataire"), max_length=150)
+    signer_licence = models.CharField(gettext_lazy("licence / autorisation"), max_length=150, blank=True)
     action = models.CharField(max_length=20, choices=ACTIONS)
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.CharField(max_length=64, db_index=True)
-    object_repr = models.CharField("objet", max_length=255)
-    statement = models.TextField("déclaration signée")
-    digest = models.CharField("empreinte SHA-256", max_length=64, editable=False)
+    object_repr = models.CharField(gettext_lazy("objet"), max_length=255)
+    statement = models.TextField(gettext_lazy("déclaration signée"))
+    digest = models.CharField(gettext_lazy("empreinte SHA-256"), max_length=64, editable=False)
 
     class Meta:
         ordering = ["-signed_at"]
-        verbose_name = "signature électronique"
-        verbose_name_plural = "signatures électroniques"
+        verbose_name = gettext_lazy("signature électronique")
+        verbose_name_plural = gettext_lazy("signatures électroniques")
 
     def __str__(self):
         return f"{self.get_action_display()} – {self.signer_name} – {self.signed_at:%d/%m/%Y %H:%M}"
@@ -141,13 +144,13 @@ class SignatureRecord(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk:
-            raise ValidationError("Une signature ne peut pas être modifiée.")
+            raise ValidationError(gettext("Une signature ne peut pas être modifiée."))
         self.signed_at = self.signed_at.replace(microsecond=0)  # précision : la seconde
         self.digest = self.compute_digest()
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        raise ValidationError("Une signature ne peut pas être supprimée.")
+        raise ValidationError(gettext("Une signature ne peut pas être supprimée."))
 
     @classmethod
     def sign(cls, user, obj, action, statement, licence=""):
@@ -193,20 +196,20 @@ class Sequence(models.Model):
 class ExternalIdentity(models.Model):
     """Lien entre un compte AHMIS et un annuaire d'entreprise (Active Directory, SSO OpenID Connect)."""
 
-    PROVIDERS = [("ldap", "Active Directory (LDAP)"), ("oidc", "SSO OpenID Connect")]
+    PROVIDERS = [("ldap", gettext_lazy("Active Directory (LDAP)")), ("oidc", gettext_lazy("SSO OpenID Connect"))]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="external_identities", verbose_name="utilisateur")
-    provider = models.CharField("fournisseur", max_length=10, choices=PROVIDERS)
-    subject = models.CharField("identifiant externe", max_length=255, help_text="objectGUID AD, ou émetteur|sub OpenID Connect")
-    login_name = models.CharField("identifiant de connexion", max_length=255, blank=True, help_text="sAMAccountName ou UPN, utilisé pour revérifier le mot de passe à la signature")
-    groups = models.TextField("groupes reçus à la dernière connexion", blank=True)
-    first_seen = models.DateTimeField("première connexion", default=timezone.now)
-    last_login = models.DateTimeField("dernière connexion", default=timezone.now)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="external_identities", verbose_name=gettext_lazy("utilisateur"))
+    provider = models.CharField(gettext_lazy("fournisseur"), max_length=10, choices=PROVIDERS)
+    subject = models.CharField(gettext_lazy("identifiant externe"), max_length=255, help_text=gettext_lazy("objectGUID AD, ou émetteur|sub OpenID Connect"))
+    login_name = models.CharField(gettext_lazy("identifiant de connexion"), max_length=255, blank=True, help_text=gettext_lazy("sAMAccountName ou UPN, utilisé pour revérifier le mot de passe à la signature"))
+    groups = models.TextField(gettext_lazy("groupes reçus à la dernière connexion"), blank=True)
+    first_seen = models.DateTimeField(gettext_lazy("première connexion"), default=timezone.now)
+    last_login = models.DateTimeField(gettext_lazy("dernière connexion"), default=timezone.now)
 
     class Meta:
         unique_together = [("provider", "subject")]
-        verbose_name = "identité d'entreprise"
-        verbose_name_plural = "identités d'entreprise (AD / SSO)"
+        verbose_name = gettext_lazy("identité d'entreprise")
+        verbose_name_plural = gettext_lazy("identités d'entreprise (AD / SSO)")
 
     def __str__(self):
         return f"{self.get_provider_display()} – {self.login_name or self.subject}"
@@ -221,8 +224,8 @@ class SignaturePin(models.Model):
     failed_attempts = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
-        verbose_name = "code de signature"
-        verbose_name_plural = "codes de signature"
+        verbose_name = gettext_lazy("code de signature")
+        verbose_name_plural = gettext_lazy("codes de signature")
 
     def set_pin(self, raw):
         from django.contrib.auth.hashers import make_password
@@ -234,3 +237,19 @@ class SignaturePin(models.Model):
         from django.contrib.auth.hashers import check_password
 
         return check_password(raw, self.pin_hash)
+
+
+class AuthThrottle(models.Model):
+    """Compteur d'échecs d'authentification (connexion, signature) par clé : compte ou adresse IP."""
+
+    key = models.CharField(max_length=200, unique=True)
+    failures = models.PositiveIntegerField(default=0)
+    first_failure_at = models.DateTimeField(null=True, blank=True)
+    locked_until = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = gettext_lazy("verrou d'authentification")
+        verbose_name_plural = gettext_lazy("verrous d'authentification")
+
+    def __str__(self):
+        return self.key

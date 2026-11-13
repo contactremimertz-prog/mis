@@ -1,41 +1,44 @@
 from django import forms
+
+from apps.core.uploads import scan_validators
 from django.utils import timezone
 
 from apps.core.crud import AhmisModelForm
 from apps.fleet.models import Component, PartNumber
 
 from .models import ReleaseCertificate, StockItem, StoreLocation, Tool, ToolCalibration
+from django.utils.translation import gettext, gettext_lazy
 
 
 class ReceiveForm(forms.Form):
     """Réception magasin : pièce + certificat libératoire + contrôle à réception."""
 
-    part_number = forms.ModelChoiceField(PartNumber.objects.filter(is_tool=False), label="P/N reçu")
-    serial_number = forms.CharField(label="S/N (pièce sérialisée)", max_length=60, required=False)
-    batch = forms.CharField(label="N° de lot (consommable)", max_length=60, required=False)
-    quantity = forms.DecimalField(label="Quantité", min_value=0.01, max_digits=10, decimal_places=2, initial=1)
-    location = forms.ModelChoiceField(StoreLocation.objects.filter(is_quarantine=False), label="Emplacement de rangement")
-    supplier = forms.CharField(label="Fournisseur", max_length=120, required=False)
-    shelf_life_expiry = forms.DateField(label="Date de péremption", required=False, widget=forms.DateInput(attrs={"type": "date"}))
-    condition = forms.ChoiceField(label="État", choices=Component.CONDITIONS, initial="new")
-    manufacture_date = forms.DateField(label="Date de fabrication", required=False, widget=forms.DateInput(attrs={"type": "date"}))
-    tsn_fh = forms.DecimalField(label="TSN (h)", required=False, max_digits=10, decimal_places=2, initial=0)
+    part_number = forms.ModelChoiceField(PartNumber.objects.filter(is_tool=False), label=gettext_lazy("P/N reçu"))
+    serial_number = forms.CharField(label=gettext_lazy("S/N (pièce sérialisée)"), max_length=60, required=False)
+    batch = forms.CharField(label=gettext_lazy("N° de lot (consommable)"), max_length=60, required=False)
+    quantity = forms.DecimalField(label=gettext_lazy("Quantité"), min_value=0.01, max_digits=10, decimal_places=2, initial=1)
+    location = forms.ModelChoiceField(StoreLocation.objects.filter(is_quarantine=False), label=gettext_lazy("Emplacement de rangement"))
+    supplier = forms.CharField(label=gettext_lazy("Fournisseur"), max_length=120, required=False)
+    shelf_life_expiry = forms.DateField(label=gettext_lazy("Date de péremption"), required=False, widget=forms.DateInput(attrs={"type": "date"}))
+    condition = forms.ChoiceField(label=gettext_lazy("État"), choices=Component.CONDITIONS, initial="new")
+    manufacture_date = forms.DateField(label=gettext_lazy("Date de fabrication"), required=False, widget=forms.DateInput(attrs={"type": "date"}))
+    tsn_fh = forms.DecimalField(label=gettext_lazy("TSN (h)"), required=False, max_digits=10, decimal_places=2, initial=0)
     csn = forms.IntegerField(label="CSN", required=False, min_value=0, initial=0)
-    tso_fh = forms.DecimalField(label="TSO (h)", required=False, max_digits=10, decimal_places=2, initial=0)
+    tso_fh = forms.DecimalField(label=gettext_lazy("TSO (h)"), required=False, max_digits=10, decimal_places=2, initial=0)
     cso = forms.IntegerField(label="CSO", required=False, min_value=0, initial=0)
     # Certificat
-    cert_type = forms.ChoiceField(label="Type de certificat", choices=ReleaseCertificate.TYPES)
-    tracking_number = forms.CharField(label="N° de suivi du certificat", max_length=60)
-    issuer = forms.CharField(label="Organisme émetteur", max_length=120)
-    issuer_approval = forms.CharField(label="N° d'agrément émetteur", max_length=60, required=False)
-    issue_date = forms.DateField(label="Date du certificat", widget=forms.DateInput(attrs={"type": "date"}))
-    work_status = forms.ChoiceField(label="Statut / travaux (case 11)", choices=ReleaseCertificate.STATUSES)
-    document = forms.FileField(label="Scan du certificat", required=False)
+    cert_type = forms.ChoiceField(label=gettext_lazy("Type de certificat"), choices=ReleaseCertificate.TYPES)
+    tracking_number = forms.CharField(label=gettext_lazy("N° de suivi du certificat"), max_length=60)
+    issuer = forms.CharField(label=gettext_lazy("Organisme émetteur"), max_length=120)
+    issuer_approval = forms.CharField(label=gettext_lazy("N° d'agrément émetteur"), max_length=60, required=False)
+    issue_date = forms.DateField(label=gettext_lazy("Date du certificat"), widget=forms.DateInput(attrs={"type": "date"}))
+    work_status = forms.ChoiceField(label=gettext_lazy("Statut / travaux (case 11)"), choices=ReleaseCertificate.STATUSES)
+    document = forms.FileField(label=gettext_lazy("Scan du certificat"), required=False, validators=scan_validators())
     # Contrôle à réception
-    check_identity = forms.BooleanField(label="P/N, S/N / lot et quantité conformes au certificat", required=False)
-    check_certificate = forms.BooleanField(label="Certificat complet, signé, émetteur agréé", required=False)
-    check_condition = forms.BooleanField(label="Aucun dommage, conditionnement correct", required=False)
-    remarks = forms.CharField(label="Remarques de réception", required=False, widget=forms.Textarea(attrs={"rows": 2}))
+    check_identity = forms.BooleanField(label=gettext_lazy("P/N, S/N / lot et quantité conformes au certificat"), required=False)
+    check_certificate = forms.BooleanField(label=gettext_lazy("Certificat complet, signé, émetteur agréé"), required=False)
+    check_condition = forms.BooleanField(label=gettext_lazy("Aucun dommage, conditionnement correct"), required=False)
+    remarks = forms.CharField(label=gettext_lazy("Remarques de réception"), required=False, widget=forms.Textarea(attrs={"rows": 2}))
 
     def clean(self):
         d = super().clean()
@@ -44,18 +47,18 @@ class ReceiveForm(forms.Form):
             return d
         if pn.is_serialized:
             if not d.get("serial_number"):
-                self.add_error("serial_number", "S/N obligatoire pour une pièce sérialisée.")
+                self.add_error("serial_number", gettext("S/N obligatoire pour une pièce sérialisée."))
             elif Component.objects.filter(part_number=pn, serial_number=d["serial_number"]).exists():
-                self.add_error("serial_number", "Ce couple P/N – S/N existe déjà : doublon ou pièce suspecte.")
+                self.add_error("serial_number", gettext("Ce couple P/N – S/N existe déjà : doublon ou pièce suspecte."))
             if d.get("quantity") and d["quantity"] != 1:
-                self.add_error("quantity", "Une pièce sérialisée se réceptionne à l'unité.")
+                self.add_error("quantity", gettext("Une pièce sérialisée se réceptionne à l'unité."))
         if d.get("cert_type") and pn.requires_release_certificate and d["cert_type"] not in PartNumber.RELEASE_CERTS:
             self.add_error("cert_type", f"{pn.pn} est un élément (component) : un certificat libératoire autorisé (EASA Form 1 "
                                         "ou équivalent) est exigé, un certificat de conformité ne suffit pas (145.A.42).")
         if pn.shelf_life_controlled and not d.get("shelf_life_expiry"):
-            self.add_error("shelf_life_expiry", "Date de péremption obligatoire pour cet article.")
+            self.add_error("shelf_life_expiry", gettext("Date de péremption obligatoire pour cet article."))
         if d.get("issue_date") and d["issue_date"] > timezone.localdate():
-            self.add_error("issue_date", "Date de certificat dans le futur.")
+            self.add_error("issue_date", gettext("Date de certificat dans le futur."))
         return d
 
     @property
@@ -72,18 +75,18 @@ class CertificateForm(AhmisModelForm):
 
 
 class ComponentStatusForm(forms.Form):
-    status = forms.ChoiceField(label="Nouveau statut", choices=[c for c in Component.STATUSES if c[0] not in ("installed", "reserved", "scrapped")])
-    location = forms.ModelChoiceField(StoreLocation.objects.all(), label="Emplacement", required=False)
-    reason = forms.CharField(label="Motif", max_length=200)
+    status = forms.ChoiceField(label=gettext_lazy("Nouveau statut"), choices=[c for c in Component.STATUSES if c[0] not in ("installed", "reserved", "scrapped")])
+    location = forms.ModelChoiceField(StoreLocation.objects.all(), label=gettext_lazy("Emplacement"), required=False)
+    reason = forms.CharField(label=gettext_lazy("Motif"), max_length=200)
 
 
 class ScrapForm(forms.Form):
-    scrapped_on = forms.DateField(label="Date", widget=forms.DateInput(attrs={"type": "date"}))
-    scrap_reason = forms.ChoiceField(label="Motif", choices=Component.SCRAP_REASONS)
-    mutilation_method = forms.CharField(label="Méthode de mutilation", max_length=150)
-    mutilation_witness = forms.CharField(label="Mutilation constatée par", max_length=120)
-    scrap_reference = forms.CharField(label="Réf. certificat de destruction", max_length=60, required=False)
-    password = forms.CharField(label="Mot de passe ou code de signature", widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}))
+    scrapped_on = forms.DateField(label=gettext_lazy("Date"), widget=forms.DateInput(attrs={"type": "date"}))
+    scrap_reason = forms.ChoiceField(label=gettext_lazy("Motif"), choices=Component.SCRAP_REASONS)
+    mutilation_method = forms.CharField(label=gettext_lazy("Méthode de mutilation"), max_length=150)
+    mutilation_witness = forms.CharField(label=gettext_lazy("Mutilation constatée par"), max_length=120)
+    scrap_reference = forms.CharField(label=gettext_lazy("Réf. certificat de destruction"), max_length=60, required=False)
+    password = forms.CharField(label=gettext_lazy("Mot de passe ou code de signature"), widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}))
 
 
 class StockItemForm(AhmisModelForm):
@@ -93,8 +96,8 @@ class StockItemForm(AhmisModelForm):
 
 
 class StockAdjustForm(forms.Form):
-    quantity = forms.DecimalField(label="Quantité (+ entrée / − sortie)", max_digits=10, decimal_places=2)
-    note = forms.CharField(label="Justification", max_length=200)
+    quantity = forms.DecimalField(label=gettext_lazy("Quantité (+ entrée / − sortie)"), max_digits=10, decimal_places=2)
+    note = forms.CharField(label=gettext_lazy("Justification"), max_length=200)
 
 
 class StoreForm(AhmisModelForm):
@@ -116,7 +119,7 @@ class ToolForm(AhmisModelForm):
             self.fields["status"].choices = Tool.STATUSES
         if self.instance.pk:
             self.fields["last_calibration"].disabled = True
-            self.fields["last_calibration"].help_text = "Mis à jour par l'enregistrement d'un étalonnage."
+            self.fields["last_calibration"].help_text = gettext("Mis à jour par l'enregistrement d'un étalonnage.")
 
 
 class CalibrationForm(AhmisModelForm):
@@ -126,8 +129,8 @@ class CalibrationForm(AhmisModelForm):
 
 
 class FulfilForm(forms.Form):
-    component = forms.ModelChoiceField(Component.objects.none(), label="Composant à délivrer", required=False)
-    stock_item = forms.ModelChoiceField(StockItem.objects.none(), label="Lot à délivrer", required=False)
+    component = forms.ModelChoiceField(Component.objects.none(), label=gettext_lazy("Composant à délivrer"), required=False)
+    stock_item = forms.ModelChoiceField(StockItem.objects.none(), label=gettext_lazy("Lot à délivrer"), required=False)
 
     def __init__(self, request_obj, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -138,5 +141,5 @@ class FulfilForm(forms.Form):
     def clean(self):
         d = super().clean()
         if bool(d.get("component")) == bool(d.get("stock_item")):
-            raise forms.ValidationError("Choisissez soit un composant, soit un lot.")
+            raise forms.ValidationError(gettext("Choisissez soit un composant, soit un lot."))
         return d

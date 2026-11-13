@@ -15,13 +15,13 @@ La démo charge une flotte mixte de 6 aéronefs exploités, à dominante **Airbu
 
 | Immat. | Type | Situation de départ (pour les tutoriels) |
 |---|---|---|
-| F-HDMA | H125 | Visite 100 h et AD à planifier, BTP proche de son TBO |
-| F-HDMB | H125 | **AD dépassée**, visite 100 h en tolérance, Starflex (LLP) proche de sa limite, WP planifié vide |
+| F-HDMA | NH90 | Visite 100 h et AD à planifier, BTP proche de son TBO |
+| F-HDMB | NH90 | **AD dépassée**, visite 100 h en tolérance, moyeu rotor (LLP) proche de sa limite, WP planifié vide |
 | F-HDMC | H135 (HEMS) | Défaut reporté MEL cat. C, bulletin ASB ouvert, moyeu rotor (LLP) suivi en cycles |
 | F-HDMD | H145 (HEMS) | **En maintenance** : work package en cours avec task cards à tous les stades |
-| F-HDME | H160 | ARC qui expire dans 20 jours |
+| F-HDME | Super Puma | ARC qui expire dans 20 jours |
 | F-HDMF | ATR 72-600 | AD à évaluer, tâche calendaire dépassée |
-| F-HDMZ | H125 | **Retiré du service** il y a 20 mois, dossier transféré à l'acquéreur (tutoriel 30) |
+| F-HDMZ | NH90 | **Retiré du service** il y a 20 mois, dossier transféré à l'acquéreur (tutoriel 30) |
 
 Elle contient aussi : des revues du programme dans tous les états (tutoriel 27), trois comptes rendus d'événements (tutoriel 29), une pièce rebutée (tutoriel 31) et un ancien salarié dont le dossier est arrivé en fin de conservation (tutoriel 30).
 

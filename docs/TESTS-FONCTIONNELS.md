@@ -74,7 +74,7 @@ Profils : Sophie Durand (Responsable CAMO), Paul Garnier (Planificateur), Nadia 
 | Q-05 | Inès Roche | Commandes, « Nouvelle commande », puis « Marquer reçue ». | « Commande PO-2026-01xx créée. », puis « Commande reçue. » |
 | Q-06 | Rémi Quentel | Non-conformités, NC-2026-029 : compléter l'analyse des causes et l'action corrective, « Clôturer », bon code. | « NC-2026-029 clôturée. » |
 | Q-07 | Rémi Quentel | « Ouvrir une non-conformité », puis tenter de la « Clôturer » sans analyse ni action. | « Renseignez l'analyse des causes et l'action corrective avant de clôturer. » |
-| Q-08 | Rémi Quentel | Documents qualité, DOC-AMM-H160 « Approuver R19 », bon code. | « DOC-AMM-H160 à jour. », révision R19 applicable. |
+| Q-08 | Rémi Quentel | Documents qualité, DOC-AMM-NH90 « Approuver R19 », bon code. | « DOC-AMM-NH90 à jour. », révision R19 applicable. |
 
 ## 6. Exports
 

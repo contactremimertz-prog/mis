@@ -18,7 +18,7 @@
 ## Navigation
 
 - Le menu de gauche est organisé par métier : CAMO, Part-145, Logistique, Qualité, Aide.
-- La **recherche globale** (en haut) trouve une immatriculation, un P/N, un S/N, un WP, une task card, une AD. Essayez `DEMO-S3502` : vous arrivez directement sur la fiche du Starflex de F-HDMB.
+- La **recherche globale** (en haut) trouve une immatriculation, un P/N, un S/N, un WP, une task card, une AD. Essayez `DEMO-S3502` : vous arrivez directement sur la fiche du moyeu rotor de F-HDMB.
 - Chaque liste a une recherche et des filtres.
 
 ## Les rôles

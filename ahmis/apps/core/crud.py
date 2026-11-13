@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.views.generic import CreateView, ListView, UpdateView
+from django.utils.translation import gettext
 
 
 def formfield_callback(field, **kwargs):
@@ -65,7 +66,7 @@ class AhmisListView(PermissionRequiredMixin, ListView):
             elif field.is_relation:
                 options = [(o.pk, str(o)) for o in field.related_model.objects.all()]
             elif isinstance(field, models.BooleanField):
-                options = [("1", "Oui"), ("0", "Non")]
+                options = [("1", gettext("Oui")), ("0", gettext("Non"))]
             else:
                 continue
             result.append({
@@ -88,6 +89,7 @@ class AhmisListView(PermissionRequiredMixin, ListView):
             "create_url": self.create_url if can_add else None,
             "link_column": self.link_column,
             "extra_actions": self.extra_actions,
+            "extra_cols": 0,  # colonnes ajoutées par un gabarit dérivé (bloc extra_head)
         })
         return ctx
 
@@ -117,7 +119,7 @@ class _FormMixin:
             for msg in e.messages:
                 form.add_error(None, msg)
             return self.form_invalid(form)
-        messages.success(self.request, f"{self.model._meta.verbose_name.capitalize()} « {self.object} » enregistré(e).")
+        messages.success(self.request, gettext("{capitalize} « {object} » enregistré(e).").format(capitalize=self.model._meta.verbose_name.capitalize(), object=self.object))
         return response
 
     def get_success_url(self):
@@ -131,7 +133,7 @@ class AhmisCreateView(PermissionRequiredMixin, _FormMixin, CreateView):
         return [perm(self.model, "add")]
 
     def get_title(self):
-        return self.title or f"Nouveau / nouvelle {self.model._meta.verbose_name}"
+        return self.title or gettext("Nouveau / nouvelle {verbose_name}").format(verbose_name=self.model._meta.verbose_name)
 
 
 class AhmisUpdateView(PermissionRequiredMixin, _FormMixin, UpdateView):
@@ -139,7 +141,7 @@ class AhmisUpdateView(PermissionRequiredMixin, _FormMixin, UpdateView):
         return [perm(self.model, "change")]
 
     def get_title(self):
-        return self.title or f"Modifier {self.object}"
+        return self.title or gettext("Modifier {obj}").format(obj=self.object)
 
 
 def back(request, default="dashboard"):

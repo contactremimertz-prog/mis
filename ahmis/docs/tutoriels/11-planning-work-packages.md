@@ -25,8 +25,8 @@ Menu **Planning** : une ligne par aéronef, une colonne par jour (8 semaines).
 
 Sur la fiche du WP :
 
-1. **Ajouter des éléments dus** : la liste propose les échéances de l'aéronef jusqu'à 30 jours après la fin du WP, sauf celles déjà planifiées. Cochez `125-05-100`, `DEMO-AD-2026-0101` et `125-24-365` → **Créer les task cards sélectionnées**.
-2. **Ajouter une tâche du programme** : choisissez une tâche non due, par exemple `125-63-200`, pour l'anticiper.
+1. **Ajouter des éléments dus** : la liste propose les échéances de l'aéronef jusqu'à 30 jours après la fin du WP, sauf celles déjà planifiées. Cochez `N90-05-100`, `DEMO-AD-2026-0101` et `N90-24-365` → **Créer les task cards sélectionnées**.
+2. **Ajouter une tâche du programme** : choisissez une tâche non due, par exemple `N90-63-200`, pour l'anticiper.
 3. **Travail additionnel** : une task card hors programme, par exemple `Remplacement ampoule phare d'atterrissage`, ATA `33`, 0,5 h.h.
 
 **Résultat** :

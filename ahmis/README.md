@@ -27,7 +27,10 @@ Remise à zéro de la démo : `reinitialiser_demo.bat` / `./reinitialiser_demo.s
 | LLP, TBO, back-to-birth | Contrôle indépendant | Outillage et étalonnage | Comptes rendus d'événements (376/2014) |
 | Échéances, forecast, ARC, tolérances non cumulatives | Défauts, MEL, constatations | Classes d'articles (145.A.42) | Conservation des enregistrements |
 | Modifications et réparations, revue du programme | Changement de composant, CRS | Rebut et mutilation | |
-| Prorogation de report (RIE), transfert de dossiers | | | |
+| Prorogation de report (RIE), transfert de dossiers | | Fournisseurs acceptés, commandes d'achat, réception rattachée au certificat | Audits internes et constats (niveaux 1 / 2, observation) |
+| Dossiers Part-21 (STC, DOA, EASA) | | | Documents maîtrisés (révision signée, double regard) |
+
+Transverse : interface en **français, anglais, espagnol et allemand** (sélecteur en en-tête), **recherche globale** filtrée par les droits, **assistant** (bouton « ? ») limité à 20 réponses validées, sans génération de texte.
 
 ## Architecture
 
@@ -38,7 +41,10 @@ Remise à zéro de la démo : `reinitialiser_demo.bat` / `./reinitialiser_demo.s
   - `apps/fleet` : types, aéronefs, utilisation, P/N, composants, montages
   - `apps/camo` : programme, AD/SB, réalisations, ARC, **moteur de calcul des échéances et du forecast** (`apps/camo/services.py`)
   - `apps/part145` : personnel, autorisations, WP, task cards, défauts, **règles de signature** (`apps/part145/services.py`)
-  - `apps/logistics` : magasins, certificats, stock, demandes, outillage
+  - `apps/logistics` : magasins, certificats, stock, demandes, outillage, fournisseurs et commandes (`apps/logistics/purchasing.py`)
+  - `apps/quality` : audits internes, constats, documents maîtrisés et révisions
+  - `apps/assistant` : base de 20 réponses validées en 4 langues (`apps/assistant/kb.py`)
+  - `locale/` : catalogues de traduction EN / ES / DE (régénérer avec `makemessages`, puis `compilemessages`)
 
 ## Tests
 
@@ -46,7 +52,7 @@ Remise à zéro de la démo : `reinitialiser_demo.bat` / `./reinitialiser_demo.s
 python manage.py test apps
 ```
 
-89 tests couvrent les règles critiques : calcul « premier critère atteint », tolérances non cumulatives, seuils, délais d'AD, compteurs des composants, LLP/TBO, forecast, autorisations, contrôle indépendant, CRS, contrôles de pose, quarantaine, outillage, péremption, audit, intégrité des signatures, le parcours web avec ressaisie du mot de passe, l'expérience récente, la revue du programme, la conservation, les comptes rendus d'événements, le transfert de dossiers, la prorogation de report, le rebut et les classes d'articles.
+137 tests couvrent les règles critiques : calcul « premier critère atteint », tolérances non cumulatives, seuils, délais d'AD, compteurs des composants, LLP/TBO, forecast, autorisations, contrôle indépendant, CRS, contrôles de pose, quarantaine, outillage, péremption, audit, intégrité des signatures, le parcours web avec ressaisie du mot de passe, l'expérience récente, la revue du programme, la conservation, les comptes rendus d'événements, le transfert de dossiers, la prorogation de report, le rebut et les classes d'articles, les audits internes, les documents maîtrisés, les dossiers Part-21, les commandes d'achat, la recherche, l'assistant, et un parcours de toutes les pages dans les quatre langues pour chaque rôle de démonstration.
 
 ## Avertissement
 

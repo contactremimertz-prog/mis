@@ -1,31 +1,31 @@
-{% extends "base.html" %}{% load ahmis %}
-{% block title %}Conservation des enregistrements{% endblock %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{% trans "Conservation des enregistrements" %}{% endblock %}
 {% block content %}
 <div class="page-head">
-  <div><h1>Conservation des enregistrements</h1>
-    <div class="sub">Durées minimales M.A.305(h), CAMO.A.220, 145.A.55(c) et 145.A.35(j) · situation au {{ today|date:"d/m/Y" }}</div></div>
+  <div><h1>{% trans "Conservation des enregistrements" %}</h1>
+    <div class="sub">{% trans "Durées minimales M.A.305(h), CAMO.A.220, 145.A.55(c) et 145.A.35(j) · situation au" %} {{ today|date:"d/m/Y" }}</div></div>
 </div>
-<div class="alert info">AHMIS <strong>ne supprime jamais</strong> d'enregistrement automatiquement, et refuse toute suppression d'un
-  enregistrement encore sous obligation de conservation. Ce rapport identifie ceux dont la durée minimale est échue :
-  leur archivage ou leur purge relève d'une décision documentée selon la procédure de l'organisme (MOE / CAME).
-  Durées configurées : travaux {{ months.work }} mois après CRS ; état de l'aéronef {{ months.life }} mois après retrait définitif ;
-  personnel {{ months.staff }} mois après départ.</div>
-<div class="card"><h2>Synthèse par nature d'enregistrement</h2>
-  <div class="table-wrap"><table class="data"><thead><tr><th>Enregistrements</th><th>Référence</th><th>Durée minimale</th>
-    <th class="num">Total</th><th class="num">Sans échéance</th><th class="num">En cours</th><th class="num">Échus (archivables)</th><th></th></tr></thead><tbody>
+<div class="alert info">AHMIS <strong>{% trans "ne supprime jamais" %}</strong> {% trans "d'enregistrement automatiquement, et refuse toute suppression d'un" %}
+  {% trans "enregistrement encore sous obligation de conservation. Ce rapport identifie ceux dont la durée minimale est échue :" %}
+  {% trans "leur archivage ou leur purge relève d'une décision documentée selon la procédure de l'organisme (MOE / CAME)." %}
+  {% blocktrans with work=months.work life=months.life %}Durées configurées : travaux {{ work }} mois après CRS ; état de l'aéronef {{ life }} mois après retrait définitif ;{% endblocktrans %}
+  {% blocktrans with staff=months.staff %}personnel {{ staff }} mois après départ.{% endblocktrans %}</div>
+<div class="card"><h2>{% trans "Synthèse par nature d'enregistrement" %}</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>{% trans "Enregistrements" %}</th><th>{% trans "Référence" %}</th><th>{% trans "Durée minimale" %}</th>
+    <th class="num">{% trans "Total" %}</th><th class="num">{% trans "Sans échéance" %}</th><th class="num">{% trans "En cours" %}</th><th class="num">{% trans "Échus (archivables)" %}</th><th></th></tr></thead><tbody>
   {% for r in rows %}<tr><td>{{ r.rule.label }}</td><td class="small">{{ r.rule.reference }}</td><td class="small">{{ r.rule.period }}</td>
     <td class="num">{{ r.counts.total }}</td><td class="num">{{ r.counts.open }}</td><td class="num">{{ r.counts.running }}</td>
     <td class="num">{% if r.counts.eligible %}<span class="badge warn">{{ r.counts.eligible }}</span>{% else %}0{% endif %}</td>
     <td><a class="btn small" href="{% url 'retention_csv' r.rule.key %}">CSV</a></td></tr>{% endfor %}
   </tbody></table></div>
-  <p class="small muted" style="margin-bottom:0">« Sans échéance » : aéronef encore exploité, dossier ouvert, ou dernier état connu d'une tâche — à conserver.
-  « En cours » : durée minimale non atteinte. « Échus » : durée minimale atteinte, conservation au-delà possible.</p>
+  <p class="small muted" style="margin-bottom:0">{% trans "« Sans échéance » : aéronef encore exploité, dossier ouvert, ou dernier état connu d'une tâche — à conserver." %}
+  {% trans "« En cours » : durée minimale non atteinte. « Échus » : durée minimale atteinte, conservation au-delà possible." %}</p>
 </div>
-{% for r in rows %}{% if r.sample %}<div class="card"><h2>{{ r.rule.label }} – échus</h2><table class="data"><thead><tr><th>Enregistrement</th><th>Conservation minimale jusqu'au</th></tr></thead><tbody>
+{% for r in rows %}{% if r.sample %}<div class="card"><h2>{{ r.rule.label }} {% trans "– échus" %}</h2><table class="data"><thead><tr><th>{% trans "Enregistrement" %}</th><th>{% trans "Conservation minimale jusqu'au" %}</th></tr></thead><tbody>
   {% for obj, until in r.sample %}<tr><td>{% if obj.get_absolute_url %}<a href="{{ obj.get_absolute_url }}">{{ obj }}</a>{% else %}{{ obj }}{% endif %}</td><td>{{ until|date:"d/m/Y" }}</td></tr>{% endfor %}
-  {% if r.counts.eligible > 10 %}<tr><td colspan="2" class="small muted">… et {{ r.counts.eligible|add:"-10" }} autre(s) : voir l'export CSV.</td></tr>{% endif %}
+  {% if r.counts.eligible > 10 %}<tr><td colspan="2" class="small muted">{% blocktrans with eligible=r.counts.eligible|add:"-10" %}… et {{ eligible }} autre(s) : voir l'export CSV.{% endblocktrans %}</td></tr>{% endif %}
 </tbody></table></div>{% endif %}{% endfor %}
-<div class="card"><h2>Aéronefs retirés du service</h2><table class="data"><thead><tr><th>Aéronef</th><th>Retrait définitif</th><th>Enregistrements d'état conservés jusqu'au</th></tr></thead><tbody>
+<div class="card"><h2>{% trans "Aéronefs retirés du service" %}</h2><table class="data"><thead><tr><th>{% trans "Aéronef" %}</th><th>{% trans "Retrait définitif" %}</th><th>{% trans "Enregistrements d'état conservés jusqu'au" %}</th></tr></thead><tbody>
   {% for a in withdrawn %}<tr><td><a href="{{ a.get_absolute_url }}">{{ a.registration }}</a></td><td>{{ a.withdrawn_on|date:"d/m/Y" }}</td><td>{{ a.retention_until|date:"d/m/Y" }}</td></tr>
-  {% empty %}<tr><td colspan="3" class="empty">Aucun.</td></tr>{% endfor %}</tbody></table></div>
+  {% empty %}<tr><td colspan="3" class="empty">{% trans "Aucun." %}</td></tr>{% endfor %}</tbody></table></div>
 {% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}{% load ahmis i18n %}
+{% block title %}{{ d.reference }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ d.reference }} {% badge d %}</h1>
+    <div class="sub">{{ d.title }} · {{ d.get_doc_type_display }}{% if d.owner %} · {{ d.owner }}{% endif %}</div></div>
+  <div class="actions">
+    {% if perms.quality.change_controlleddocument %}<a class="btn" href="{% url 'quality:doc_update' d.pk %}">{% trans "Modifier" %}</a>{% endif %}
+    {% if perms.quality.approve_documentrevision and d.status != "obsolete" %}<form method="post" action="{% url 'quality:doc_withdraw' d.pk %}" style="display:inline">{% csrf_token %}<button class="btn danger" type="submit">{% trans "Retirer le document" %}</button></form>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'quality.controlleddocument' d.pk %}">{% trans "Historique" %}</a>{% endif %}
+  </div>
+</div>
+{% if d.alert == "overdue" %}<div class="alert warn">{% trans "Revue périodique échue depuis le" %} {{ d.review_due|date:"d/m/Y" }}.</div>{% endif %}
+<div class="grid grid-2">
+  <div class="card"><h2>{% trans "Document" %}</h2><dl class="dl">
+    <div><dt>{% trans "Révision en vigueur" %}</dt><dd>{{ d.current_revision|default:"—" }}</dd></div>
+    <div><dt>{% trans "En vigueur depuis" %}</dt><dd>{{ d.current_since|date:"d/m/Y"|default:"—" }}</dd></div>
+    <div><dt>{% trans "Prochaine revue" %}</dt><dd>{{ d.review_due|date:"d/m/Y"|default:"—" }}</dd></div>
+    <div><dt>{% trans "Approbation de l'autorité" %}</dt><dd>{% yesno_badge d.authority_approval _("Requise") _("Non requise") %}</dd></div>
+  </dl></div>
+  <div class="card">
+  {% if pending %}
+    <h2>{% trans "Révision en attente" %} : {{ pending.revision }}</h2>
+    <p class="small">{{ pending.change_summary|linebreaksbr }}</p>
+    {% if pending.file %}<p class="small"><a href="{{ pending.file.url }}">{% trans "Ouvrir le fichier" %}</a></p>{% endif %}
+    <p class="small muted">{% trans "Rédigée par" %} {{ pending.created_by.get_full_name|default:pending.created_by.username }} – {{ pending.created_at|date:"d/m/Y H:i" }}{% if pending.authority_reference %} · {% trans "Autorité" %} : {{ pending.authority_reference }}{% endif %}</p>
+    {% if perms.quality.approve_documentrevision %}
+      {% if pending.created_by_id == user.pk %}<p class="small muted">{% trans "Vous êtes le rédacteur : une autre personne doit approuver cette révision." %}</p>
+      {% else %}
+      <form method="post" action="{% url 'quality:revision_approve' pending.pk %}" class="sign-box inline-form">{% csrf_token %}
+        {% include "core/_sign_form.html" with id="appr" %}<button class="btn primary" type="submit">{% trans "Approuver et signer" %}</button></form>
+      <form method="post" action="{% url 'quality:revision_reject' pending.pk %}" class="inline-form" style="margin-top:10px">{% csrf_token %}
+        {% for f in reject_form %}{% field f %}{% endfor %}<button class="btn danger" type="submit">{% trans "Refuser" %}</button></form>
+      {% endif %}
+    {% endif %}
+  {% elif d.status != "obsolete" and perms.quality.add_documentrevision %}
+    <h2>{% trans "Soumettre une révision" %}</h2>
+    <form method="post" enctype="multipart/form-data" action="{% url 'quality:revision_add' d.pk %}" class="stacked">{% csrf_token %}
+      <div class="form-grid">{% for f in revision_form %}{% field f %}{% endfor %}</div>
+      <button class="btn primary" type="submit">{% trans "Soumettre à approbation" %}</button></form>
+  {% else %}<h2>{% trans "Révisions" %}</h2><p class="muted small">{% trans "Aucune révision en attente." %}</p>{% endif %}
+  </div>
+</div>
+<div class="card"><h2>{% trans "Historique des révisions" %}</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>{% trans "Révision" %}</th><th>{% trans "Objet" %}</th><th>{% trans "Rédigée par" %}</th><th>{% trans "Approuvée par" %}</th><th>{% trans "Statut" %}</th></tr></thead><tbody>
+  {% for r in revisions %}<tr><td>{{ r.revision }}{% if r.file %} · <a href="{{ r.file.url }}">{% trans "fichier" %}</a>{% endif %}</td><td class="small">{{ r.change_summary|truncatechars:120 }}{% if r.rejection_reason %}<br><em>{% trans "Refus" %} : {{ r.rejection_reason }}</em>{% endif %}</td>
+    <td class="small">{{ r.created_by.get_full_name|default:r.created_by.username|default:"—" }}<br>{{ r.created_at|date:"d/m/Y" }}</td>
+    <td class="small">{% if r.approved_by %}{{ r.approved_by.get_full_name|default:r.approved_by.username }}<br>{{ r.approved_at|date:"d/m/Y H:i" }}{% else %}—{% endif %}</td><td>{% badge r %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="empty">{% trans "Aucune révision." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

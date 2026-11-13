@@ -44,23 +44,21 @@ class Command(BaseCommand):
             return
         random.seed(145)
         self.today = timezone.localdate()
-        with transaction.atomic():
-            self.users()
-            self.stores()
-            self.types_and_parts()
-            self.staff()
-            self.programme()
-            self.fleet()
-            self.utilisation()
-            self.directives()
-            self.history()
-            self.logistics()
-            self.workpackages()
+        try:
+            self._load()
+        finally:
+            set_current_user(None)
         self.stdout.write(self.style.SUCCESS(
             f"Données de démonstration chargées : {Aircraft.objects.exclude(status='retired').count()} aéronefs (+ 1 retiré), "
             f"{MaintenanceTask.objects.count()} tâches, {Component.objects.count()} composants. "
             f"Comptes : {', '.join(a[0] for a in DEMO_ACCOUNTS)} – mot de passe {DEMO_PASSWORD}"
         ))
+
+    @transaction.atomic
+    def _load(self):
+        for step in (self.users, self.stores, self.types_and_parts, self.staff, self.programme, self.fleet, self.utilisation,
+                     self.directives, self.history, self.logistics, self.workpackages, self.quality_and_purchasing):
+            step()
 
     # ------------------------------------------------------------------ utilisateurs
     def users(self):
@@ -88,14 +86,14 @@ class Command(BaseCommand):
         T = AircraftType.objects.create
         note = "Données de démonstration : intervalles et limites FICTIFS."
         self.t = {
-            "H125": T(code="H125", manufacturer="Airbus Helicopters", model="H125 (AS350 B3e)", category="helicopter", engine_count=1,
-                      engine_model="Safran Arriel 2D", cycle_label="Atterrissages", mtow_kg=2250, notes=note),
+            "NH90": T(code="NH90", manufacturer="NHIndustries", model="NH90 TTH (version État)", category="helicopter", engine_count=2,
+                      engine_model="Safran RTM322-01/9", cycle_label="Atterrissages", mtow_kg=10600, notes=note),
             "H135": T(code="H135", manufacturer="Airbus Helicopters", model="H135 (EC135 T3)", category="helicopter", engine_count=2,
                       engine_model="Safran Arrius 2B2", cycle_label="Atterrissages", mtow_kg=2980, notes=note),
             "H145": T(code="H145", manufacturer="Airbus Helicopters", model="H145 D3 (BK117 D-3)", category="helicopter", engine_count=2,
                       engine_model="Safran Arriel 2E", cycle_label="Atterrissages", mtow_kg=3800, notes=note),
-            "H160": T(code="H160", manufacturer="Airbus Helicopters", model="H160", category="helicopter", engine_count=2,
-                      engine_model="Safran Arrano 1A", cycle_label="Atterrissages", mtow_kg=6050, notes=note),
+            "SP": T(code="Super Puma", manufacturer="Airbus Helicopters", model="Super Puma AS332 L2", category="helicopter", engine_count=2,
+                    engine_model="Safran Makila 1A2", cycle_label="Atterrissages", mtow_kg=9300, notes=note),
             "ATR72": T(code="ATR72-600", manufacturer="ATR", model="ATR 72-600", category="aeroplane", engine_count=2,
                        engine_model="Pratt & Whitney Canada PW127M", cycle_label="Cycles", mtow_kg=23000, notes=note),
         }
@@ -107,13 +105,13 @@ class Command(BaseCommand):
 
         S = dict(is_serialized=True, is_rotable=True)
         self.pn = {
-            # H125
-            "ENG_2D": pn("DEMO-ARR2D-0001", "Moteur Arriel 2D", "Safran Helicopter Engines", "72", ["H125"], tbo_fh=D("4000"), **S),
-            "MGB_125": pn("DEMO-350MGB-01", "Boîte de transmission principale (BTP)", "Airbus Helicopters", "63", ["H125"], tbo_fh=D("3000"), tbo_days=15 * 365, **S),
-            "TGB_125": pn("DEMO-350TGB-01", "Boîte de transmission arrière (BTA)", "Airbus Helicopters", "65", ["H125"], tbo_fh=D("3500"), **S),
-            "STAR_125": pn("DEMO-350STR-01", "Étoile de moyeu rotor principal (Starflex)", "Airbus Helicopters", "62", ["H125"], is_llp=True, life_limit_fh=D("5000"), life_limit_fc=20000, **S),
-            "MRB_125": pn("DEMO-350MRB-01", "Pale de rotor principal", "Airbus Helicopters", "62", ["H125"], is_llp=True, life_limit_fh=D("20000"), **S),
-            "SG": pn("DEMO-SG-150", "Démarreur-génératrice", "Safran Electrical", "24", ["H125", "H135"], **S),
+            # NH90
+            "ENG_2D": pn("DEMO-ARR2D-0001", "Moteur RTM322-01/9", "Safran Helicopter Engines", "72", ["NH90"], tbo_fh=D("4000"), **S),
+            "MGB_125": pn("DEMO-350MGB-01", "BTP NH90", "Airbus Helicopters", "63", ["NH90"], tbo_fh=D("3000"), tbo_days=15 * 365, **S),
+            "TGB_125": pn("DEMO-350TGB-01", "BTA NH90", "Airbus Helicopters", "65", ["NH90"], tbo_fh=D("3500"), **S),
+            "STAR_125": pn("DEMO-350STR-01", "Moyeu rotor principal NH90 (titane, butées élastomériques)", "Airbus Helicopters", "62", ["NH90"], is_llp=True, life_limit_fh=D("5000"), life_limit_fc=20000, **S),
+            "MRB_125": pn("DEMO-350MRB-01", "Pale de rotor principal NH90", "NHIndustries", "62", ["NH90"], is_llp=True, life_limit_fh=D("20000"), **S),
+            "SG": pn("DEMO-SG-150", "Démarreur-génératrice", "Safran Electrical", "24", ["NH90", "H135"], **S),
             # H135
             "ENG_2B2": pn("DEMO-ARS2B2-01", "Moteur Arrius 2B2", "Safran Helicopter Engines", "72", ["H135"], tbo_fh=D("3500"), **S),
             "MGB_135": pn("DEMO-135MGB-01", "BTP H135", "Airbus Helicopters", "63", ["H135"], tbo_fh=D("3000"), **S),
@@ -124,9 +122,9 @@ class Command(BaseCommand):
             "MGB_145": pn("DEMO-145MGB-01", "BTP H145", "Airbus Helicopters", "63", ["H145"], tbo_fh=D("3500"), **S),
             "MRH_145": pn("DEMO-145MRH-01", "Moyeu rotor principal H145", "Airbus Helicopters", "62", ["H145"], is_llp=True, life_limit_fh=D("12000"), life_limit_fc=15000, **S),
             "FEN_145": pn("DEMO-145FEN-01", "Boîte Fenestron H145", "Airbus Helicopters", "65", ["H145"], tbo_fh=D("3200"), **S),
-            # H160
-            "ENG_ARR": pn("DEMO-ARRANO-01", "Moteur Arrano 1A", "Safran Helicopter Engines", "72", ["H160"], tbo_fh=D("5000"), **S),
-            "MGB_160": pn("DEMO-160MGB-01", "BTP H160", "Airbus Helicopters", "63", ["H160"], tbo_fh=D("4000"), **S),
+            # Super Puma
+            "ENG_ARR": pn("DEMO-ARRANO-01", "Moteur Makila 1A2", "Safran Helicopter Engines", "72", ["SP"], tbo_fh=D("5000"), **S),
+            "MGB_160": pn("DEMO-160MGB-01", "BTP Super Puma", "Airbus Helicopters", "63", ["SP"], tbo_fh=D("4000"), **S),
             # ATR
             "ENG_PW": pn("DEMO-PW127M-01", "Moteur PW127M", "Pratt & Whitney Canada", "72", ["ATR72"], **S),
             "MLG_ATR": pn("DEMO-ATRMLG-01", "Atterrisseur principal", "Safran Landing Systems", "32", ["ATR72"], is_llp=True, life_limit_fc=60000, **S),
@@ -136,14 +134,14 @@ class Command(BaseCommand):
             "GREASE": pn("DEMO-GRS-01", "Graisse aéronautique (cartouche)", "Fournisseur graisses", "12", [], unit="EA", shelf_life_controlled=True, category="consumable"),
             "ORING": pn("DEMO-ORING-12", "Joint torique Ø12", "Fournisseur joints", "20", [], unit="EA", shelf_life_controlled=True, category="standard_part", specification="AS568-012 (DEMO)"),
             "LOCKWIRE": pn("DEMO-LW-032", "Fil à freiner 0,032\" (bobine)", "Fournisseur standard parts", "20", [], unit="EA", category="raw_material", specification="MS20995C32 (DEMO)"),
-            "FILTER_125": pn("DEMO-350FLT-01", "Filtre à huile moteur H125", "Airbus Helicopters", "79", ["H125"], unit="EA"),
-            "CHIP": pn("DEMO-CHIP-01", "Bouchon magnétique (détecteur de limaille)", "Airbus Helicopters", "63", ["H125", "H135", "H145"], unit="EA"),
+            "FILTER_125": pn("DEMO-350FLT-01", "Filtre à huile moteur NH90", "Airbus Helicopters", "79", ["NH90"], unit="EA"),
+            "CHIP": pn("DEMO-CHIP-01", "Bouchon magnétique (détecteur de limaille)", "Airbus Helicopters", "63", ["NH90", "H135", "H145"], unit="EA"),
         }
 
     # ------------------------------------------------------------------ personnel
     def staff(self):
         types = list(self.t.values())
-        helis = [self.t[x] for x in ("H125", "H135", "H145", "H160")]
+        helis = [self.t[x] for x in ("NH90", "H135", "H145", "SP")]
         today = self.today
         start = today - timedelta(days=400)
 
@@ -172,7 +170,7 @@ class Command(BaseCommand):
 
         for t in helis:
             auth(self.s["meca"], t, "MECH", False)
-            auth(self.s["b1"], t, "B1", True, 700 if t.code != "H160" else 45)  # une autorisation expire bientôt
+            auth(self.s["b1"], t, "B1", True, 700 if t.code != "Super Puma" else 45)  # une autorisation expire bientôt
             auth(self.s["b2"], t, "B2", True)
             auth(self.s["certc"], t, "C", True)
         auth(self.s["b1"], self.t["ATR72"], "B1", True)
@@ -210,8 +208,9 @@ class Command(BaseCommand):
             "Inspection des commandes de vol et des biellettes",
             "Refermer et freiner, contrôle d'absence d'objet étranger (FOD)",
         ])
-        for code in ("H125", "H135", "H145", "H160"):
-            p = code.replace("H", "")
+        self.prefix = {"NH90": "N90", "H135": "135", "H145": "145", "SP": "332"}  # préfixe des références de tâche
+        for code in ("NH90", "H135", "H145", "SP"):
+            p = self.prefix[code]
             task(code, f"{p}-05-100", "Visite 100 h / 12 mois", source="AMP", task_type="INSP", ata="05",
                  interval_fh=D("100"), interval_days=365, tolerance_fh=D("10"), tolerance_days=30, estimated_mh=D("8"),
                  zone="Cellule complète", skill="B1", steps=STEPS_100, parts=[("OIL", 2), ("CHIP", 1), ("LOCKWIRE", 1)])
@@ -230,7 +229,7 @@ class Command(BaseCommand):
             task(code, f"{p}-24-365", "Contrôle capacité batterie", source="AMP", task_type="FNC", ata="24", interval_days=365, tolerance_days=15,
                  estimated_mh=D("1"), skill="B2", steps="Déposer la batterie\nTest de capacité au banc\nReposer et contrôler le fonctionnement")
         # Tâches suivies sur composant (compteurs du composant)
-        task("H125", "125-72-500", "Contrôle boroscopique moteur Arriel 2D", source="AMP", task_type="DET", ata="72",
+        task("NH90", "N90-72-500", "Contrôle boroscopique moteurs RTM322", source="AMP", task_type="DET", ata="72",
              part_number=self.pn["ENG_2D"], interval_fh=D("500"), tolerance_fh=D("25"), estimated_mh=D("3"), skill="B1",
              steps="Déposer les bouchons d'inspection\nInspection boroscopique du générateur de gaz\nEnregistrer les constatations et images")
         task("H145", "145-72-500", "Contrôle boroscopique moteurs Arriel 2E", source="AMP", task_type="DET", ata="72",
@@ -261,11 +260,11 @@ class Command(BaseCommand):
                      arc_expiry=today + timedelta(days=arc_days))
 
         self.ac = {
-            "MA": ac("F-HDMA", "H125", "9101", 6, "2320.4", 6890, "Base Alpes", "Héli Montagne Démo", "1.6", "4.5", 190),
-            "MB": ac("F-HDMB", "H125", "9102", 9, "3810.0", 11450, "Base Alpes", "Héli Montagne Démo", "1.4", "4.0", 75),
+            "MA": ac("F-HDMA", "NH90", "9101", 6, "2320.4", 6890, "Base Alpes", "Sécurité civile Démo (État)", "1.6", "4.5", 190),
+            "MB": ac("F-HDMB", "NH90", "9102", 9, "3810.0", 11450, "Base Alpes", "Sécurité civile Démo (État)", "1.4", "4.0", 75),
             "MC": ac("F-HDMC", "H135", "2201", 7, "4050.7", 6420, "Base hospitalière Nord", "SAMU Démo (HEMS)", "2.2", "5.0", 240),
             "MD": ac("F-HDMD", "H145", "21101", 4, "2890.2", 4870, "Base hospitalière Sud", "SAMU Démo (HEMS)", "2.0", "4.5", 160, "maintenance"),
-            "ME": ac("F-HDME", "H160", "1601", 1.5, "640.0", 1280, "Base offshore", "Offshore Démo", "2.5", "3.0", 20),
+            "ME": ac("F-HDME", "SP", "1601", 1.5, "640.0", 1280, "Base offshore", "Offshore Démo", "2.5", "3.0", 20),
             "MF": ac("F-HDMF", "ATR72", "1801", 5, "14250.0", 15980, "Base régionale", "Régional Démo", "6.5", "7.0", 300),
         }
         self.cert_n = 1000
@@ -285,19 +284,21 @@ class Command(BaseCommand):
 
         MA, MB, MC, MD, ME, MF = (self.ac[k] for k in ("MA", "MB", "MC", "MD", "ME", "MF"))
         # F-HDMA : BTP proche de son TBO (≈ 60 FH restantes à la fin de l'historique)
-        comp("ENG_2D", "DEMO-E21001", MA, "MOT", "2320.4", 6890, "1850.0", 5400, overhaul_years=1)
+        comp("ENG_2D", "DEMO-E21001", MA, "MOT 1", "2320.4", 6890, "1850.0", 5400, overhaul_years=1)
+        comp("ENG_2D", "DEMO-E21003", MA, "MOT 2", "2320.4", 6890, "1990.0", 5800, overhaul_years=1)
         comp("MGB_125", "DEMO-M3501", MA, "BTP", "2880.0", 8100, "2865.0", 8050, overhaul_years=5)
         comp("TGB_125", "DEMO-T3501", MA, "BTA", "2320.4", 6890)
         comp("STAR_125", "DEMO-S3501", MA, "MRH", "2320.4", 6890)
-        for i in (1, 2, 3):
+        for i in (1, 2, 3, 4):
             comp("MRB_125", f"DEMO-B350{i}", MA, f"PALE {i}", "2320.4", 6890)
         comp("SG", "DEMO-G1501", MA, "DEM-GEN", "900.0", 2600)
-        # F-HDMB : Starflex proche de sa limite de vie
-        comp("ENG_2D", "DEMO-E21002", MB, "MOT", "3810.0", 11450, "3100.0", 9300, overhaul_years=2)
+        # F-HDMB : moyeu rotor principal proche de sa limite de vie
+        comp("ENG_2D", "DEMO-E21002", MB, "MOT 1", "3810.0", 11450, "3100.0", 9300, overhaul_years=2)
+        comp("ENG_2D", "DEMO-E21004", MB, "MOT 2", "3810.0", 11450, "2950.0", 8800, overhaul_years=2)
         comp("MGB_125", "DEMO-M3502", MB, "BTP", "3810.0", 11450, "820.0", 2400, overhaul_years=1.5)
         comp("TGB_125", "DEMO-T3502", MB, "BTA", "3810.0", 11450, "310.0", 900, overhaul_years=0.5)
         comp("STAR_125", "DEMO-S3502", MB, "MRH", "4880.0", 15100)
-        for i in (1, 2, 3):
+        for i in (1, 2, 3, 4):
             comp("MRB_125", f"DEMO-B351{i}", MB, f"PALE {i}", "3810.0", 11450)
         # F-HDMC (H135 HEMS) : moyeu proche limite cycles
         comp("ENG_2B2", "DEMO-A2201", MC, "MOT 1", "4050.7", 6420, "2600.0", 4100, overhaul_years=3)
@@ -312,7 +313,7 @@ class Command(BaseCommand):
         comp("MRH_145", "DEMO-H1451", MD, "MRH", "2890.2", 4870)
         self.fen_145 = comp("FEN_145", "DEMO-F1451", MD, "BTA", "2890.2", 4870)
         self.eng_145 = e1
-        # F-HDME (H160)
+        # F-HDME (Super Puma)
         comp("ENG_ARR", "DEMO-R1601", ME, "MOT 1", "640.0", 1280)
         comp("ENG_ARR", "DEMO-R1602", ME, "MOT 2", "640.0", 1280)
         comp("MGB_160", "DEMO-M1601", ME, "BTP", "640.0", 1280)
@@ -327,7 +328,7 @@ class Command(BaseCommand):
         # Aéronef retiré du service (hors self.ac : exclu des échéances) : conservation 12 mois après retrait -> échue
         from apps.fleet.models import UtilisationRecord
 
-        z = Aircraft.objects.create(registration="F-HDMZ", aircraft_type=self.t["H125"], msn="8801", status="retired",
+        z = Aircraft.objects.create(registration="F-HDMZ", aircraft_type=self.t["NH90"], msn="8801", status="retired",
                                     manufacture_date=today - timedelta(days=22 * 365), total_fh=D("14210.5"), total_fc=40210,
                                     counters_date=today - timedelta(days=600), withdrawn_on=today - timedelta(days=600),
                                     owner="Société de démonstration SAS", notes="Retiré du service (accident sans blessé), cellule vendue pour pièces.")
@@ -367,19 +368,19 @@ class Command(BaseCommand):
         today = self.today
         self.as_user("camo")
         ad1 = Directive.objects.create(
-            number="DEMO-AD-2026-0101", kind="AD", authority="EASA", title="BTP H125 – inspection répétitive des barres de suspension",
+            number="DEMO-AD-2026-0101", kind="AD", authority="EASA", title="BTP NH90 – inspection répétitive des barres de suspension",
             effective_date=today - timedelta(days=200), is_recurring=True,
-            applicability_text="Hélicoptères H125, tous numéros de série, équipés de BTP DEMO-350MGB-01 (exemple fictif).",
+            applicability_text="Hélicoptères NH90, tous numéros de série, équipés de BTP DEMO-350MGB-01 (exemple fictif).",
             required_action="Inspection détaillée des barres de suspension BTP dans les 50 FH puis toutes les 110 FH.",
         )
-        ad1.aircraft_types.set([self.t["H125"]])
+        ad1.aircraft_types.set([self.t["NH90"]])
         t1 = MaintenanceTask.objects.create(
-            aircraft_type=self.t["H125"], reference="DEMO-AD-2026-0101", title="Inspection des barres de suspension BTP (AD)", source="AD",
+            aircraft_type=self.t["NH90"], reference="DEMO-AD-2026-0101", title="Inspection des barres de suspension BTP (AD)", source="AD",
             directive=ad1, task_type="DET", ata="63", threshold_fh=D("50"), interval_fh=D("110"), estimated_mh=D("2"), skill="B1",
             requires_independent_inspection=True, amp_revision="DEMO rév. 3",
             steps="Déposer les capotages BTP\nInspection détaillée des barres et ferrures (fissures, corrosion)\nRelever les couples de serrage\nReposer les capotages",
         )
-        self.tasks[("H125", "AD0101")] = t1
+        self.tasks[("NH90", "AD0101")] = t1
         for ac in (self.ac["MA"], self.ac["MB"]):
             DirectiveApplicability.objects.create(directive=ad1, aircraft=ac, status="recurring" if ac.registration == "F-HDMA" else "open",
                                                   justification="Applicable : BTP du P/N concerné installée.", reviewed_by="Julien MOREAU", reviewed_on=today - timedelta(days=190))
@@ -410,11 +411,11 @@ class Command(BaseCommand):
         sb.aircraft_types.set([self.t["H145"]])
         DirectiveApplicability.objects.create(directive=sb, aircraft=self.ac["MD"], status="to_assess")
         ad_h160 = Directive.objects.create(
-            number="DEMO-AD-2025-0333", kind="AD", authority="EASA", title="H160 – logiciel du calculateur de vol",
-            effective_date=today - timedelta(days=300), applicability_text="H160 tous MSN (exemple fictif).",
+            number="DEMO-AD-2025-0333", kind="AD", authority="EASA", title="Super Puma – logiciel du pilote automatique",
+            effective_date=today - timedelta(days=300), applicability_text="Super Puma AS332 L2 tous MSN (exemple fictif).",
             required_action="Mise à jour logicielle (une fois).",
         )
-        ad_h160.aircraft_types.set([self.t["H160"]])
+        ad_h160.aircraft_types.set([self.t["SP"]])
         DirectiveApplicability.objects.create(directive=ad_h160, aircraft=self.ac["ME"], status="complied", compliance_date=today - timedelta(days=250),
                                               compliance_fh=D("420"), compliance_fc=840, justification="Appliquée à la livraison (CRS constructeur).",
                                               reviewed_by="Julien MOREAU", reviewed_on=today - timedelta(days=249))
@@ -446,17 +447,17 @@ class Command(BaseCommand):
             "ME": {"05-100": (30, 15), "05-600": (330, 150), "62-050": (25, 10), "63-200": (110, 50), "08-001": (640, 500), "24-365": (600, 300)},
         }
         for key, rows in prog.items():
-            code = self.ac[key].aircraft_type.code
-            p = code.replace("H", "")
+            code = next(k for k, t in self.t.items() if t.pk == self.ac[key].aircraft_type_id)
+            p = self.prefix[code]
             for suffix, (fh_ago, days_ago) in rows.items():
                 done(key, code, f"{p}-{suffix}", fh_ago, days_ago)
-        ma_eng = self.ac["MA"].components.get(position="MOT")
-        done("MA", "H125", "125-72-500", 470, 280, component=ma_eng)
-        done("MB", "H125", "125-72-500", 210, 140, component=self.ac["MB"].components.get(position="MOT"))
+        ma_eng = self.ac["MA"].components.get(position="MOT 1")
+        done("MA", "NH90", "N90-72-500", 470, 280, component=ma_eng)
+        done("MB", "NH90", "N90-72-500", 210, 140, component=self.ac["MB"].components.get(position="MOT 1"))
         done("MD", "H145", "145-72-500", 300, 150, component=self.eng_145)
         done("MD", "H145", "145-72-500", 520, 260, component=self.ac["MD"].components.get(position="MOT 2"))
         done("MC", "H135", "135-04-001", 1200, 800)
-        done("MA", "H125", "AD0101", 95, 60)
+        done("MA", "NH90", "AD0101", 95, 60)
         # F-HDMB : AD jamais réalisée -> seuil 50 FH depuis l'entrée en vigueur (dépassée)
         done("MF", "ATR72", "ATR-05-A", 420, 70)
         done("MF", "ATR72", "ATR-05-C", 3000, 700)
@@ -474,14 +475,14 @@ class Command(BaseCommand):
                                      amp_reference=f"AMP-{t}-DEMO", revision_before="DEMO rév. 3", reviewer="Julien MOREAU (CAMO)",
                                      reliability_reviewed=True, instructions_reviewed=True, **kw)
 
-        amp("H125", 400, findings="Revue initiale.")
-        amp("H125", 40, outcome="amended", revision_after="DEMO rév. 4", approval_type="indirect",
+        amp("NH90", 400, findings="Revue initiale.")
+        amp("NH90", 40, outcome="amended", revision_after="DEMO rév. 4", approval_type="indirect",
             approval_reference="PAI-2026-014", approval_date=self.today - timedelta(days=35),
             findings="Défauts répétitifs ATA 63 (3 en 12 mois) ; révision MSM 2026-01 intégrée.",
             changes="Inspection BTP réduite à 300 FH ; ajout des ICA de la modification MOD-0001.")
         amp("H135", 350, findings="Programme efficace, aucun défaut répétitif.")       # à planifier sous 30 j
         amp("H145", 120, findings="Aucun changement nécessaire.")
-        amp("H160", 395, findings="Revue initiale.")                                  # dépassée
+        amp("SP", 395, findings="Revue initiale.")                                  # dépassée
         # ATR72 : aucune revue enregistrée -> alerte
 
     # ------------------------------------------------------------------ logistique
@@ -504,7 +505,7 @@ class Command(BaseCommand):
         stock("LOCKWIRE", "LOT-LW-001", 20, self.main, None, 5)
         stock("FILTER_125", "LOT-FL-44", 8, self.main, None, 2)
         stock("CHIP", "LOT-CH-09", 6, self.main, None, 2)
-        # Pièce non récupérable : Starflex en butée de vie, rebutée et mutilée (145.A.42(d))
+        # Pièce non récupérable : moyeu rotor en butée de vie, rebutée et mutilée (145.A.42(d))
         Component.objects.create(
             part_number=self.pn["STAR_125"], serial_number="DEMO-S3399", status="scrapped", condition="used",
             manufacture_date=today - timedelta(days=12 * 365), tsn_fh=D("5000.0"), csn=14210, tso_fh=D("5000.0"), cso=14210,
@@ -552,7 +553,7 @@ class Command(BaseCommand):
         ma = self.ac["MA"]
         wp0 = WorkPackage.objects.create(aircraft=ma, title="Lubrification et contrôles", check_type="line", station="Base Alpes",
                                          planned_start=today - timedelta(days=2), planned_end=today - timedelta(days=2), status="planned")
-        p145.add_due_items_to_wp(wp0, [f"task:{self.tasks[('H125', '125-62-050')].pk}:0"])
+        p145.add_due_items_to_wp(wp0, [f"task:{self.tasks[('NH90', 'N90-62-050')].pk}:0"])
         card0 = wp0.task_cards.first()
         self.as_user("b1")
         p145.start_card(card0, self.u["b1"])
@@ -676,3 +677,60 @@ class Command(BaseCommand):
             corrective_actions="Contrôle documentaire renforcé en réception ; fournisseur placé sous surveillance.",
             closed_on=(now - timedelta(days=90)).date())
 
+
+    # ------------------------------------------------------------------ qualité, achats, Part-21
+    def quality_and_purchasing(self):
+        from apps.camo.models import ModificationRepair
+        from apps.logistics.models import PurchaseOrder, PurchaseOrderLine, Supplier
+        from apps.logistics.purchasing import receive_line, send_order
+        from apps.quality.models import AuditFinding, ControlledDocument, DocumentRevision, InternalAudit
+        from apps.quality.services import approve_revision
+
+        t = self.today
+        self.as_user("qualite")
+        a1 = InternalAudit.objects.create(
+            title="Réception et magasinage des pièces", scope="part145", kind="process", area="Magasin principal",
+            planned_on=t - timedelta(days=40), performed_on=t - timedelta(days=38), auditor=self.u["qualite"],
+            auditor_independent=True, status="reported", summary="Réception conforme dans l'ensemble ; deux écarts relevés.")
+        AuditFinding.objects.create(audit=a1, level="level2", requirement="145.A.42(a)",
+                                    description="Deux pièces stockées sans étiquette de statut (servicable / non servicable).")
+        AuditFinding.objects.create(audit=a1, level="observation", requirement="MOE 2.3",
+                                    description="Procédure de contrôle des températures de stockage à préciser.")
+        InternalAudit.objects.create(
+            title="Facteurs humains et formation continue", scope="part145", kind="process", area="Atelier",
+            planned_on=t + timedelta(days=20), auditor=self.u["qualite"], auditor_independent=True)
+        moe = ControlledDocument.objects.create(reference="MOE", title="Manuel des spécifications de l'organisme (MOE)",
+                                                doc_type="moe", owner="Qualité", authority_approval=True, review_months=12)
+        proc = ControlledDocument.objects.create(reference="PRO-STO-01", title="Réception et stockage des pièces",
+                                                 doc_type="procedure", owner="Magasin", review_months=24)
+        self.as_user("magasin")
+        from django.core.files.base import ContentFile
+
+        def pdf(name):
+            return ContentFile(b"%PDF-1.4\n% document de demonstration AHMIS\n%%EOF\n", name=name)
+
+        r1 = DocumentRevision.objects.create(document=proc, revision="A", change_summary="Édition initiale.", file=pdf("pro-sto-01-a.pdf"))
+        self.as_user("qualite")
+        approve_revision(r1, self.u["qualite"])
+        DocumentRevision.objects.create(document=proc, revision="B", change_summary="Ajout de l'étiquetage du statut des pièces.")
+        r_moe = DocumentRevision.objects.create(document=moe, revision="12", change_summary="Mise à jour de la liste du personnel d'encadrement.",
+                                                authority_reference="DSAC/NO-2026-118", file=pdf("moe-12.pdf"))
+        self.as_user("admin")
+        approve_revision(r_moe, self.u["admin"])
+
+        self.as_user("magasin")
+        sup = Supplier.objects.create(name="Héli Pièces Distribution", kind="part145", approval_reference="FR.145.DEMO",
+                                      approved=True, evaluated_on=t - timedelta(days=200), contact="commandes@exemple.invalid")
+        Supplier.objects.create(name="Atelier non évalué", kind="other")
+        po = PurchaseOrder.objects.create(supplier=sup, expected_on=t + timedelta(days=10))
+        line_oil = PurchaseOrderLine.objects.create(order=po, part_number=self.pn["OIL"], quantity=D("6"))
+        PurchaseOrderLine.objects.create(order=po, part_number=self.pn["CHIP"], quantity=D("2"))
+        send_order(po)
+        receive_line(line_oil, D("4"))
+        PurchaseOrder.objects.create(supplier=sup, notes="Commande en préparation.")
+
+        self.as_user("camo")
+        ModificationRepair.objects.create(
+            aircraft=self.ac["MC"], kind="mod", classification="major", approval_basis="stc",
+            title="Installation d'un treuil de sauvetage", design_holder="Bureau d'études DEMO",
+            design_approval_number="EASA.21J.DEMO", part21_status="requested", part21_requested_on=t - timedelta(days=15))

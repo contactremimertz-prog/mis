@@ -56,6 +56,6 @@ Cette matrice relie les principales exigences de l'EASA aux fonctions d'AHMIS. E
 - Pas d'import automatique des données constructeur (MSM, MRI, IPC) ni des AD : la saisie est manuelle.
 - Qualification de catégorie (A/B1/B2) de la task card : indicative, non bloquante pour l'exécution. L'autorisation sur le type et les droits de certification sont, eux, bloquants.
 - Pas de module financier (coûts, facturation, achats fournisseurs).
-- Interface en français uniquement.
+- Données de démonstration en français uniquement (l'interface et les tutoriels existent aussi en anglais, espagnol et allemand).
 
 Ces points sont des pistes d'évolution, à prioriser selon vos besoins.

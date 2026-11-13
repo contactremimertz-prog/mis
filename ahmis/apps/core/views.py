@@ -20,11 +20,28 @@ from apps.logistics.models import PartRequest, StockItem, Tool
 from apps.part145.models import Authorization, Defect, TaskCard, WorkPackage
 
 from .models import AuditLog, SignatureRecord
+from django.utils.translation import get_language, gettext
 
 DOCS_DIR = Path(settings.BASE_DIR) / "docs" / "tutoriels"
 
 
 class LoginView(auth_views.LoginView):
+    def post(self, request, *args, **kwargs):
+        from . import throttle
+
+        username = (request.POST.get("username") or "").strip().lower()[:150]
+        keys = [f"login:user:{username}", f"login:ip:{throttle.client_ip(request)}"]
+        if any(throttle.is_locked(k) for k in keys):
+            request.ahmis_auth_error = gettext("Trop de tentatives échouées : réessayez dans 15 minutes.")
+            return self.form_invalid(self.get_form())
+        response = super().post(request, *args, **kwargs)
+        if request.user.is_authenticated:
+            throttle.reset(keys[0])
+        else:
+            throttle.register_failure(keys[0])
+            throttle.register_failure(keys[1], limit=throttle.IP_MAX_FAILURES)
+        return response
+
     def get(self, request, *args, **kwargs):
         auth = settings.AHMIS_AUTH
         if auth["OIDC_ENABLED"] and auth["OIDC_AUTO_REDIRECT"] and "local" not in request.GET and "sso" not in request.GET:
@@ -51,7 +68,7 @@ class LoginView(auth_views.LoginView):
         ctx["oidc_label"] = auth["OIDC_BUTTON_LABEL"]
         ctx["auth_error"] = getattr(self.request, "ahmis_auth_error", "")
         if self.request.GET.get("sso") == "echec":
-            ctx["auth_error"] = self.request.session.pop("ahmis_sso_error", "") or "La connexion par SSO a échoué."
+            ctx["auth_error"] = self.request.session.pop("ahmis_sso_error", "") or gettext("La connexion par SSO a échoué.")
         return ctx
 
 
@@ -82,14 +99,17 @@ def my_account(request):
     pin = SignaturePin.objects.filter(user=user).first()
     if request.method == "POST":
         new, confirm = request.POST.get("pin", ""), request.POST.get("pin_confirm", "")
+        current = request.POST.get("current", "")
         if not fresh:
-            messages.error(request, "Pour des raisons de sécurité, reconnectez-vous avant de modifier votre code de signature.")
+            messages.error(request, gettext("Pour des raisons de sécurité, reconnectez-vous avant de modifier votre code de signature."))
+        elif pin and not (pin.check_pin(current) or (user.has_usable_password() and user.check_password(current))):
+            messages.error(request, gettext("Code de signature actuel (ou mot de passe) incorrect."))
         elif len(new) < 6 or len(set(new)) < 3:
-            messages.error(request, "Le code doit contenir au moins 6 caractères, dont 3 différents.")
+            messages.error(request, gettext("Le code doit contenir au moins 6 caractères, dont 3 différents."))
         elif new != confirm:
-            messages.error(request, "Les deux saisies ne correspondent pas.")
+            messages.error(request, gettext("Les deux saisies ne correspondent pas."))
         elif user.has_usable_password() and user.check_password(new):
-            messages.error(request, "Le code de signature doit être différent de votre mot de passe.")
+            messages.error(request, gettext("Le code de signature doit être différent de votre mot de passe."))
         else:
             pin = pin or SignaturePin(user=user)
             pin.set_pin(new)
@@ -99,8 +119,8 @@ def my_account(request):
 
             AuditLog.objects.create(user=user, username=user.username, action="update",
                                     content_type=ContentType.objects.get_for_model(user), object_id=str(user.pk),
-                                    object_repr=f"Code de signature de {user.username}", changes='{"code de signature": {"old": "***", "new": "défini"}}')
-            messages.success(request, "Code de signature enregistré.")
+                                    object_repr=gettext("Code de signature de {username}").format(username=user.username), changes='{"code de signature": {"old": "***", "new": "défini"}}')
+            messages.success(request, gettext("Code de signature enregistré."))
             return redirect("my_account")
     from apps.part145.models import Staff
 
@@ -125,8 +145,10 @@ def dashboard(request):
         if i.status in s:
             s[i.status] += 1
     fleet_rows = []
-    for ac in aircraft:
+    for ac in sorted(aircraft, key=lambda a: a.registration):
         fleet_rows.append({"ac": ac, "counts": by_ac.get(ac.pk, {"overdue": 0, "tolerance": 0, "due_soon": 0})})
+    for n, row in enumerate(fleet_rows):  # appareil annoncé « Suivant » dans le carrousel
+        row["next"] = fleet_rows[(n + 1) % len(fleet_rows)]
     from apps.camo.models import amp_review_status
 
     amp_alerts = []
@@ -135,11 +157,14 @@ def dashboard(request):
         if st["status"] != "ok":
             amp_alerts.append({"type": t, **st})
     amp_alerts.sort(key=lambda r: r["type"].code)
+    from apps.quality.views import dashboard_kpi as quality_kpi
     from apps.safety.views import dashboard_kpi
 
     ctx = {
         "occ": dashboard_kpi(request.user),
+        "qual": quality_kpi(request.user),
         "amp_alerts": amp_alerts,
+        "amp_bad": any(r["status"] in ("none", "overdue") for r in amp_alerts),
         "today": today,
         "kpi": {
             "aircraft": len(aircraft),
@@ -165,30 +190,16 @@ def dashboard(request):
 
 
 def search(request):
-    q = request.GET.get("q", "").strip()
-    results = []
-    if q:
-        for ac in Aircraft.objects.filter(Q(registration__icontains=q) | Q(msn__icontains=q))[:10]:
-            results.append(("Aéronef", ac, ac.get_absolute_url()))
-        for c in Component.objects.filter(Q(serial_number__icontains=q) | Q(part_number__pn__icontains=q)).select_related("part_number")[:20]:
-            results.append(("Composant", c, c.get_absolute_url()))
-        for p in PartNumber.objects.filter(Q(pn__icontains=q) | Q(description__icontains=q))[:10]:
-            results.append(("Référence P/N", p, p.get_absolute_url()))
-        for w in WorkPackage.objects.filter(Q(number__icontains=q) | Q(title__icontains=q))[:10]:
-            results.append(("Work package", w, w.get_absolute_url()))
-        for t in TaskCard.objects.filter(Q(number__icontains=q) | Q(title__icontains=q))[:10]:
-            results.append(("Task card", t, t.get_absolute_url()))
-        for d in Defect.objects.filter(Q(number__icontains=q) | Q(description__icontains=q))[:10]:
-            results.append(("Défaut", d, d.get_absolute_url()))
-        from apps.camo.models import Directive, MaintenanceTask
+    from .search import MIN_LENGTH, global_search
 
-        for d in Directive.objects.filter(Q(number__icontains=q) | Q(title__icontains=q))[:10]:
-            results.append(("AD / SB", d, d.get_absolute_url()))
-        for t in MaintenanceTask.objects.filter(Q(reference__icontains=q) | Q(title__icontains=q))[:10]:
-            results.append(("Tâche programme", t, t.get_absolute_url()))
+    q = request.GET.get("q", "").strip()
+    results = global_search(request.user, q)
     if len(results) == 1:
         return redirect(results[0][2])
-    return render(request, "core/search.html", {"q": q, "results": results})
+    groups = {}
+    for kind, obj, url in results:
+        groups.setdefault(str(kind), []).append((obj, url))
+    return render(request, "core/search.html", {"q": q, "results": results, "groups": groups.items(), "too_short": 0 < len(q) < MIN_LENGTH})
 
 
 @permission_required("core.view_auditlog", raise_exception=True)
@@ -221,11 +232,25 @@ def signature_list(request):
     return render(request, "core/signature_list.html", {"page": page, "actions": SignatureRecord.ACTIONS})
 
 
+TRANSLATED_DOCS = ("en", "es", "de")
+
+
+def _tutorial_path(slug):
+    """Chemin du tutoriel dans la langue active, sinon la version française de référence."""
+    lang = (get_language() or "fr")[:2]
+    if lang in TRANSLATED_DOCS:
+        localized = DOCS_DIR / lang / f"{slug}.md"
+        if localized.is_file():
+            return localized
+    return DOCS_DIR / f"{slug}.md"
+
+
 def _tutorials():
     files = sorted(DOCS_DIR.glob("*.md"))
     result = []
     for f in files:
-        first = f.read_text(encoding="utf-8").splitlines()[0] if f.stat().st_size else f.stem
+        path = _tutorial_path(f.stem)
+        first = path.read_text(encoding="utf-8").splitlines()[0] if path.stat().st_size else f.stem
         result.append({"slug": f.stem, "title": first.lstrip("# ").strip()})
     return result
 
@@ -240,36 +265,56 @@ def help_page(request, slug):
         slug = tutorials[0]["slug"] if tutorials else None
     if slug is None:
         raise Http404
-    path = DOCS_DIR / f"{slug}.md"
-    if not path.exists() or path.parent != DOCS_DIR:
+    if slug not in [t["slug"] for t in tutorials]:
         raise Http404
+    path = _tutorial_path(slug)
     html = markdown.markdown(path.read_text(encoding="utf-8"), extensions=["tables", "fenced_code", "sane_lists", "toc"])
     idx = [t["slug"] for t in tutorials].index(slug)
     return render(request, "core/help.html", {
         "tutorials": tutorials, "slug": slug, "content": html,
+        "fallback": path.parent == DOCS_DIR and (get_language() or "fr")[:2] in TRANSLATED_DOCS,
         "prev": tutorials[idx - 1] if idx > 0 else None,
         "next": tutorials[idx + 1] if idx + 1 < len(tutorials) else None,
     })
 
 
 def protected_media(request, path):
-    """Sert un fichier joint uniquement à un utilisateur connecté (jamais d'accès anonyme)."""
+    """Sert un fichier joint à un utilisateur connecté qui a le droit de consulter l'objet propriétaire.
+
+    Seuls les dossiers listés dans MEDIA_PERMISSIONS sont servis ; tout autre chemin (dont les
+    dossiers de transfert, servis par leur vue dédiée) répond 404. Le fichier est servi avec une
+    CSP « sandbox » : un contenu actif téléversé ne peut pas s'exécuter sur l'origine de l'application.
+    """
+    from django.core.exceptions import PermissionDenied
     from django.http import FileResponse
     from django.utils._os import safe_join
 
+    parts = Path(path).parts
+    folder = parts[0].lower() if parts else ""
+    if "~" in path or "\\" in path or folder not in MEDIA_PERMISSIONS:
+        raise Http404
+    if not request.user.has_perm(MEDIA_PERMISSIONS[folder]):
+        raise PermissionDenied
     try:
         full = Path(safe_join(settings.MEDIA_ROOT, path))
     except Exception:
         raise Http404
     if not full.is_file():
         raise Http404
-    # Dossiers de transfert : servis uniquement par leur vue dédiée (permission CAMO)
-    if Path(path).parts and Path(path).parts[0] in RESTRICTED_MEDIA:
-        raise Http404
-    return FileResponse(open(full, "rb"), as_attachment=request.GET.get("dl") == "1", filename=full.name)
+    inline = full.suffix.lower() in INLINE_MEDIA and request.GET.get("dl") != "1"
+    response = FileResponse(open(full, "rb"), as_attachment=not inline, filename=full.name)
+    response["Content-Security-Policy"] = "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox"
+    response["X-Content-Type-Options"] = "nosniff"
+    return response
 
 
-RESTRICTED_MEDIA = {"transferts"}
+# Dossier de MEDIA_ROOT -> permission requise. Les transferts n'y figurent pas : vue dédiée.
+MEDIA_PERMISSIONS = {
+    "consignes": "camo.view_directive",
+    "certificats": "logistics.view_releasecertificate",
+    "documents": "quality.view_controlleddocument",
+}
+INLINE_MEDIA = {".pdf", ".png", ".jpg", ".jpeg"}
 
 
 # ---------------------------------------------------------------- Conservation des enregistrements
@@ -306,8 +351,11 @@ def retention_csv(request, key):
     resp["Content-Disposition"] = f'attachment; filename="conservation-{key}-{today:%Y%m%d}.csv"'
     resp.write("\ufeff")
     w = csv.writer(resp, delimiter=";")
-    w.writerow(["id", "enregistrement", "conserver jusqu'au", "état"])
+    w.writerow(["id", "enregistrement", gettext("conserver jusqu'au"), gettext("état")])
     for obj, until in items:
-        state = "sans échéance" if until is None else ("échue – archivable" if until <= today else "en cours")
-        w.writerow([obj.pk, str(obj), until.isoformat() if until else "", state])
+        state = gettext("sans échéance") if until is None else (gettext("échue – archivable") if until <= today else gettext("en cours"))
+        label = str(obj)
+        if label[:1] in ("=", "+", "-", "@", "\t", "\r"):
+            label = "'" + label
+        w.writerow([obj.pk, label, until.isoformat() if until else "", state])
     return resp

@@ -21,6 +21,7 @@ from django.db.models import ProtectedError
 from django.utils import timezone
 
 from .dates import add_months
+from django.utils.translation import gettext, gettext_lazy
 
 
 def _cfg(key, default):
@@ -134,38 +135,38 @@ class Rule:
 
 
 RULES = [
-    Rule("aircraft", "Dossiers aéronefs", "fleet.Aircraft", "M.A.305(h)(1)",
-         aircraft_life, "12 mois après retrait définitif", ["aircraft_type"]),
-    Rule("components", "Fiches composants (TSN/CSN, LLP)", "fleet.Component", "M.A.305(h)(1)",
-         component_life, "12 mois après retrait définitif (rebut)", ["part_number"]),
-    Rule("work_packages", "Work packages et CRS", "part145.WorkPackage", "145.A.55(c), M.A.305(h)",
-         work_package_until, "36 mois après le CRS", ["aircraft"]),
-    Rule("task_cards", "Task cards (comptes rendus détaillés)", "part145.TaskCard", "145.A.55(c), M.A.305(h)",
-         task_card_until, "36 mois après le CRS du work package", ["work_package"]),
-    Rule("defects", "Défauts et rectifications", "part145.Defect", "145.A.55(c), M.A.305(h)",
-         defect_until, "36 mois après la rectification", ["aircraft"]),
-    Rule("accomplishments", "Réalisations de tâches", "camo.TaskAccomplishment", "M.A.305(h)",
-         accomplishment_until, "36 mois et jusqu'au remplacement ; AD/ALS/CMR : 12 mois après retrait de l'aéronef",
+    Rule("aircraft", gettext_lazy("Dossiers aéronefs"), "fleet.Aircraft", "M.A.305(h)(1)",
+         aircraft_life, gettext_lazy("12 mois après retrait définitif"), ["aircraft_type"]),
+    Rule("components", gettext_lazy("Fiches composants (TSN/CSN, LLP)"), "fleet.Component", "M.A.305(h)(1)",
+         component_life, gettext_lazy("12 mois après retrait définitif (rebut)"), ["part_number"]),
+    Rule("work_packages", gettext_lazy("Work packages et CRS"), "part145.WorkPackage", "145.A.55(c), M.A.305(h)",
+         work_package_until, gettext_lazy("36 mois après le CRS"), ["aircraft"]),
+    Rule("task_cards", gettext_lazy("Task cards (comptes rendus détaillés)"), "part145.TaskCard", "145.A.55(c), M.A.305(h)",
+         task_card_until, gettext_lazy("36 mois après le CRS du work package"), ["work_package"]),
+    Rule("defects", gettext_lazy("Défauts et rectifications"), "part145.Defect", "145.A.55(c), M.A.305(h)",
+         defect_until, gettext_lazy("36 mois après la rectification"), ["aircraft"]),
+    Rule("accomplishments", gettext_lazy("Réalisations de tâches"), "camo.TaskAccomplishment", "M.A.305(h)",
+         accomplishment_until, gettext_lazy("36 mois et jusqu'au remplacement ; AD/ALS/CMR : 12 mois après retrait de l'aéronef"),
          ["task", "aircraft", "component"]),
-    Rule("utilisation", "Heures et cycles (temps totaux)", "fleet.UtilisationRecord", "M.A.305(h)(1)",
-         lambda r: aircraft_life(r.aircraft), "12 mois après retrait définitif de l'aéronef", ["aircraft"]),
-    Rule("directives", "État des consignes de navigabilité", "camo.DirectiveApplicability", "M.A.305(h)(1)",
-         lambda r: aircraft_life(r.aircraft), "12 mois après retrait définitif de l'aéronef", ["aircraft"]),
-    Rule("modifications", "Modifications et réparations", "camo.ModificationRepair", "M.A.305(h)(1)",
-         lambda r: aircraft_life(r.aircraft), "12 mois après retrait définitif de l'aéronef", ["aircraft"]),
-    Rule("installations", "Historique de pose / dépose (LLP, back-to-birth)", "fleet.InstallationRecord", "M.A.305(h)(1)",
-         installation_until, "12 mois après retrait définitif de l'aéronef et du composant", ["aircraft", "component"]),
-    Rule("arc", "Examens de navigabilité (ARC)", "camo.AirworthinessReview", "CAMO.A.220, M.A.714",
-         lambda r: add_months(r.review_date, work_months()), "36 mois après l'examen", ["aircraft"]),
-    Rule("amp_reviews", "Revues du programme d'entretien", "camo.AmpReview", "CAMO.A.220",
-         amp_review_until, "36 mois après remplacement par une revue plus récente", ["aircraft_type"]),
-    Rule("staff", "Dossiers du personnel", "part145.Staff", "145.A.35(j)",
-         staff_until, "3 ans après le départ", []),
-    Rule("occurrences", "Comptes rendus d'événements", "safety.OccurrenceReport", "376/2014, 145.A.60, 145.A.55",
+    Rule("utilisation", gettext_lazy("Heures et cycles (temps totaux)"), "fleet.UtilisationRecord", "M.A.305(h)(1)",
+         lambda r: aircraft_life(r.aircraft), gettext_lazy("12 mois après retrait définitif de l'aéronef"), ["aircraft"]),
+    Rule("directives", gettext_lazy("État des consignes de navigabilité"), "camo.DirectiveApplicability", "M.A.305(h)(1)",
+         lambda r: aircraft_life(r.aircraft), gettext_lazy("12 mois après retrait définitif de l'aéronef"), ["aircraft"]),
+    Rule("modifications", gettext_lazy("Modifications et réparations"), "camo.ModificationRepair", "M.A.305(h)(1)",
+         lambda r: aircraft_life(r.aircraft), gettext_lazy("12 mois après retrait définitif de l'aéronef"), ["aircraft"]),
+    Rule("installations", gettext_lazy("Historique de pose / dépose (LLP, back-to-birth)"), "fleet.InstallationRecord", "M.A.305(h)(1)",
+         installation_until, gettext_lazy("12 mois après retrait définitif de l'aéronef et du composant"), ["aircraft", "component"]),
+    Rule("arc", gettext_lazy("Examens de navigabilité (ARC)"), "camo.AirworthinessReview", gettext_lazy("CAMO.A.220, M.A.714"),
+         lambda r: add_months(r.review_date, work_months()), gettext_lazy("36 mois après l'examen"), ["aircraft"]),
+    Rule("amp_reviews", gettext_lazy("Revues du programme d'entretien"), "camo.AmpReview", "CAMO.A.220",
+         amp_review_until, gettext_lazy("36 mois après remplacement par une revue plus récente"), ["aircraft_type"]),
+    Rule("staff", gettext_lazy("Dossiers du personnel"), "part145.Staff", "145.A.35(j)",
+         staff_until, gettext_lazy("3 ans après le départ"), []),
+    Rule("occurrences", gettext_lazy("Comptes rendus d'événements"), "safety.OccurrenceReport", "376/2014, 145.A.60, 145.A.55",
          lambda r: add_months(r.closed_on or r.updated_at, work_months()) if r.status in ("closed", "not_reportable") else None,
-         "36 mois après la clôture", ["aircraft"]),
-    Rule("calibrations", "Étalonnages d'outillage", "logistics.ToolCalibration", "145.A.40, 145.A.55",
-         lambda r: add_months(r.date, work_months()), "36 mois après l'étalonnage", ["tool"]),
+         gettext_lazy("36 mois après la clôture"), ["aircraft"]),
+    Rule("calibrations", gettext_lazy("Étalonnages d'outillage"), "logistics.ToolCalibration", "145.A.40, 145.A.55",
+         lambda r: add_months(r.date, work_months()), gettext_lazy("36 mois après l'étalonnage"), ["tool"]),
 ]
 RULES_BY_KEY = {r.key: r for r in RULES}
 RULES_BY_MODEL = {r.model.lower(): r for r in RULES}
@@ -216,9 +217,9 @@ def guard_delete(sender, instance, **kwargs):
         return
     until = rule.until(instance)
     if until is None or until > timezone.localdate():
-        when = "sans échéance pour l'instant" if until is None else f"jusqu'au {until:%d/%m/%Y}"
+        when = gettext("sans échéance pour l'instant") if until is None else f"jusqu'au {until:%d/%m/%Y}"
         raise ProtectedError(
-            f"Suppression refusée : {rule.label.lower()} à conserver {when} ({rule.reference}).", {instance})
+            gettext("Suppression refusée : {lower} à conserver {when} ({reference}).").format(lower=rule.label.lower(), when=when, reference=rule.reference), {instance})
 
 
 def connect_guards():

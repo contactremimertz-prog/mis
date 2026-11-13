@@ -16,16 +16,16 @@ Ouvrez **145-05-100 Visite 100 h / 12 mois** :
 
 ## Créer une tâche
 
-1. **+ Créer** (ou depuis la fiche du type H125 : « Ajouter une tâche »).
+1. **+ Créer** (ou depuis la fiche du type NH90 : « Ajouter une tâche »).
 2. Exemple :
-    - Référence `125-25-180`, intitulé `Contrôle du kit de flottaison`, type H125
+    - Référence `N90-25-180`, intitulé `Contrôle du kit de flottaison`, type NH90
     - Nature : Contrôle fonctionnel ; ATA `25`
     - Intervalle : `180` jours ; tolérance : `15` jours
     - Charge : `2` h.h ; qualification B1
     - Étapes : `Déplier le kit` / `Contrôler la pression des bouteilles` / `Replier et plomber` (une par ligne)
 3. **Enregistrer**, puis ajoutez une pièce requise (ex. `DEMO-ORING-12` × 2).
 
-**Résultat** : la tâche s'applique immédiatement à tous les H125 (F-HDMA, F-HDMB). Laissez « effectivité » vide pour tous les aéronefs du type, ou cochez des immatriculations précises.
+**Résultat** : la tâche s'applique immédiatement à tous les NH90 (F-HDMA, F-HDMB). Laissez « effectivité » vide pour tous les aéronefs du type, ou cochez des immatriculations précises.
 
 ## Seuil (première échéance)
 
@@ -33,7 +33,7 @@ Un seuil différent de l'intervalle se renseigne dans « seuil FH/cycles/jours �
 
 ## Tâche suivie sur un composant
 
-Renseigner « P/N composant » rattache la tâche aux compteurs **du composant** et non à ceux de la cellule. Voir **125-72-500** (boroscopie Arriel 2D) : l'échéance suit le moteur, même s'il change d'hélicoptère.
+Renseigner « P/N composant » rattache la tâche aux compteurs **du composant** et non à ceux de la cellule. Voir **N90-72-500** (boroscopie RTM322) : l'échéance suit le moteur, même s'il change d'hélicoptère.
 
 ## Tâche à contrôle indépendant
 

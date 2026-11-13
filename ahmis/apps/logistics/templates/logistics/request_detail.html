@@ -1,23 +1,23 @@
-{% extends "base.html" %}{% load ahmis %}
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ pr.number }}{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>Demande {{ pr.number }} {% badge pr %} {% if pr.priority == "aog" %}<span class="badge bad">AOG</span>{% elif pr.priority == "urgent" %}<span class="badge warn">Urgent</span>{% endif %}</h1>
-  <div class="sub">{{ pr.part_number }} × {{ pr.quantity|fmt }} · task card <a href="{{ pr.task_card.get_absolute_url }}">{{ pr.task_card.number }}</a> · {{ pr.task_card.work_package.aircraft.registration }} · demandée le {{ pr.created_at|date:"d/m/Y H:i" }} par {{ pr.created_by|default:"—" }}</div></div></div>
+<div class="page-head"><div><h1>{% trans "Demande" %} {{ pr.number }} {% badge pr %} {% if pr.priority == "aog" %}<span class="badge bad">{% trans "AOG" %}</span>{% elif pr.priority == "urgent" %}<span class="badge warn">{% trans "Urgent" %}</span>{% endif %}</h1>
+  <div class="sub">{{ pr.part_number }} {% blocktrans with quantity=pr.quantity|fmt %}× {{ quantity }} · task card{% endblocktrans %} <a href="{{ pr.task_card.get_absolute_url }}">{{ pr.task_card.number }}</a> {% blocktrans with registration=pr.task_card.work_package.aircraft.registration created_at=pr.created_at|date:"d/m/Y H:i" %}· {{ registration }} · demandée le {{ created_at }} par{% endblocktrans %} {{ pr.created_by|default:"—" }}</div></div></div>
 {% if pr.note %}<div class="card"><p>{{ pr.note }}</p></div>{% endif %}
 {% if pr.status == "requested" %}
-<div class="card"><h2>Délivrer</h2>
-  <p class="small muted">Seules les pièces utilisables du P/N demandé ou d'un P/N interchangeable sont proposées. Les contrôles (certificat, potentiel, péremption) sont refaits à la délivrance.</p>
+<div class="card"><h2>{% trans "Délivrer" %}</h2>
+  <p class="small muted">{% trans "Seules les pièces utilisables du P/N demandé ou d'un P/N interchangeable sont proposées. Les contrôles (certificat, potentiel, péremption) sont refaits à la délivrance." %}</p>
   {% if perms.logistics.change_partrequest %}
   <form method="post" class="stacked">{% csrf_token %}
     {% if form.non_field_errors %}<div class="alert">{{ form.non_field_errors }}</div>{% endif %}
     <div class="form-grid">{% for f in form %}{% field f %}{% endfor %}</div>
-    <div class="actions"><button class="btn primary" type="submit">Délivrer</button><button class="btn danger" type="submit" name="cancel" value="1" formnovalidate>Annuler la demande</button></div>
-  </form>{% else %}<p class="muted">Traitement réservé au magasin.</p>{% endif %}
+    <div class="actions"><button class="btn primary" type="submit">{% trans "Délivrer" %}</button><button class="btn danger" type="submit" name="cancel" value="1" formnovalidate>{% trans "Annuler la demande" %}</button></div>
+  </form>{% else %}<p class="muted">{% trans "Traitement réservé au magasin." %}</p>{% endif %}
 </div>
 {% else %}
 <div class="card"><dl class="dl">
-  <div><dt>Composant délivré</dt><dd>{% if pr.issued_component %}<a href="{{ pr.issued_component.get_absolute_url }}">{{ pr.issued_component }}</a>{% else %}—{% endif %}</dd></div>
-  <div><dt>Lot délivré</dt><dd>{{ pr.issued_stock|default:"—" }}</dd></div>
-  <div><dt>Traité le</dt><dd>{{ pr.updated_at|date:"d/m/Y H:i" }} par {{ pr.updated_by|default:"—" }}</dd></div>
+  <div><dt>{% trans "Composant délivré" %}</dt><dd>{% if pr.issued_component %}<a href="{{ pr.issued_component.get_absolute_url }}">{{ pr.issued_component }}</a>{% else %}—{% endif %}</dd></div>
+  <div><dt>{% trans "Lot délivré" %}</dt><dd>{{ pr.issued_stock|default:"—" }}</dd></div>
+  <div><dt>{% trans "Traité le" %}</dt><dd>{{ pr.updated_at|date:"d/m/Y H:i" }} {% trans "par" %} {{ pr.updated_by|default:"—" }}</dd></div>
 </dl></div>{% endif %}
 {% endblock %}

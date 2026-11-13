@@ -25,3 +25,21 @@ class CurrentUserMiddleware:
             return self.get_response(request)
         finally:
             _current_user.reset(token)
+
+
+# blob: : textures des modèles 3D (GLB), décodées en mémoire par le chargeur GLTF.
+CSP = ("default-src 'self'; img-src 'self' data: blob:; connect-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; "
+       "object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
+
+
+class SecurityHeadersMiddleware:
+    """En-têtes de sécurité communs : CSP (sauf si la vue en fixe une, ex. fichiers joints) et Referrer-Policy."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        response.headers.setdefault("Content-Security-Policy", CSP)
+        response.headers.setdefault("Referrer-Policy", "same-origin")
+        return response

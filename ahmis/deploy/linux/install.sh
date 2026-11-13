@@ -12,11 +12,16 @@
 #     --port 80              port HTTP public (défaut 80 avec nginx, 8000 sans)
 #     --no-nginx             pas de nginx : gunicorn écoute directement sur le port public
 #     --server-name NOM      nom DNS d'accès (ajouté aux hôtes autorisés)
+#     --url-prefix /ahmis    publie AHMIS sous un sous-chemin d'un site nginx existant
+#     --nginx-include-into F avec --url-prefix : fichier « server » nginx existant où ajouter
+#                            les emplacements AHMIS (le reste du site n'est pas modifié)
+#     --dnf-repos R1,R2      dnf : dépôts à utiliser seuls (petites VM à faible mémoire)
 #
 #  Relancer le script avec une version plus récente d'AHMIS = mise à jour
 #  (le code est remplacé ; la configuration et les données sont conservées).
 # ============================================================================
 set -euo pipefail
+export PATH="/usr/local/sbin:/usr/local/bin:$PATH"   # sudo (RHEL) retire /usr/local/bin
 
 APP_DIR=/opt/ahmis
 ETC_DIR=/etc/ahmis
@@ -25,7 +30,7 @@ ENV_FILE=$ETC_DIR/ahmis.env
 SVC_USER=ahmis
 SRC_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 
-DEMO=0; ADMIN_PW=""; USE_NGINX=1; PORT=""; SERVER_NAME=""
+DEMO=0; ADMIN_PW=""; USE_NGINX=1; PORT=""; SERVER_NAME=""; URL_PREFIX=""; NGINX_INCLUDE_INTO=""; DNF_REPOS=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --demo) DEMO=1 ;;
@@ -33,6 +38,9 @@ while [ $# -gt 0 ]; do
     --no-nginx) USE_NGINX=0 ;;
     --port) PORT="$2"; shift ;;
     --server-name) SERVER_NAME="$2"; shift ;;
+    --url-prefix) URL_PREFIX="/$(echo "$2" | sed 's#^/*##; s#/*$##')"; shift ;;
+    --nginx-include-into) NGINX_INCLUDE_INTO="$2"; shift ;;
+    --dnf-repos) DNF_REPOS="$2"; shift ;;
     -h|--help) sed -n 2,20p "$0"; exit 0 ;;
     *) echo "Option inconnue : $1"; exit 2 ;;
   esac
@@ -57,8 +65,10 @@ if command -v apt-get >/dev/null; then
   [ "$USE_NGINX" = 1 ] && apt-get install -y -qq nginx >/dev/null
   PKG=apt
 elif command -v dnf >/dev/null; then
-  dnf install -y -q python3 sqlite ca-certificates >/dev/null
-  [ "$USE_NGINX" = 1 ] && dnf install -y -q nginx >/dev/null
+  DNF=(dnf install -y -q)
+  [ -n "$DNF_REPOS" ] && DNF+=(--disablerepo="*" --enablerepo="$DNF_REPOS")
+  "${DNF[@]}" python3 sqlite ca-certificates >/dev/null
+  [ "$USE_NGINX" = 1 ] && { command -v nginx >/dev/null || "${DNF[@]}" nginx >/dev/null; }
   PKG=dnf
 else
   die "Gestionnaire de paquets non pris en charge (apt ou dnf requis)."
@@ -75,7 +85,7 @@ find_python() {
 }
 PY="$(find_python || true)"
 if [ -z "$PY" ] && [ "$PKG" = dnf ]; then
-  dnf install -y -q python3.12 >/dev/null 2>&1 || dnf install -y -q python3.11 >/dev/null 2>&1 || true
+  "${DNF[@]}" python3.12 python3.12-pip >/dev/null 2>&1 || "${DNF[@]}" python3.11 >/dev/null 2>&1 || true
   PY="$(find_python || true)"
 fi
 [ -n "$PY" ] || die "Python 3.10 ou plus récent introuvable. Installez-le puis relancez."
@@ -135,6 +145,7 @@ if [ ! -f "$ENV_FILE" ]; then
       -e "s|^AHMIS_DEMO=.*|AHMIS_DEMO=$DEMO|" \
       "$APP_DIR/deploy/ahmis.env.exemple" > "$ENV_FILE"
   echo "AHMIS_STATIC_ROOT=$APP_DIR/staticfiles" >> "$ENV_FILE"
+  [ -n "$URL_PREFIX" ] && echo "AHMIS_URL_PREFIX=$URL_PREFIX" >> "$ENV_FILE"
   chown root:"$SVC_USER" "$ENV_FILE"; chmod 0640 "$ENV_FILE"
   echo "Fichier de configuration créé."
 else
@@ -221,7 +232,44 @@ systemctl enable ahmis >/dev/null
 systemctl restart ahmis
 
 # ---------------------------------------------------------------- nginx
-if [ "$USE_NGINX" = 1 ]; then
+if [ "$USE_NGINX" = 1 ] && [ -n "$URL_PREFIX" ]; then
+  say "nginx : AHMIS publié sous $URL_PREFIX/"
+  [ -n "$NGINX_INCLUDE_INTO" ] || die "--url-prefix demande --nginx-include-into <fichier du site nginx existant>."
+  [ -f "$NGINX_INCLUDE_INTO" ] || die "Fichier nginx introuvable : $NGINX_INCLUDE_INTO"
+  cat > /etc/nginx/ahmis-locations.conf <<NGX
+# AHMIS (généré par deploy/linux/install.sh) : inclus dans le site existant
+location = $URL_PREFIX { return 301 $URL_PREFIX/; }
+location $URL_PREFIX/static/ {
+    alias $APP_DIR/staticfiles/;
+    expires 7d;
+    access_log off;
+}
+location $URL_PREFIX/ {
+$( [ -f /etc/nginx/ahmis.htpasswd ] && printf '    auth_basic "AHMIS";\n    auth_basic_user_file /etc/nginx/ahmis.htpasswd;' )
+    client_max_body_size 25m;
+    proxy_pass http://$BIND/;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_read_timeout 120s;
+}
+NGX
+  if ! grep -q "ahmis-locations.conf" "$NGINX_INCLUDE_INTO"; then
+    cp -n "$NGINX_INCLUDE_INTO" "$NGINX_INCLUDE_INTO.avant-ahmis"
+    # Ajout juste après la première ligne « server { » (le reste du site est inchangé)
+    sed -i '0,/server[[:space:]]*{/s//&\n    include \/etc\/nginx\/ahmis-locations.conf;/' "$NGINX_INCLUDE_INTO"
+  fi
+  if command -v getenforce >/dev/null && [ "$(getenforce)" != Disabled ]; then
+    setsebool -P httpd_can_network_connect 1 2>/dev/null || true
+    chcon -R -t httpd_sys_content_t "$APP_DIR/staticfiles" 2>/dev/null || true
+  fi
+  if ! nginx -t; then
+    cp "$NGINX_INCLUDE_INTO.avant-ahmis" "$NGINX_INCLUDE_INTO"
+    rm -f /etc/nginx/ahmis-locations.conf
+    die "Configuration nginx refusée : fichier d'origine restauré."
+  fi
+  systemctl reload nginx
+elif [ "$USE_NGINX" = 1 ]; then
   say "Serveur web nginx (port $PORT)"
   NGINX_CONF="server {
     listen $PORT default_server;
@@ -266,7 +314,9 @@ if [ "$USE_NGINX" = 1 ]; then
 fi
 
 # ---------------------------------------------------------------- pare-feu
-if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
+if [ -n "$URL_PREFIX" ]; then
+  :  # site existant : ports déjà ouverts
+elif command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
   ufw allow "$PORT"/tcp >/dev/null && echo "Pare-feu ufw : port $PORT ouvert."
 elif command -v firewall-cmd >/dev/null && firewall-cmd --state >/dev/null 2>&1; then
   firewall-cmd --permanent --add-port="$PORT"/tcp >/dev/null && firewall-cmd --reload >/dev/null && echo "Pare-feu firewalld : port $PORT ouvert."
@@ -275,7 +325,7 @@ fi
 # ---------------------------------------------------------------- vérification
 say "Vérification"
 sleep 3
-URL="http://127.0.0.1:$PORT/connexion/"
+URL="http://127.0.0.1:$PORT$URL_PREFIX/connexion/"
 if command -v curl >/dev/null && curl -fsS -o /dev/null "$URL"; then
   echo "AHMIS répond sur $URL"
 else
@@ -288,7 +338,7 @@ cat <<EOF
 
 ============================================================
  AHMIS est installé.
-   Adresse      : http://${SERVER_NAME:-$IP}$SUFFIX
+   Adresse      : http://${SERVER_NAME:-$IP}$SUFFIX$URL_PREFIX/
 EOF
 if [ "$DEMO" = 1 ]; then
   echo "   Comptes      : admin, camo, planif, meca, b1, b2, certc, magasin, qualite – mot de passe Ahmis2026!"

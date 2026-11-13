@@ -8,19 +8,21 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 
 from apps.camo.models import DirectiveApplicability, TaskAccomplishment
-from apps.camo.services import aircraft_due_list
+from apps.camo.services import aircraft_due_list, fleet_due_list
 from apps.core.crud import AhmisCreateView, AhmisListView, AhmisUpdateView, error_messages
 from apps.core.models import AuditLog, SignatureRecord
 
 from .forms import AircraftForm, AircraftTypeForm, ComponentForm, PartNumberForm, UtilisationForm
+from .heli3d import ZONE_IDS, fleet_counts, heli_texts, model_for, neighbours, outside_zones, zone_states
 from .models import Aircraft, AircraftType, Component, InstallationRecord, PartNumber, UtilisationRecord, install_component
+from django.utils.translation import gettext, gettext_lazy
 
 
 # ---------------------------------------------------------------- Types
 class TypeList(AhmisListView):
     model = AircraftType
-    columns = [("Code", "code"), ("Constructeur", "manufacturer"), ("Modèle", "model"), ("Catégorie", "category"),
-               ("Cadre", "regulatory_frame"), ("Moteurs", "engine_model"), ("Aéronefs", "aircraft.count")]
+    columns = [(gettext_lazy("Code"), "code"), (gettext_lazy("Constructeur"), "manufacturer"), (gettext_lazy("Modèle"), "model"), (gettext_lazy("Catégorie"), "category"),
+               (gettext_lazy("Cadre"), "regulatory_frame"), (gettext_lazy("Moteurs"), "engine_model"), (gettext_lazy("Aéronefs"), "aircraft.count")]
     search_fields = ["code", "manufacturer", "model"]
     filter_fields = ["category"]
     create_url = reverse_lazy("fleet:type_create")
@@ -59,19 +61,32 @@ def type_detail(request, pk):
 class AircraftList(AhmisListView):
     model = Aircraft
     queryset = Aircraft.objects.select_related("aircraft_type")
-    columns = [("Immatriculation", "registration"), ("Type", "aircraft_type.code"), ("MSN", "msn"), ("Statut", "status"),
-               ("Exploitant", "operator"), ("Base", "base"), ("FH", "total_fh"), ("Cycles", "total_fc"),
-               ("Compteurs au", "counters_date"), ("ARC jusqu'au", "arc_expiry")]
+    columns = [(gettext_lazy("Immatriculation"), "registration"), (gettext_lazy("Type"), "aircraft_type.code"), ("MSN", "msn"), (gettext_lazy("Statut"), "status"),
+               (gettext_lazy("Exploitant"), "operator"), (gettext_lazy("Base"), "base"), ("FH", "total_fh"), (gettext_lazy("Cycles"), "total_fc"),
+               (gettext_lazy("Compteurs au"), "counters_date"), (gettext_lazy("ARC jusqu'au"), "arc_expiry")]
     search_fields = ["registration", "msn", "operator"]
     filter_fields = ["aircraft_type", "status"]
     create_url = reverse_lazy("fleet:aircraft_create")
-    title = "Flotte"
+    title = gettext_lazy("Flotte")
+    template_name = "fleet/aircraft_list.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        page = list(ctx["object_list"])
+        helis = [a for a in page if a.aircraft_type.category == "helicopter"]
+        counts = fleet_counts(helis, fleet_due_list(helis) if helis else [])
+        for a in page:
+            a.heli_counts = counts.get(a.pk)
+            a.heli_zone_groups = [(k, a.heli_counts[k]) for k in ("crit", "warn", "none")] if a.heli_counts else []
+        ctx["object_list"] = page
+        ctx["extra_cols"] = 4
+        return ctx
 
 
 class AircraftCreate(AhmisCreateView):
     model = Aircraft
     form_class = AircraftForm
-    title = "Créer un aéronef"
+    title = gettext_lazy("Créer un aéronef")
 
 
 class AircraftUpdate(AhmisUpdateView):
@@ -83,6 +98,7 @@ class AircraftUpdate(AhmisUpdateView):
 def aircraft_detail(request, pk):
     ac = get_object_or_404(Aircraft.objects.select_related("aircraft_type"), pk=pk)
     items = aircraft_due_list(ac)
+    is_heli = ac.aircraft_type.category == "helicopter"
     today = timezone.localdate()
     components = []
     for c in ac.components.filter(status="installed").select_related("part_number").order_by("position", "part_number__ata"):
@@ -104,6 +120,12 @@ def aircraft_detail(request, pk):
         "reviews": ac.airworthiness_reviews.all()[:5],
         "modifications": ac.modifications.select_related("component__part_number").order_by("-embodied_on"),
         "util_form": UtilisationForm(initial={"aircraft": ac}),
+        "heli_zones": zone_states(items) if is_heli else None,
+        "heli_outside": outside_zones(items) if is_heli else None,
+        "heli_nav": neighbours(ac) if is_heli else None,
+        "heli_model": model_for(ac.aircraft_type.code) if is_heli else None,
+        "heli_texts": heli_texts() if is_heli else None,
+        "heli_zone": request.GET.get("zone") if request.GET.get("zone") in ZONE_IDS else "",
     }
     return render(request, "fleet/aircraft_detail.html", ctx)
 
@@ -112,13 +134,13 @@ def aircraft_detail(request, pk):
 class UtilisationList(AhmisListView):
     model = UtilisationRecord
     queryset = UtilisationRecord.objects.select_related("aircraft")
-    columns = [("Date", "date"), ("Aéronef", "aircraft.registration"), ("FH", "fh"), ("Cycles", "fc"),
-               ("Total FH après", "fh_after"), ("Total cycles après", "fc_after"), ("Référence", "reference"),
-               ("Source", "source"), ("Saisi par", "created_by")]
+    columns = [(gettext_lazy("Date"), "date"), (gettext_lazy("Aéronef"), "aircraft.registration"), ("FH", "fh"), (gettext_lazy("Cycles"), "fc"),
+               (gettext_lazy("Total FH après"), "fh_after"), (gettext_lazy("Total cycles après"), "fc_after"), (gettext_lazy("Référence"), "reference"),
+               (gettext_lazy("Source"), "source"), (gettext_lazy("Saisi par"), "created_by")]
     search_fields = ["aircraft__registration", "reference"]
     filter_fields = ["aircraft"]
-    title = "Heures de vol et cycles"
-    subtitle = "Chaque saisie incrémente les compteurs de la cellule et de tous les composants installés."
+    title = gettext_lazy("Heures de vol et cycles")
+    subtitle = gettext_lazy("Chaque saisie incrémente les compteurs de la cellule et de tous les composants installés.")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -140,7 +162,7 @@ def utilisation_create(request):
         except ValidationError as e:
             error_messages(request, e)
         else:
-            messages.success(request, f"{rec} enregistré. Nouveaux totaux : {rec.fh_after} FH / {rec.fc_after} cycles.")
+            messages.success(request, gettext("{rec} enregistré. Nouveaux totaux : {fh_after} FH / {fc_after} cycles.").format(rec=rec, fh_after=rec.fh_after, fc_after=rec.fc_after))
             if request.POST.get("next"):
                 return redirect(request.POST["next"])
             return redirect("fleet:utilisation_create")
@@ -150,12 +172,12 @@ def utilisation_create(request):
 # ---------------------------------------------------------------- P/N
 class PartNumberList(AhmisListView):
     model = PartNumber
-    columns = [("P/N", "pn"), ("Désignation", "description"), ("Constructeur", "manufacturer"), ("ATA", "ata"),
-               ("Sérialisé", "is_serialized"), ("LLP", "is_llp"), ("TBO FH", "tbo_fh"), ("Vie FH", "life_limit_fh"), ("Vie cycles", "life_limit_fc")]
+    columns = [("P/N", "pn"), (gettext_lazy("Désignation"), "description"), (gettext_lazy("Constructeur"), "manufacturer"), ("ATA", "ata"),
+               (gettext_lazy("Sérialisé"), "is_serialized"), ("LLP", "is_llp"), ("TBO FH", "tbo_fh"), (gettext_lazy("Vie FH"), "life_limit_fh"), (gettext_lazy("Vie cycles"), "life_limit_fc")]
     search_fields = ["pn", "description", "manufacturer"]
     filter_fields = ["is_serialized", "is_llp", "is_rotable"]
     create_url = reverse_lazy("fleet:pn_create")
-    title = "Références articles (P/N)"
+    title = gettext_lazy("Références articles (P/N)")
 
     def get_queryset(self):
         qs = super(AhmisListView, self).get_queryset()
@@ -172,7 +194,7 @@ class PartNumberList(AhmisListView):
 class PartNumberCreate(AhmisCreateView):
     model = PartNumber
     form_class = PartNumberForm
-    title = "Nouvelle référence article"
+    title = gettext_lazy("Nouvelle référence article")
 
 
 class PartNumberUpdate(AhmisUpdateView):
@@ -196,19 +218,19 @@ def pn_detail(request, pk):
 class ComponentList(AhmisListView):
     model = Component
     queryset = Component.objects.select_related("part_number", "aircraft", "location")
-    columns = [("P/N", "part_number.pn"), ("S/N", "serial_number"), ("Désignation", "part_number.description"),
-               ("Statut", "status"), ("Aéronef", "aircraft.registration"), ("Position", "position"),
-               ("Emplacement", "location.code"), ("TSN", "tsn_fh"), ("CSN", "csn"), ("TSO", "tso_fh")]
+    columns = [("P/N", "part_number.pn"), ("S/N", "serial_number"), (gettext_lazy("Désignation"), "part_number.description"),
+               (gettext_lazy("Statut"), "status"), (gettext_lazy("Aéronef"), "aircraft.registration"), (gettext_lazy("Position"), "position"),
+               (gettext_lazy("Emplacement"), "location.code"), ("TSN", "tsn_fh"), ("CSN", "csn"), ("TSO", "tso_fh")]
     search_fields = ["serial_number", "part_number__pn", "part_number__description", "aircraft__registration"]
     filter_fields = ["status", "aircraft"]
     create_url = reverse_lazy("fleet:component_create")
-    title = "Composants sérialisés"
+    title = gettext_lazy("Composants sérialisés")
 
 
 class ComponentCreate(AhmisCreateView):
     model = Component
     form_class = ComponentForm
-    title = "Nouveau composant"
+    title = gettext_lazy("Nouveau composant")
 
 
 class ComponentUpdate(AhmisUpdateView):
@@ -234,11 +256,11 @@ def component_detail(request, pk):
 
 
 class AttachForm(forms.Form):
-    component = forms.ModelChoiceField(Component.objects.none(), label="Composant")
-    position = forms.CharField(label="Position", max_length=40)
-    date = forms.DateField(label="Date de pose (historique)", widget=forms.DateInput(attrs={"type": "date"}))
-    note = forms.CharField(label="Référence documentaire de la reprise", max_length=150,
-                           help_text="ex. relevé de configuration, logbook, dossier de transfert")
+    component = forms.ModelChoiceField(Component.objects.none(), label=gettext_lazy("Composant"))
+    position = forms.CharField(label=gettext_lazy("Position"), max_length=40)
+    date = forms.DateField(label=gettext_lazy("Date de pose (historique)"), widget=forms.DateInput(attrs={"type": "date"}))
+    note = forms.CharField(label=gettext_lazy("Référence documentaire de la reprise"), max_length=150,
+                           help_text=gettext_lazy("ex. relevé de configuration, logbook, dossier de transfert"))
 
 
 @permission_required("fleet.change_aircraft", raise_exception=True)
@@ -252,12 +274,12 @@ def component_attach(request, pk):
         try:
             install_component(d["component"], ac, d["position"], d["date"], force=True)
             comp = d["component"]
-            comp.notes = (comp.notes + "\n" if comp.notes else "") + f"Reprise de configuration {ac.registration} : {d['note']}"
+            comp.notes = (comp.notes + "\n" if comp.notes else "") + gettext("Reprise de configuration {registration} : {note}").format(registration=ac.registration, note=d['note'])
             comp.save()
         except ValidationError as e:
             error_messages(request, e)
         else:
-            messages.success(request, f"{d['component']} rattaché à {ac.registration} ({d['position']}).")
+            messages.success(request, gettext("{component} rattaché à {registration} ({position}).").format(component=d['component'], registration=ac.registration, position=d['position']))
             return redirect(ac.get_absolute_url())
     return render(request, "core/form.html", {
         "form": form, "title": f"Reprise de configuration – {ac.registration}",
