@@ -17,7 +17,7 @@ window.I18N.fr = {
   "save.saved": "Enregistré sur cet appareil",
   "save.saving": "Enregistrement…",
   "save.memory": "Non enregistré (stockage indisponible)",
-  "foot.demo": "Données fictives à des fins de démonstration. Modèles H125, H130, H145, H160 et H175 ; immatriculations, numéros de série et références inventés.",
+  "foot.demo": "Données fictives à des fins de démonstration. Modèles H135, H145, NH90 et Super Puma ; immatriculations, numéros de série et références inventés.",
   "foot.storage": "Base SQLite stockée dans ce navigateur uniquement.",
 
   "nav.g.overview": "Vue d'ensemble", "nav.g.camo": "CAMO · Part-M / Part-CAMO", "nav.g.mro": "MRO · Part-145", "nav.g.p21": "Part-21", "nav.g.log": "Logistique", "nav.g.quality": "Qualité", "nav.g.admin": "Administration",
@@ -134,8 +134,8 @@ window.I18N.fr = {
   "doc.sub": "Données de maintenance et manuels d'organisme sous contrôle des révisions. Seule la révision approuvée est applicable.",
   "doc.received": "Révision {r} reçue", "doc.approve": "Approuver {r}", "docs.current": "À jour", "docs.pending": "Révision en attente",
   "dk.data": "Données de maintenance", "dk.org": "Manuel d'organisme", "dk.mp": "Programme d'entretien", "dk.ops": "Exploitation",
-  "doc.amm145": "Manuel de maintenance H145 (AMM)", "doc.amm160": "Manuel de maintenance H160 (AMM)", "doc.moe": "Manuel de l'organisme d'entretien (MOE)", "doc.cae": "Exposé de gestion du maintien de la navigabilité (CAE)",
-  "doc.mp130": "Programme d'entretien H130", "doc.mel175": "Liste minimale d'équipements H175 (MEL)", "doc.sb125": "Recueil des bulletins de service H125", "doc.poe": "Manuel de l'organisme de production (POE)",
+  "doc.amm145": "Manuel de maintenance H145 (AMM)", "doc.amm160": "Manuel de maintenance NH90 (AMM)", "doc.moe": "Manuel de l'organisme d'entretien (MOE)", "doc.cae": "Exposé de gestion du maintien de la navigabilité (CAE)",
+  "doc.mp130": "Programme d'entretien H135", "doc.mel175": "Liste minimale d'équipements Super Puma (MEL)", "doc.sb125": "Recueil des bulletins de service H135", "doc.poe": "Manuel de l'organisme de production (POE)",
 
   "users.sub": "Profils de démonstration. Chaque rôle ne voit que les écrans et actions autorisés.", "users.matrix": "Accès aux écrans par rôle",
   "u.active": "Actif", "u.suspended": "Suspendu", "u.suspend": "Suspendre", "u.reactivate": "Réactiver", "u.you": "Vous",
@@ -284,7 +284,6 @@ window.I18N.fr = {
   "heli.zone_tasks": "Tâches du programme d'entretien",
   "heli.model_error": "Le modèle 3D n'a pas pu être chargé. La liste des zones reste disponible.",
   "heli.loading": "Chargement du modèle 3D…",
-  "heli.model": "Modèle 3D",
   "heli.lvl_none": "Aucune tâche liée à cette zone",
   "heli.zone.rotor": "Rotor principal",
   "heli.zone.bte": "Boîte de transmission",

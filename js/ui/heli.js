@@ -90,12 +90,10 @@
   /** Running view, released by dispose() before the next render. */
   let live = null;
 
-  /** Model used when the user has not picked one: the closest reference to the aircraft type. */
+  /** 3D model of the aircraft type (H135, H145, NH90, Super Puma). */
   function modelFor(aircraftModel) {
-    const m = String(aircraftModel || "");
-    if (/145/.test(m)) return "h145";
-    if (/125|130|135/.test(m)) return "h135";
-    return "h145";
+    const m = String(aircraftModel || "").toLowerCase().replace(/\s+/g, "-");
+    return (MODELS.find(x => x.id === m) || MODELS[1]).id;
   }
 
   /** Maintenance programme tasks of each core zone, with their urgency (database). */
@@ -266,20 +264,17 @@
     return `<h3>${esc(p.label)}</h3>${zone}${body}${zoneTask}${focusBtns}`;
   }
 
-  /** Page block: aircraft and model choosers, 3D canvas, details and zone list. */
+  /** Page block: aircraft chooser, 3D canvas, details and zone list. */
   function heliBlock(a, regs) {
     const states = zoneStates(a);
-    const F = MIS.state.filters;
-    const modelId = MODELS.some(m => m.id === F.heliModel) ? F.heliModel : modelFor(a.model);
+    const modelId = modelFor(a.model);
     pending = { reg: a.reg, states, model: modelId };
     const chooser = MIS.chips("heli", regs, a.reg, v => v);
-    const modelChooser = MIS.chips("heliModel", MODELS.map(m => m.id), modelId, id => MODELS.find(m => m.id === id).label);
     const legend = ["crit", "warn"].map(k =>
       `<span class="heli-key"><i style="background:${LEVEL[k].css}"></i>${esc(t(LEVEL[k].key))}</span>`).join("");
     return `<section class="card heli" aria-labelledby="heli-title">
       <div class="card-head"><h2 id="heli-title">${esc(t("heli.title"))} · ${esc(a.reg)} · ${esc(a.model)}</h2></div>
       ${chooser}
-      <div class="heli-models"><span class="small muted">${esc(t("heli.model"))}</span>${modelChooser}</div>
       <div class="heli-body">
         <div class="heli-stage">
           <div class="heli-view" id="heli-view" role="application" aria-label="${esc(t("heli.aria", { reg: a.reg }))}"></div>

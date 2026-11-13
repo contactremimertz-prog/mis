@@ -17,7 +17,7 @@ window.I18N.en = {
   "save.saved": "Saved on this device",
   "save.saving": "Saving…",
   "save.memory": "Not saved (storage unavailable)",
-  "foot.demo": "Fictitious data for demonstration purposes. H125, H130, H145, H160 and H175 models; registrations, serial numbers and part references are invented.",
+  "foot.demo": "Fictitious data for demonstration purposes. H135, H145, NH90 and Super Puma models; registrations, serial numbers and part references are invented.",
   "foot.storage": "SQLite database stored in this browser only.",
 
   "nav.g.overview": "Overview", "nav.g.camo": "CAMO · Part-M / Part-CAMO", "nav.g.mro": "MRO · Part-145", "nav.g.p21": "Part-21", "nav.g.log": "Logistics", "nav.g.quality": "Quality", "nav.g.admin": "Administration",
@@ -134,8 +134,8 @@ window.I18N.en = {
   "doc.sub": "Maintenance data and organisation manuals under revision control. Only the approved revision applies.",
   "doc.received": "Revision {r} received", "doc.approve": "Approve {r}", "docs.current": "Up to date", "docs.pending": "Revision pending",
   "dk.data": "Maintenance data", "dk.org": "Organisation manual", "dk.mp": "Maintenance programme", "dk.ops": "Operations",
-  "doc.amm145": "H145 aircraft maintenance manual (AMM)", "doc.amm160": "H160 aircraft maintenance manual (AMM)", "doc.moe": "Maintenance organisation exposition (MOE)", "doc.cae": "Continuing airworthiness management exposition (CAE)",
-  "doc.mp130": "H130 maintenance programme", "doc.mel175": "H175 minimum equipment list (MEL)", "doc.sb125": "H125 service bulletin collection", "doc.poe": "Production organisation exposition (POE)",
+  "doc.amm145": "H145 aircraft maintenance manual (AMM)", "doc.amm160": "NH90 aircraft maintenance manual (AMM)", "doc.moe": "Maintenance organisation exposition (MOE)", "doc.cae": "Continuing airworthiness management exposition (CAE)",
+  "doc.mp130": "H135 maintenance programme", "doc.mel175": "Super Puma minimum equipment list (MEL)", "doc.sb125": "H135 service bulletin collection", "doc.poe": "Production organisation exposition (POE)",
 
   "users.sub": "Demonstration profiles. Each role only sees the screens and actions it is authorised for.", "users.matrix": "Screen access by role",
   "u.active": "Active", "u.suspended": "Suspended", "u.suspend": "Suspend", "u.reactivate": "Reactivate", "u.you": "You",
@@ -284,7 +284,6 @@ window.I18N.en = {
   "heli.zone_tasks": "Maintenance programme tasks",
   "heli.model_error": "The 3D model could not be loaded. The zone list stays available.",
   "heli.loading": "Loading 3D model…",
-  "heli.model": "3D model",
   "heli.lvl_none": "No task linked to this zone",
   "heli.zone.rotor": "Main rotor",
   "heli.zone.bte": "Gearbox",

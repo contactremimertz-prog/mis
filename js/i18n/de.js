@@ -17,7 +17,7 @@ window.I18N.de = {
   "save.saved": "Auf diesem Gerät gespeichert",
   "save.saving": "Wird gespeichert…",
   "save.memory": "Nicht gespeichert (Speicher nicht verfügbar)",
-  "foot.demo": "Fiktive Daten zu Demonstrationszwecken. Modelle H125, H130, H145, H160 und H175; Kennzeichen, Seriennummern und Teilenummern sind erfunden.",
+  "foot.demo": "Fiktive Daten zu Demonstrationszwecken. Modelle H135, H145, NH90 und Super Puma; Kennzeichen, Seriennummern und Teilenummern sind erfunden.",
   "foot.storage": "SQLite-Datenbank nur in diesem Browser gespeichert.",
 
   "nav.g.overview": "Übersicht", "nav.g.camo": "CAMO · Part-M / Part-CAMO", "nav.g.mro": "MRO · Part-145", "nav.g.p21": "Part-21", "nav.g.log": "Logistik", "nav.g.quality": "Qualität", "nav.g.admin": "Verwaltung",
@@ -134,8 +134,8 @@ window.I18N.de = {
   "doc.sub": "Instandhaltungsdaten und Organisationshandbücher unter Revisionskontrolle. Nur die freigegebene Revision ist gültig.",
   "doc.received": "Revision {r} eingegangen", "doc.approve": "{r} freigeben", "docs.current": "Aktuell", "docs.pending": "Revision ausstehend",
   "dk.data": "Instandhaltungsdaten", "dk.org": "Organisationshandbuch", "dk.mp": "Instandhaltungsprogramm", "dk.ops": "Flugbetrieb",
-  "doc.amm145": "Instandhaltungshandbuch H145 (AMM)", "doc.amm160": "Instandhaltungshandbuch H160 (AMM)", "doc.moe": "Handbuch des Instandhaltungsbetriebs (MOE)", "doc.cae": "Handbuch zur Führung der Aufrechterhaltung der Lufttüchtigkeit (CAE)",
-  "doc.mp130": "Instandhaltungsprogramm H130", "doc.mel175": "Mindestausrüstungsliste H175 (MEL)", "doc.sb125": "Sammlung der Service Bulletins H125", "doc.poe": "Handbuch des Herstellungsbetriebs (POE)",
+  "doc.amm145": "Instandhaltungshandbuch H145 (AMM)", "doc.amm160": "Instandhaltungshandbuch NH90 (AMM)", "doc.moe": "Handbuch des Instandhaltungsbetriebs (MOE)", "doc.cae": "Handbuch zur Führung der Aufrechterhaltung der Lufttüchtigkeit (CAE)",
+  "doc.mp130": "Instandhaltungsprogramm H135", "doc.mel175": "Mindestausrüstungsliste Super Puma (MEL)", "doc.sb125": "Sammlung der Service Bulletins H135", "doc.poe": "Handbuch des Herstellungsbetriebs (POE)",
 
   "users.sub": "Demonstrationsprofile. Jede Rolle sieht nur die Bildschirme und Aktionen, für die sie berechtigt ist.", "users.matrix": "Bildschirmzugriff nach Rolle",
   "u.active": "Aktiv", "u.suspended": "Gesperrt", "u.suspend": "Sperren", "u.reactivate": "Reaktivieren", "u.you": "Sie",
@@ -284,7 +284,6 @@ window.I18N.de = {
   "heli.zone_tasks": "Aufgaben des Instandhaltungsprogramms",
   "heli.model_error": "Das 3D-Modell konnte nicht geladen werden. Die Zonenliste bleibt verfügbar.",
   "heli.loading": "3D-Modell wird geladen…",
-  "heli.model": "3D-Modell",
   "heli.lvl_none": "Keine Aufgabe mit dieser Zone verknüpft",
   "heli.zone.rotor": "Hauptrotor",
   "heli.zone.bte": "Getriebe",

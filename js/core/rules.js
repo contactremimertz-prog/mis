@@ -16,7 +16,7 @@
   const SOON = { hours: 25, cycles: 30, days: 30 };
 
   /** Part number of the LED kit used by the Part-21 modification demo scenario. */
-  const LED_KIT_PN = "125A55-0012-01";
+  const LED_KIT_PN = "135A55-0012-01";
 
   /** Display name of a user id ("-" if unknown). */
   function uname(id) {

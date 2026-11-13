@@ -17,7 +17,7 @@ window.I18N.es = {
   "save.saved": "Guardado en este dispositivo",
   "save.saving": "Guardando…",
   "save.memory": "No guardado (almacenamiento no disponible)",
-  "foot.demo": "Datos ficticios con fines de demostración. Modelos H125, H130, H145, H160 y H175; matrículas, números de serie y referencias inventados.",
+  "foot.demo": "Datos ficticios con fines de demostración. Modelos H135, H145, NH90 y Super Puma; matrículas, números de serie y referencias inventados.",
   "foot.storage": "Base de datos SQLite almacenada solo en este navegador.",
 
   "nav.g.overview": "Vista general", "nav.g.camo": "CAMO · Part-M / Part-CAMO", "nav.g.mro": "MRO · Part-145", "nav.g.p21": "Part-21", "nav.g.log": "Logística", "nav.g.quality": "Calidad", "nav.g.admin": "Administración",
@@ -134,8 +134,8 @@ window.I18N.es = {
   "doc.sub": "Datos de mantenimiento y manuales de la organización bajo control de revisiones. Solo es aplicable la revisión aprobada.",
   "doc.received": "Revisión {r} recibida", "doc.approve": "Aprobar {r}", "docs.current": "Al día", "docs.pending": "Revisión pendiente",
   "dk.data": "Datos de mantenimiento", "dk.org": "Manual de la organización", "dk.mp": "Programa de mantenimiento", "dk.ops": "Operaciones",
-  "doc.amm145": "Manual de mantenimiento H145 (AMM)", "doc.amm160": "Manual de mantenimiento H160 (AMM)", "doc.moe": "Memoria de la organización de mantenimiento (MOE)", "doc.cae": "Memoria de gestión del mantenimiento de la aeronavegabilidad (CAE)",
-  "doc.mp130": "Programa de mantenimiento H130", "doc.mel175": "Lista de equipo mínimo H175 (MEL)", "doc.sb125": "Recopilación de boletines de servicio H125", "doc.poe": "Memoria de la organización de producción (POE)",
+  "doc.amm145": "Manual de mantenimiento H145 (AMM)", "doc.amm160": "Manual de mantenimiento NH90 (AMM)", "doc.moe": "Memoria de la organización de mantenimiento (MOE)", "doc.cae": "Memoria de gestión del mantenimiento de la aeronavegabilidad (CAE)",
+  "doc.mp130": "Programa de mantenimiento H135", "doc.mel175": "Lista de equipo mínimo Super Puma (MEL)", "doc.sb125": "Recopilación de boletines de servicio H135", "doc.poe": "Memoria de la organización de producción (POE)",
 
   "users.sub": "Perfiles de demostración. Cada rol solo ve las pantallas y acciones autorizadas.", "users.matrix": "Acceso a pantallas por rol",
   "u.active": "Activo", "u.suspended": "Suspendido", "u.suspend": "Suspender", "u.reactivate": "Reactivar", "u.you": "Usted",
@@ -284,7 +284,6 @@ window.I18N.es = {
   "heli.zone_tasks": "Tareas del programa de mantenimiento",
   "heli.model_error": "No se pudo cargar el modelo 3D. La lista de zonas sigue disponible.",
   "heli.loading": "Cargando modelo 3D…",
-  "heli.model": "Modelo 3D",
   "heli.lvl_none": "Ninguna tarea vinculada a esta zona",
   "heli.zone.rotor": "Rotor principal",
   "heli.zone.bte": "Caja de transmisión",
