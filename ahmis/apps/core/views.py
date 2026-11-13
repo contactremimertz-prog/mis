@@ -20,7 +20,7 @@ from apps.logistics.models import PartRequest, StockItem, Tool
 from apps.part145.models import Authorization, Defect, TaskCard, WorkPackage
 
 from .models import AuditLog, SignatureRecord
-from django.utils.translation import gettext
+from django.utils.translation import get_language, gettext
 
 DOCS_DIR = Path(settings.BASE_DIR) / "docs" / "tutoriels"
 
@@ -232,11 +232,25 @@ def signature_list(request):
     return render(request, "core/signature_list.html", {"page": page, "actions": SignatureRecord.ACTIONS})
 
 
+TRANSLATED_DOCS = ("en", "es", "de")
+
+
+def _tutorial_path(slug):
+    """Chemin du tutoriel dans la langue active, sinon la version française de référence."""
+    lang = (get_language() or "fr")[:2]
+    if lang in TRANSLATED_DOCS:
+        localized = DOCS_DIR / lang / f"{slug}.md"
+        if localized.is_file():
+            return localized
+    return DOCS_DIR / f"{slug}.md"
+
+
 def _tutorials():
     files = sorted(DOCS_DIR.glob("*.md"))
     result = []
     for f in files:
-        first = f.read_text(encoding="utf-8").splitlines()[0] if f.stat().st_size else f.stem
+        path = _tutorial_path(f.stem)
+        first = path.read_text(encoding="utf-8").splitlines()[0] if path.stat().st_size else f.stem
         result.append({"slug": f.stem, "title": first.lstrip("# ").strip()})
     return result
 
@@ -251,13 +265,14 @@ def help_page(request, slug):
         slug = tutorials[0]["slug"] if tutorials else None
     if slug is None:
         raise Http404
-    path = DOCS_DIR / f"{slug}.md"
-    if not path.exists() or path.parent != DOCS_DIR:
+    if slug not in [t["slug"] for t in tutorials]:
         raise Http404
+    path = _tutorial_path(slug)
     html = markdown.markdown(path.read_text(encoding="utf-8"), extensions=["tables", "fenced_code", "sane_lists", "toc"])
     idx = [t["slug"] for t in tutorials].index(slug)
     return render(request, "core/help.html", {
         "tutorials": tutorials, "slug": slug, "content": html,
+        "fallback": path.parent == DOCS_DIR and (get_language() or "fr")[:2] in TRANSLATED_DOCS,
         "prev": tutorials[idx - 1] if idx > 0 else None,
         "next": tutorials[idx + 1] if idx + 1 < len(tutorials) else None,
     })
