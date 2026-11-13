@@ -59,6 +59,24 @@ def model_for(type_code):
     return None
 
 
+# Photos du carrousel du tableau de bord (static/ahmis/photos/<id>.jpg), par modèle de référence.
+# Crédit affiché sous la photo : à renseigner pour chaque fichier ajouté.
+PHOTO_CREDITS = {}
+
+
+def photo_for(type_code):
+    """Photo du type pour le carrousel : {file, credit} si le fichier existe, sinon None (dessin)."""
+    from django.contrib.staticfiles import finders
+
+    m = model_for(type_code)
+    if not m or not m["exact"]:
+        return None
+    path = f"ahmis/photos/{m['id']}.jpg"
+    if not finders.find(path):
+        return None
+    return {"file": path, "credit": PHOTO_CREDITS.get(m["id"], ""), "label": m["label"]}
+
+
 def item_ata(item):
     """Chapitre ATA (2 chiffres) d'une échéance, ou chaîne vide.
 

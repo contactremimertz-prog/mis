@@ -10590,6 +10590,10 @@ msgstr "{n} parts with a simulated revision: {c} overdue, {w} to plan."
 msgid "Échéances CAMO de la zone : {l}"
 msgstr "Zone CAMO due items: {l}"
 
+#, python-format
+msgid "Photo d'un %(m)s (photo du type, pas de l'appareil)"
+msgstr "Photo of a %(m)s (type photo, not this aircraft)"
+
 #~ msgid "ARC à renouveler"
 #~ msgstr "ARC to renew"
 

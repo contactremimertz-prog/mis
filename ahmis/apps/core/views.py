@@ -147,6 +147,14 @@ def dashboard(request):
     fleet_rows = []
     for ac in sorted(aircraft, key=lambda a: a.registration):
         fleet_rows.append({"ac": ac, "counts": by_ac.get(ac.pk, {"overdue": 0, "tolerance": 0, "due_soon": 0})})
+    from apps.fleet.heli3d import photo_for
+
+    photos = {}
+    for row in fleet_rows:  # photo du type (hélicoptères), sinon dessin
+        code = row["ac"].aircraft_type.code
+        if code not in photos:
+            photos[code] = photo_for(code) if row["ac"].aircraft_type.category == "helicopter" else None
+        row["photo"] = photos[code]
     for n, row in enumerate(fleet_rows):  # appareil annoncé « Suivant » dans le carrousel
         row["next"] = fleet_rows[(n + 1) % len(fleet_rows)]
     from apps.camo.models import amp_review_status

@@ -10669,6 +10669,10 @@ msgstr "{n} Teile mit simulierter Revision: {c} überschritten, {w} zu planen."
 msgid "Échéances CAMO de la zone : {l}"
 msgstr "CAMO-Fälligkeiten der Zone: {l}"
 
+#, python-format
+msgid "Photo d'un %(m)s (photo du type, pas de l'appareil)"
+msgstr "Foto eines %(m)s (Typfoto, nicht dieses Luftfahrzeug)"
+
 #~ msgid "ARC à renouveler"
 #~ msgstr "ARC zu erneuern"
 

@@ -26,7 +26,8 @@
           <a class="btn hero-btn ghost" href="{% url 'camo:due' %}?aircraft={{ r.ac.pk }}">{% trans "Échéances" %}</a>
         </div>
       </div>
-      <div class="hero-art" aria-hidden="true">{% if cat == "helicopter" %}{% include "core/_art_heli.svg" %}{% else %}{% include "core/_art_plane.svg" %}{% endif %}</div>
+      {% if r.photo %}<figure class="hero-photo"><img src="{% static r.photo.file %}" alt="{% blocktrans with m=r.photo.label %}Photo d'un {{ m }} (photo du type, pas de l'appareil){% endblocktrans %}"{% if not forloop.first %} loading="lazy"{% endif %}>{% if r.photo.credit %}<figcaption>{{ r.photo.credit }}</figcaption>{% endif %}</figure>
+      {% else %}<div class="hero-art" aria-hidden="true">{% if cat == "helicopter" %}{% include "core/_art_heli.svg" %}{% else %}{% include "core/_art_plane.svg" %}{% endif %}</div>{% endif %}
       {% if fleet_rows|length > 1 %}{% with nxt=r.next %}<a class="hero-next" href="#slide-{{ nxt.ac.pk }}" data-carousel-next>
         <small>{% trans "Suivant" %}</small><b>{{ nxt.ac.registration }} · {{ nxt.ac.aircraft_type.code }}</b>
         <span>{% with m=nxt.counts.overdue|add:nxt.counts.tolerance %}{% blocktrans count m=m %}{{ m }} dépassée{% plural %}{{ m }} dépassées{% endblocktrans %}{% endwith %} · {% blocktrans count k=nxt.counts.due_soon %}{{ k }} à planifier{% plural %}{{ k }} à planifier{% endblocktrans %}</span>

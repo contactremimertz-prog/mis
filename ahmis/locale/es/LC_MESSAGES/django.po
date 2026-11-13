@@ -10631,6 +10631,10 @@ msgstr "{n} piezas con revisión simulada: {c} vencida(s), {w} por planificar."
 msgid "Échéances CAMO de la zone : {l}"
 msgstr "Vencimientos CAMO de la zona: {l}"
 
+#, python-format
+msgid "Photo d'un %(m)s (photo du type, pas de l'appareil)"
+msgstr "Foto de un %(m)s (foto del tipo, no de esta aeronave)"
+
 #~ msgid "ARC à renouveler"
 #~ msgstr "ARC por renovar"
 
