@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load i18n %}{% load ahmis %}
 {% block title %}{{ ac.registration }}{% endblock %}
-{% block scripts %}{% if heli_zones %}{% load static %}<script src="{% static 'ahmis/vendor/three.min.js' %}" defer></script><script src="{% static 'ahmis/heli3d.js' %}" defer></script>{% endif %}{% endblock %}
+{% block scripts %}{% if heli_zones %}{% load static %}<script src="{% static 'ahmis/vendor/three.min.js' %}" defer></script>{% if heli_model %}<script src="{% static 'ahmis/vendor/GLTFLoader.js' %}" defer></script>{% endif %}<script src="{% static 'ahmis/heli3d.js' %}" defer></script>{% endif %}{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>

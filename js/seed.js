@@ -106,18 +106,18 @@
   function seedFleet(c) {
     const { ins, D } = c;
     const fleet = [
-      ["F-XXXA", "H125", "9101", "Marignane", "aerial_work", 3421.6, 5120, 132, 2014],
-      ["F-XXXB", "H125", "9134", "Annecy", "mountain", 1288.4, 2214, 260, 2019],
-      ["F-XXXM", "H125", "9160", "Paris", "police", 4870.9, 7420, 88, 2012],
-      ["F-XXXC", "H130", "8402", "Toulouse", "tourism", 2654.2, 3980, 201, 2016],
-      ["F-XXXD", "H130", "8417", "Nice", "passenger", 4120.7, 6110, 175, 2013],
+      ["F-XXXA", "H135", "1101", "Marignane", "aerial_work", 3421.6, 5120, 132, 2014],
+      ["F-XXXB", "H135", "1134", "Annecy", "mountain", 1288.4, 2214, 260, 2019],
+      ["F-XXXC", "H135", "1160", "Toulouse", "tourism", 2654.2, 3980, 201, 2016],
+      ["F-XXXD", "H145", "20402", "Nice", "passenger", 4120.7, 6110, 175, 2013],
       ["F-XXXE", "H145", "20901", "Lyon", "hems", 2310.5, 3606, 18, 2018],
-      ["F-XXXF", "H145", "20944", "Brest", "sar", 1544.2, 2390, 301, 2020],
       ["F-XXXG", "H145", "20987", "Grenoble", "hems", 812.0, 1290, 340, 2022],
-      ["F-XXXH", "H160", "1101", "Le Bourget", "vip", 645.7, 880, 222, 2023],
-      ["F-XXXJ", "H160", "1118", "Pau", "offshore", 1102.3, 1655, 156, 2022],
-      ["F-XXXK", "H175", "5101", "Le Havre", "offshore", 3988.1, 4410, 64, 2017],
-      ["F-XXXL", "H175", "5112", "Marignane", "offshore", 2210.6, 2480, 243, 2019]
+      ["F-XXXF", "NH90", "1344", "Brest", "sar", 1544.2, 2390, 301, 2020],
+      ["F-XXXH", "NH90", "1401", "Le Bourget", "police", 645.7, 880, 222, 2023],
+      ["F-XXXM", "NH90", "1218", "Paris", "police", 4870.9, 7420, 88, 2012],
+      ["F-XXXJ", "Super Puma", "2918", "Pau", "offshore", 1102.3, 1655, 156, 2022],
+      ["F-XXXK", "Super Puma", "2901", "Le Havre", "offshore", 3988.1, 4410, 64, 2017],
+      ["F-XXXL", "Super Puma", "2912", "Marignane", "offshore", 2210.6, 2480, 243, 2019]
     ];
     ins("aircraft", fleet.map(f => ({ reg: f[0], model: f[1], msn: f[2], base: f[3], mission: "@mission." + f[4], hours: f[5], cycles: f[6], arc_expiry: D(f[7]), mfg_year: f[8] })));
     return fleet;
@@ -127,7 +127,7 @@
   function seedProgramme(c, fleet) {
     const { ins, D } = c;
     // Maintenance programme templates (fictitious but representative intervals): [code, title, hours, cycles, months]
-    const models = ["H125", "H130", "H145", "H160", "H175"];
+    const models = ["H135", "H145", "NH90", "Super Puma"];
     const mp = [];
     const tpl = [
       ["INSP-100", "@mp.insp100", 100, null, 12],
@@ -137,7 +137,7 @@
       ["ELT-BAT", "@mp.elt", null, null, 12],
       ["LDG-CYC", "@mp.ldg", null, 3000, null]
     ];
-    models.forEach(m => tpl.forEach(t => mp.push({ id: m + "-" + t[0], model: m, code: t[0], title: t[1], interval_h: t[2], interval_c: t[3], interval_m: t[4], ref: "MP-" + m + "-DEMO rev.4" })));
+    models.forEach(m => tpl.forEach(t => mp.push({ id: m + "-" + t[0], model: m, code: t[0], title: t[1], interval_h: t[2], interval_c: t[3], interval_m: t[4], ref: "MP-" + m.replace(/\s+/g, "") + "-DEMO rev.4" })));
     ins("mp_task", mp);
 
     // Last accomplishment of each task: deterministic offsets, plus special cases used by the demo scenario
@@ -169,15 +169,14 @@
   function seedDirectives(c, fleet) {
     const { ins, D } = c;
     ins("ad", [
-      { id: "AD-DEMO-2025-014", model: "H125", title: "@ad.t1", kind: "repeat", interval_h: 100, effective: D(-300), comply_days: 30 },
-      { id: "AD-DEMO-2026-011", model: "H130", title: "@ad.t2", kind: "once", interval_h: null, effective: D(-20), comply_days: 60 },
+      { id: "AD-DEMO-2025-014", model: "H135", title: "@ad.t1", kind: "repeat", interval_h: 100, effective: D(-300), comply_days: 30 },
       { id: "AD-DEMO-2026-003", model: "H145", title: "@ad.t3", kind: "once", interval_h: null, effective: D(-70), comply_days: 90 },
-      { id: "AD-DEMO-2026-007", model: "H160", title: "@ad.t4", kind: "once", interval_h: null, effective: D(-40), comply_days: 45 },
-      { id: "AD-DEMO-2025-021", model: "H175", title: "@ad.t5", kind: "repeat", interval_h: 300, effective: D(-400), comply_days: 30 }
+      { id: "AD-DEMO-2026-007", model: "NH90", title: "@ad.t4", kind: "once", interval_h: null, effective: D(-40), comply_days: 45 },
+      { id: "AD-DEMO-2025-021", model: "Super Puma", title: "@ad.t5", kind: "repeat", interval_h: 300, effective: D(-400), comply_days: 30 }
     ]);
     const adRows = [];
     fleet.forEach(f => {
-      const m = { H125: "AD-DEMO-2025-014", H130: "AD-DEMO-2026-011", H145: "AD-DEMO-2026-003", H160: "AD-DEMO-2026-007", H175: "AD-DEMO-2025-021" }[f[1]];
+      const m = { H135: "AD-DEMO-2025-014", H145: "AD-DEMO-2026-003", NH90: "AD-DEMO-2026-007", "Super Puma": "AD-DEMO-2025-021" }[f[1]];
       let status = "applied", lh = Math.round((f[5] - 35) * 10) / 10, ld = D(-60);
       if (["F-XXXC", "F-XXXD", "F-XXXG", "F-XXXJ"].includes(f[0])) { status = "open"; lh = null; ld = null; }
       if (f[0] === "F-XXXK") { lh = Math.round((f[5] - 296) * 10) / 10; ld = D(-200); }
@@ -198,7 +197,7 @@
       { id: "WO-2026-0415", reg: "F-XXXB", title: "@mp.insp100", kind: "scheduled", status: "awaiting_crs", opened: D(-4), planner: "u6", assignee: "u5", ac_task_id: tid("F-XXXB", "INSP-100") },
       { id: "WO-2026-0418", reg: "F-XXXJ", title: "@wo.t.servo", kind: "defect", status: "in_progress", opened: D(-3), planner: "u6", assignee: "u4" },
       { id: "WO-2026-0421", reg: "F-XXXA", title: "@wo.t.led", kind: "mod", status: "open", opened: D(-2), planner: "u6", assignee: "u5", mod_id: "MOD-2026-004" },
-      { id: "WO-2026-0423", reg: "F-XXXJ", title: "@ad.t4", kind: "ad", status: "open", opened: D(-2), planner: "u2", assignee: null, ac_ad_id: adid("F-XXXJ") },
+      { id: "WO-2026-0423", reg: "F-XXXJ", title: "@ad.t5", kind: "ad", status: "open", opened: D(-2), planner: "u2", assignee: null, ac_ad_id: adid("F-XXXJ") },
       { id: "WO-2026-0425", reg: "F-XXXD", title: "@mp.insp100", kind: "scheduled", status: "open", opened: D(-1), planner: "u6", assignee: "u4", ac_task_id: tid("F-XXXD", "INSP-100") }
     ]);
     const cards = [];
@@ -227,18 +226,18 @@
   function seedParts(c) {
     const { db, ins, D, ts } = c;
     ins("part", [
-      { id: "PT-0001", pn: "130A11-0400-01", descr: "@part.mrb", sn: "MRB-24117", lot: null, qty: 1, form1: "F1-DEMO-26-11872", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXC", wo_id: null, tsn: 1820.4, limit_h: 20000, limit_date: null, received: D(-400) },
+      { id: "PT-0001", pn: "135A11-0400-01", descr: "@part.mrb", sn: "MRB-24117", lot: null, qty: 1, form1: "F1-DEMO-26-11872", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXC", wo_id: null, tsn: 1820.4, limit_h: 20000, limit_date: null, received: D(-400) },
       { id: "PT-0002", pn: "145A33-1010-02", descr: "@part.tgb", sn: "TGB-08832", lot: null, qty: 1, form1: "F1-DEMO-25-90311", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXE", wo_id: null, tsn: 2310.5, limit_h: 4500, limit_date: null, received: D(-700) },
       { id: "PT-0003", pn: "145A41-2200-05", descr: "@part.starter", sn: "SG-55120", lot: null, qty: 1, form1: "F1-DEMO-26-12004", form1_org: "FR.21G.DEMO", form1_date: null, status: "stock", location: "A-03", reg: null, wo_id: null, tsn: 0, limit_h: null, limit_date: null, received: D(-30) },
-      { id: "PT-0004", pn: "160A62-3100-11", descr: "@part.servo", sn: "SRV-30421", lot: null, qty: 1, form1: "F1-DEMO-26-12210", form1_org: "FR.21G.DEMO", form1_date: null, status: "stock", location: "A-07", reg: null, wo_id: null, tsn: 0, limit_h: null, limit_date: null, received: D(-6) },
-      { id: "PT-0005", pn: "175A10-0501-07", descr: "@part.hub", sn: "MRH-11905", lot: null, qty: 1, form1: "F1-DEMO-24-40188", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXK", wo_id: null, tsn: 3988.1, limit_h: 4200, limit_date: null, received: D(-1500) },
-      { id: "PT-0006", pn: "125A55-0012-01", descr: "@part.led", sn: "LGT-90017", lot: null, qty: 1, form1: null, form1_org: null, form1_date: null, status: "quarantine", location: "Q-01", reg: null, wo_id: null, tsn: 0, limit_h: null, limit_date: null, received: D(-5) },
-      { id: "PT-0007", pn: "125A11-0700-04", descr: "@part.trb", sn: "TRB-40391", lot: null, qty: 1, form1: "F1-DEMO-26-10566", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXM", wo_id: null, tsn: 4870.9, limit_h: 5000, limit_date: null, received: D(-2000) },
+      { id: "PT-0004", pn: "332A62-3100-11", descr: "@part.servo", sn: "SRV-30421", lot: null, qty: 1, form1: "F1-DEMO-26-12210", form1_org: "FR.21G.DEMO", form1_date: null, status: "stock", location: "A-07", reg: null, wo_id: null, tsn: 0, limit_h: null, limit_date: null, received: D(-6) },
+      { id: "PT-0005", pn: "332A10-0501-07", descr: "@part.hub", sn: "MRH-11905", lot: null, qty: 1, form1: "F1-DEMO-24-40188", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXK", wo_id: null, tsn: 3988.1, limit_h: 4200, limit_date: null, received: D(-1500) },
+      { id: "PT-0006", pn: "135A55-0012-01", descr: "@part.led", sn: "LGT-90017", lot: null, qty: 1, form1: null, form1_org: null, form1_date: null, status: "quarantine", location: "Q-01", reg: null, wo_id: null, tsn: 0, limit_h: null, limit_date: null, received: D(-5) },
+      { id: "PT-0007", pn: "N90A11-0700-04", descr: "@part.trb", sn: "TRB-40391", lot: null, qty: 1, form1: "F1-DEMO-26-10566", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXM", wo_id: null, tsn: 4870.9, limit_h: 5000, limit_date: null, received: D(-2000) },
       { id: "PT-0008", pn: "DEMO-ORK-145", descr: "@part.oring", sn: null, lot: "L-26-114", qty: 40, form1: "F1-DEMO-26-12100", form1_org: "FR.21G.DEMO", form1_date: null, status: "stock", location: "B-12", reg: null, wo_id: null, tsn: null, limit_h: null, limit_date: D(540), received: D(-40) },
       { id: "PT-0009", pn: "DEMO-OIL-T5", descr: "@part.oil", sn: null, lot: "L-26-090", qty: 24, form1: "C-OF-DEMO-26-0090", form1_org: "FR.21G.DEMO", form1_date: null, status: "stock", location: "C-02", reg: null, wo_id: null, tsn: null, limit_h: null, limit_date: D(20), received: D(-300) },
-      { id: "PT-0010", pn: "160A21-1400-02", descr: "@part.mgb", sn: "MGB-61208", lot: null, qty: 1, form1: "F1-DEMO-25-70456", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXH", wo_id: null, tsn: 645.7, limit_h: 6000, limit_date: null, received: D(-900) },
+      { id: "PT-0010", pn: "N90A21-1400-02", descr: "@part.mgb", sn: "MGB-61208", lot: null, qty: 1, form1: "F1-DEMO-25-70456", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXH", wo_id: null, tsn: 645.7, limit_h: 6000, limit_date: null, received: D(-900) },
       { id: "PT-0011", pn: "145A12-0100-03", descr: "@part.eltbat", sn: null, lot: "L-26-031", qty: 6, form1: "F1-DEMO-26-11950", form1_org: "FR.21G.DEMO", form1_date: null, status: "stock", location: "B-04", reg: null, wo_id: null, tsn: null, limit_h: null, limit_date: D(300), received: D(-60) },
-      { id: "PT-0012", pn: "125A41-2200-02", descr: "@part.starter", sn: "SG-55188", lot: null, qty: 1, form1: "F1-DEMO-26-12301", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXB", wo_id: "WO-2026-0415", tsn: 3.0, limit_h: null, limit_date: null, received: D(-15) }
+      { id: "PT-0012", pn: "135A41-2200-02", descr: "@part.starter", sn: "SG-55188", lot: null, qty: 1, form1: "F1-DEMO-26-12301", form1_org: "FR.21G.DEMO", form1_date: null, status: "installed", location: null, reg: "F-XXXB", wo_id: "WO-2026-0415", tsn: 3.0, limit_h: null, limit_date: null, received: D(-15) }
     ]);
     db.run("UPDATE part SET form1_date=received WHERE form1 IS NOT NULL");
     ins("part_move", [
@@ -250,9 +249,9 @@
       { part_id: "PT-0003", at: ts(-30, 9), kind: "receive", from_loc: "@loc.supplier", to_loc: "A-03", wo_id: null, uid: "u7" }
     ]);
     ins("po", [
-      { id: "PO-2026-0099", pn: "160A62-3100-11", descr: "@part.servo", qty: 1, supplier: "@sup.a", status: "received", ordered: D(-14), uid: "u7" },
+      { id: "PO-2026-0099", pn: "332A62-3100-11", descr: "@part.servo", qty: 1, supplier: "@sup.a", status: "received", ordered: D(-14), uid: "u7" },
       { id: "PO-2026-0101", pn: "DEMO-SEAL-160", descr: "@part.seal", qty: 2, supplier: "@sup.b", status: "ordered", ordered: D(-3), uid: "u6" },
-      { id: "PO-2026-0102", pn: "125A55-0012-01", descr: "@part.led", qty: 1, supplier: "@sup.a", status: "awaiting_doc", ordered: D(-10), uid: "u7" }
+      { id: "PO-2026-0102", pn: "135A55-0012-01", descr: "@part.led", qty: 1, supplier: "@sup.a", status: "awaiting_doc", ordered: D(-10), uid: "u7" }
     ]);
   }
 
@@ -278,12 +277,12 @@
     ]);
     ins("doc", [
       { id: "DOC-AMM-H145", title: "@doc.amm145", kind: "@dk.data", rev: "R52", rev_date: D(-40), status: "current" },
-      { id: "DOC-AMM-H160", title: "@doc.amm160", kind: "@dk.data", rev: "R18", rev_date: D(-12), status: "pending", pending: "R19" },
+      { id: "DOC-AMM-NH90", title: "@doc.amm160", kind: "@dk.data", rev: "R18", rev_date: D(-12), status: "pending", pending: "R19" },
       { id: "DOC-MOE", title: "@doc.moe", kind: "@dk.org", rev: "E7 R3", rev_date: D(-1), status: "current" },
       { id: "DOC-CAE", title: "@doc.cae", kind: "@dk.org", rev: "E4 R1", rev_date: D(-90), status: "current" },
-      { id: "DOC-MP-H130", title: "@doc.mp130", kind: "@dk.mp", rev: "R9", rev_date: D(-200), status: "current" },
-      { id: "DOC-MEL-H175", title: "@doc.mel175", kind: "@dk.ops", rev: "R6", rev_date: D(-30), status: "current" },
-      { id: "DOC-SB-H125", title: "@doc.sb125", kind: "@dk.data", rev: "R31", rev_date: D(-60), status: "pending", pending: "R32" },
+      { id: "DOC-MP-H135", title: "@doc.mp130", kind: "@dk.mp", rev: "R9", rev_date: D(-200), status: "current" },
+      { id: "DOC-MEL-SPUMA", title: "@doc.mel175", kind: "@dk.ops", rev: "R6", rev_date: D(-30), status: "current" },
+      { id: "DOC-SB-H135", title: "@doc.sb125", kind: "@dk.data", rev: "R31", rev_date: D(-60), status: "pending", pending: "R32" },
       { id: "DOC-POE", title: "@doc.poe", kind: "@dk.org", rev: "E2 R0", rev_date: D(-120), status: "current" }
     ]);
   }
@@ -295,8 +294,8 @@
       [-22, 8, "u6", "wo_create", "log.wo_create", { id: "WO-2026-0398", reg: "F-XXXH" }],
       [-18, 16, "u8", "crs_issue", "log.crs_issue", { id: "CRS-2026-0081", wo: "WO-2026-0398" }],
       [-9, 17, "u3", "crs_issue", "log.crs_issue", { id: "CRS-2026-0088", wo: "WO-2026-0412" }],
-      [-6, 11, "u7", "part_receive", "log.part_receive", { pn: "160A62-3100-11", sn: "SRV-30421" }],
-      [-5, 15, "u7", "part_quarantine", "log.part_quarantine", { pn: "125A55-0012-01", sn: "LGT-90017" }],
+      [-6, 11, "u7", "part_receive", "log.part_receive", { pn: "332A62-3100-11", sn: "SRV-30421" }],
+      [-5, 15, "u7", "part_quarantine", "log.part_quarantine", { pn: "135A55-0012-01", sn: "LGT-90017" }],
       [-3, 9, "u4", "nc_open", "log.nc_open", { id: "NC-2026-031", level: "L1" }],
       [-1, 14, "u5", "denied", "log.denied", { what: "@perm.crs.issue" }],
       [-1, 16, "u1", "doc_approve", "log.doc_approve", { id: "DOC-MOE", rev: "E7 R3" }]

@@ -6,7 +6,7 @@ L'ARC (certificat d'examen de navigabilité) a une validité d'un an. AHMIS en s
 
 ## Situation de départ
 
-F-HDME (H160) a un ARC qui expire dans 20 jours : il apparaît « À planifier » dans les échéances et en orange sur la fiche aéronef.
+F-HDME (Super Puma) a un ARC qui expire dans 20 jours : il apparaît « À planifier » dans les échéances et en orange sur la fiche aéronef.
 
 ## Enregistrer une nouvelle revue
 

@@ -27,7 +27,8 @@ class CurrentUserMiddleware:
             _current_user.reset(token)
 
 
-CSP = ("default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; "
+# blob: : textures des modèles 3D (GLB), décodées en mémoire par le chargeur GLTF.
+CSP = ("default-src 'self'; img-src 'self' data: blob:; connect-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; "
        "object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
 
 

@@ -29,7 +29,7 @@
   }
 
   /** Expected schema version: an older saved database is replaced by the demo data. */
-  const SCHEMA_VERSION = "6";
+  const SCHEMA_VERSION = "7";
 
   /** Header elements that only make sense once signed in. */
   const SIGNED_IN_ONLY = ["#search-form", "#user", "#user-label", "#avatar", "#compliance"];
@@ -107,6 +107,7 @@
     S.exportSpec = null;
     const html = canSee(screen) ? VIEWS[screen]() : renderDenied(screen);
     $("#main").innerHTML = html + footer();
+    MIS.heliMount();
     MIS.renderChat();
   }
 

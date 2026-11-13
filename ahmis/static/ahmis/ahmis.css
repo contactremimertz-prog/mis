@@ -334,6 +334,16 @@ td.reg, .reg { white-space: nowrap; }
 /* Sur fond sombre : teintes claires des mêmes niveaux */
 .heli-labels .lvl-crit { color: #ff8a80; } .heli-labels .lvl-warn { color: #ffab66; } .heli-labels .lvl-ok { color: #6fdc9f; } .heli-labels .lvl-none { color: #c3ccd9; }
 .heli-names { display: inline-flex; align-items: center; gap: 6px; }
+.heli-focusbar { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 6px; flex-wrap: wrap; z-index: 2; }
+.heli-focusbar[hidden], .heli-part-info[hidden], .heli-status[hidden] { display: none; }
+.heli-part-info { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; background: var(--surface); }
+.heli-part-info h3 { margin: 0 0 4px; font-size: 15px; }
+.heli-part-info h4 { margin: 10px 0 6px; font-size: 13px; }
+.heli-part-info ul.small { margin: 6px 0; padding-left: 18px; }
+.heli-parts { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 4px; max-height: 260px; overflow: auto; }
+.heli-part { display: flex; justify-content: space-between; gap: 8px; width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.heli-part:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.heli-focus-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 table.data th.heli-count-h { white-space: normal; text-align: center; min-width: 50px; line-height: 1.2; }
 td.heli-count { text-align: center; }
 .heli-n { display: inline-block; min-width: 30px; padding: 1px 8px; border-radius: 999px; font-weight: 700; font-size: 12.5px; border: 1px solid transparent; }

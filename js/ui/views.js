@@ -162,7 +162,9 @@
   V.fleet = () => {
     const models = ["all", ...q("SELECT DISTINCT model FROM aircraft ORDER BY model").map(r => r.model)];
     const rows = fleetWithStatus().filter(a => F.fleet === "all" || a.model === F.fleet);
-    return pageHead("nav.fleet", "fleet.sub", exportBtns()) +
+    const selected = rows.find(a => a.reg === F.heli) || rows[0];
+    const heli = selected ? MIS.heliBlock(selected, rows.map(a => a.reg)) : "";
+    return pageHead("nav.fleet", "fleet.sub", exportBtns()) + heli +
       `<section class="card"><div class="card-head">${chips("fleet", models, F.fleet, v => (v === "all" ? t("f.all") : v))}</div>` +
       table({
         title: "nav.fleet", rows, open: a => "ac:" + a.reg, cols: [

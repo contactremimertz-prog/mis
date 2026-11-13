@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MIS Hélicoptères · Démo EASA</title>
 <meta name="description" content="Démonstration d'un MIS conforme aux règles EASA (Part-M, Part-CAMO, Part-145, Part-21) sur une flotte d'hélicoptères fictive.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-IWd/jUIIfJlFkqqfzOC6VgeEor0z8CnARIp1mTOdyE4=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-a8qpzKz92dQjzJ/9Aw1A6ECbTyrFZ3UOYc+0MMPAyNA=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Crect width=%2724%27 height=%2724%27 rx=%275%27 fill=%27%231d4ed8%27/%3E%3Cpath d=%27M3 7h18M12 7v3M6 14a6 4 0 0 1 6-4h1a5 4 0 0 1 5 4v1H6z%27 stroke=%27white%27 stroke-width=%271.8%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,26 +64,29 @@
     ["vendor/sql-wasm.js", "sha384-8D3Rsfo535FqoC1pHCCQMrNf75UgzyoG/HQm9zOzITRrz3QKzecc2E7JXKGCXoWu"],
     ["vendor/jspdf.umd.min.js", "sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3"],
     ["vendor/jspdf.plugin.autotable.min.js", "sha384-A77YsHWitrPuAj8E0AuB033EXzymUxIajnWKPzrrzqFoYYSCEpFennDUjMG2R1L3"],
+    ["vendor/three.min.js", "sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"],
+    ["vendor/GLTFLoader.js", "sha384-fljlqkjWlmSFjkESkQvm77heIZpoWmXEOzlCA7kOpGUH+95Zk0yGfQieWM2q136E"],
     // Translations and demo data
-    ["js/i18n/fr.js", "sha384-URpMONFq09JNyiOir6q7GxDr2h2vn2WuLwcGk9VXTrvNS6/lX1Mq496TDqWagTFM"],
-    ["js/i18n/en.js", "sha384-wfDDG8Hq6kvxxYpC3FBVkfKf7uX96hYZXLWee5u+8naOWrkrTw84KlJu083M6+j8"],
-    ["js/i18n/es.js", "sha384-nXDOk6k2MF6XyFFNjlRySEt17cMjyITIy7PyBkANtKElMv7qhQ6/zHHImvh/f+iO"],
-    ["js/i18n/de.js", "sha384-JCVNDwXFlCrXW0T4o3RBd9oO6Ja9QI6Yd0yG3I8nzNFM7IpFeDtxUQYG9PsxrhIg"],
-    ["js/seed.js", "sha384-TgE7js8JzTS7Ub/pLbD9NIIiwUvm8bcOvijLgIpk1eHZcPRbBAO75EbBmzxpfBFx"],
+    ["js/i18n/fr.js", "sha384-GASy86qtQpa067/RSQGONtx23CT2fi5NBcz49lkMQuB/RVXigun2T4aC8r3t4vKy"],
+    ["js/i18n/en.js", "sha384-tdNTdTlnM2IRYcmpT0uVL2AFf74CgodNgzZUMSujDo8M0Vitbjoigx+HyRUG67eC"],
+    ["js/i18n/es.js", "sha384-jonIPu1EWPV0cdzMtb9duhNuuGMSbA4ZNNDzZaqfLBANLbuU41Cn2apBLfb1d7mb"],
+    ["js/i18n/de.js", "sha384-/NDK+oShkESPAxaZhErxcdfvh3zklUzF1T0PAk74j3eUdiirLnvl4rINp1eJE08x"],
+    ["js/seed.js", "sha384-C2McfWdayTjUAcjaH5SocfcyC5PkjmyYdVn3KYJpORPFaSwXjybwKcgfQSfLs4tI"],
     // Core: namespace and state, i18n, rights, database, audit log, business rules, session
     ["js/core/util.js", "sha384-KPWXzDCkLwCcbwYh58EW9RH3uytDWbQJ0+epXfJCSsixL6R+X28c+A3XPTugHjf6"],
     ["js/core/i18n.js", "sha384-YHD6XGeteSx1zB8LA//lnCloOfFQiiNy4a6fdKNUniG9dHGfGH/re7fG4+NlMHB4"],
     ["js/core/rights.js", "sha384-FT2MnYdc0KYP9T88FV0lq4ZTa2tg7RilBVaXwdVixZv3L0HLeRrYwA78cN8GVai/"],
     ["js/core/db.js", "sha384-mXjTuiUhkUQt/TKSjuct4y4mgL8aq96VtHWeXZ+m90cmU+/SJa2K+2XSK8OvdYIL"],
     ["js/core/journal.js", "sha384-kvlY3cfv+B5iKPH3f79lgPLEdAjehHlGVwTrHB9nGPl7cKvWbI11ukav5x8eOcL+"],
-    ["js/core/rules.js", "sha384-xMLNcZqe5rqHKw5tirvtexrqXBEXjlJexr3JOSfeMZF/Ykp/cseK16U6VKFVBq2O"],
+    ["js/core/rules.js", "sha384-AmGrd6j863n4q3gU3WttfBTfPZx7smZxhmcEf/CCkE7TIwuGvcKSJkDM8iACAfEW"],
     ["js/core/session.js", "sha384-Xv45MWhaeD2Hzf5YfuZ/2eyl1DIlWLQu5rPBKbw+4KpHcktInG9rCXBpRNWLmy2+"],
     // Assistant: validated answers (4 languages) and keyword matching, no network
     ["js/chat/kb.js", "sha384-c2Hap9W22d4E+MuPFyHNCn0SUH4coHxHqlTm6rWbLoAjPH/KP8e7Bsanla4Sw1za"],
     ["js/chat/engine.js", "sha384-eUd3CPlpD4mR3YGyVcI62Yf69HIZK25qJdQ91HC7ixOb+5lWSkPdrGbP8+pREXuQ"],
     // User interface: components, screens, record dialogs, signature, sign-in, assistant
     ["js/ui/components.js", "sha384-FTZYjtVY2I976Nz6tTT1wlbYxa8qkb2npJuAsXBjTwf0MMTUdSkjMHRS+mm2Qnka"],
-    ["js/ui/views.js", "sha384-IJAtcHT2UUeGn7uuDEFEA/XiNJYeCY5wQeLERBN8pqZ6JaURfJzeZSyve7cFa+VY"],
+    ["js/ui/heli.js", "sha384-pleaLEq5T52wwii4N3+V4BEbilfbMe+OIBkOjGVg26fjY8L3uXd6IsZ0+Wim60Oj"],
+    ["js/ui/views.js", "sha384-d+mpkvQ7GYEV88bRWzKvbwB1Frhrmt54dMtcKID+bzU0qYwnZeO/yLVQ1PzRDII5"],
     ["js/ui/sheets.js", "sha384-hE+MIeaCueckGBbSBQdsL6lpttOvGamyNpkg5HJYRMTTPZZh/c//6kSlfd3hcniC"],
     ["js/ui/sign.js", "sha384-CKBzTnnKs8AKdrRl1J8ALm1cYwE2IxSvZC4CYZs9ceQIyx8b99qyu+DDbuecFxay"],
     ["js/ui/login.js", "sha384-eZCHCfOoCwFgps6+xMInNb/gVh8i6s9VJUDEA6BZaWN42aBcouiEpfrbC/tkunFP"],
@@ -96,7 +99,7 @@
     ["js/export/csv.js", "sha384-fJhEgVhMyA9zPX0o6k5M9PFeRJzXTm5IVZlYGLs2TzzFRr5t8jMzWiSs3VBeJYNd"],
     ["js/export/pdf.js", "sha384-xARbeMHo3ZOEcLM2hZYwaDMZUVxFKIFYj2f1hwQxFIgM7mYJQDezXjn8KXM4v8SY"],
     // Entry point: rendering, events, start-up
-    ["js/main.js", "sha384-GblMo+MiPpK1CZVXOyUbcqhIq3MkcXw3aKbhoTsc659J8s8g2qmm/7M5HYUwpESf"]
+    ["js/main.js", "sha384-f/8ZnJ2Z0UzZbXOQkL2D4q2NUG1nugwMyeHfUMFjTi4shivnt1+PEZiG7+2X8uFW"]
   ];
   var useSri = location.protocol === "http:" || location.protocol === "https:";
 
