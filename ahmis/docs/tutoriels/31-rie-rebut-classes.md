@@ -31,7 +31,7 @@ Une pièce non récupérable (LLP en butée, non réparable, endommagée, traça
 1. Menu **Composants** → un composant déposé, au statut « Non utilisable » ou « Quarantaine ».
 2. Cadre **Mettre au rebut (pièce non récupérable)** : date, motif, méthode de mutilation (`Découpe`), témoin (`Isabelle GARNIER (qualité)`), réf. certificat de destruction. Mot de passe → **Signer la mise au rebut définitive**.
 
-**Résultat** : statut **Rebuté**, définitif. Le statut ne peut plus changer, ni par l'écran, ni par l'administration, ni par l'API. Exemple dans la démo : l'étoile Starflex `DEMO-S3399`, en butée de vie.
+**Résultat** : statut **Rebuté**, définitif. Le statut ne peut plus changer, ni par l'écran, ni par l'administration, ni par l'API. Exemple dans la démo : le moyeu rotor `DEMO-S3399`, en butée de vie.
 
 Une pièce installée ou réservée ne peut pas être rebutée.
 

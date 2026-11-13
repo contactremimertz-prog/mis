@@ -661,7 +661,7 @@
 
     /* ---------- souris ---------- */
     var raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2();
-    var dragging = false, lastX = 0, moved = 0, armed = false;
+    var dragging = false, lastX = 0, moved = 0, armed = false, lastPick = null;
     var canvas = renderer.domElement;
     function hitAt(e) {
       var r = canvas.getBoundingClientRect();
@@ -679,6 +679,7 @@
       dragging = false;
       if (moved >= 5 || !parts.length) return;
       var idx = hitAt(e);
+      lastPick = { idx: idx, t: Date.now() };
       if (idx !== null) pickPart(idx);
       else if (!focus) { home(); onPick(null); }
     }
@@ -693,7 +694,8 @@
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointermove", onMove);
     canvas.addEventListener("dblclick", function (e) {
-      var idx = hitAt(e);
+      // La pièce choisie par le premier clic : la caméra a pu bouger depuis.
+      var idx = lastPick && lastPick.idx !== null && Date.now() - lastPick.t < 700 ? lastPick.idx : hitAt(e);
       if (idx !== null) enterFocus(idx, focus ? focus.mode : "iso");
     });
     canvas.addEventListener("wheel", function (e) {

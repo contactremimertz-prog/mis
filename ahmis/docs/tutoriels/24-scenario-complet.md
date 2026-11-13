@@ -2,7 +2,7 @@
 
 Ce scénario enchaîne les rôles sur un cas réaliste. Durée : 20 minutes environ. Partez d'une démo réinitialisée.
 
-**Situation** : sur l'H125 F-HDMB, l'AD `DEMO-AD-2026-0101` (barres de suspension BTP) est **dépassée** et la visite 100 h est **en tolérance**.
+**Situation** : sur le NH90 F-HDMB, l'AD `DEMO-AD-2026-0101` (barres de suspension BTP) est **dépassée** et la visite 100 h est **en tolérance**.
 
 ## Étape 1 – CAMO : constater et immobiliser (`camo`)
 
@@ -13,7 +13,7 @@ Ce scénario enchaîne les rôles sur un cas réaliste. Durée : 20 minutes envi
 ## Étape 2 – Planification (`planif`)
 
 1. **Échéances**, filtre F-HDMB.
-2. Cochez l'AD, la visite 100 h et la lubrification `125-62-050`.
+2. Cochez l'AD, la visite 100 h et la lubrification `N90-62-050`.
 3. Work package : le WP existant **Visite 100 h** → **Créer les task cards**.
 4. Sur le WP → **Modifier** : début aujourd'hui, fin demain, statut « Planifié ».
 
@@ -50,7 +50,7 @@ WP → cadre CRS : plus aucun blocage → mot de passe → **Signer le CRS**. Le
 
 ## Étape 8 – Retour en exploitation (`camo`)
 
-Le CRS a remis F-HDMB **En exploitation** automatiquement (il le fait pour un aéronef « En maintenance » ou « AOG »). Vérifiez le **tableau de bord** : F-HDMB n'a plus d'échéance dépassée, mais le Starflex (LLP) reste à planifier.
+Le CRS a remis F-HDMB **En exploitation** automatiquement (il le fait pour un aéronef « En maintenance » ou « AOG »). Vérifiez le **tableau de bord** : F-HDMB n'a plus d'échéance dépassée, mais le moyeu rotor (LLP) reste à planifier.
 
 ## Étape 9 – Contrôle qualité (`qualite`)
 

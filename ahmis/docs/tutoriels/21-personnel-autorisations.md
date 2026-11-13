@@ -16,7 +16,7 @@ Menu **Personnel & autorisations** → **Claire DUBOIS** :
 - **formations** à validité limitée : facteurs humains, EWIS… ;
 - ses derniers travaux signés et contrôles.
 
-**À vérifier** : son autorisation **H160** expire dans 45 jours. Elle est comptée dans l'indicateur « autorisation(s) expirant sous 60 j » du tableau de bord.
+**À vérifier** : son autorisation **Super Puma** expire dans 45 jours. Elle est comptée dans l'indicateur « autorisation(s) expirant sous 60 j » du tableau de bord.
 
 ## 2. Suspendre une autorisation
 

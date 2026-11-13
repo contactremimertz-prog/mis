@@ -6,11 +6,11 @@ Une tolérance permet de réaliser une tâche un peu après son échéance (par 
 
 ## 1. Situation de départ
 
-Menu **Échéances** → aéronef **F-HDMB** : la tâche `125-05-100 Visite 100 h / 12 mois` est **En tolérance**. Butée théorique `3 881,6 FH`, compteur actuel `3 887,6 FH`, soit 6 FH de dépassement sur une tolérance de 10 FH.
+Menu **Échéances** → aéronef **F-HDMB** : la tâche `N90-05-100 Visite 100 h / 12 mois` est **En tolérance**. Butée théorique `3 881,6 FH`, compteur actuel `3 887,6 FH`, soit 6 FH de dépassement sur une tolérance de 10 FH.
 
 ## 2. Enregistrer la réalisation
 
-1. Cliquez `125-05-100` → **Enregistrer une réalisation (historique)**.
+1. Cliquez `N90-05-100` → **Enregistrer une réalisation (historique)**.
 2. Aéronef `F-HDMB`, date du jour, FH `3887.6`, cycles `11623`, origine « Organisme externe », référence `CRS-EXT-001`, certifié par `Atelier externe` → **Enregistrer**.
 
 **Résultat** :

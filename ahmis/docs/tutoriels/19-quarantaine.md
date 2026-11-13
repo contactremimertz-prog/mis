@@ -9,7 +9,7 @@ Menu **Quarantaine** : toutes les pièces bloquées.
 | Pièce | Situation |
 |---|---|
 | Démarreur-génératrice `DEMO-G1666` | **Pièce suspecte (SUP)** : plaque d'identification non conforme, certificat rejeté |
-| Moteur Arriel 2D `DEMO-E21099` | **U/S** : déposé pour dépassement de température |
+| Moteur RTM322 `DEMO-E21099` | **U/S** : déposé pour dépassement de température |
 | Lot d'huile `LOT-OIL-2502` (magasin ligne) | Utilisable mais **périmé** : listé dans l'encadré orange |
 
 ## 1. Tenter de libérer une pièce suspecte

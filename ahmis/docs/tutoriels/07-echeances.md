@@ -36,8 +36,8 @@ Menu **Échéances** : la liste consolidée de tout ce qui arrive à échéance 
 
 1. Filtre **Aéronef = F-HDMB**.
     - `DEMO-AD-2026-0101` : **Dépassé**, −27,6 FH. L'AD est entrée en vigueur il y a 200 jours avec un délai de 50 FH, et n'a jamais été réalisée.
-    - `125-05-100` : **En tolérance** (−6 FH sur une tolérance de 10 FH).
-    - LLP Starflex : **À planifier**.
+    - `N90-05-100` : **En tolérance** (−6 FH sur une tolérance de 10 FH).
+    - LLP moyeu rotor : **À planifier**.
 2. Filtre **Nature = LLP**, puis **Statut = À planifier**.
 3. Filtre **Échéant sous = 90 jours**, puis **Export CSV** : le fichier s'ouvre dans Excel (séparateur « ; »).
 
@@ -46,7 +46,7 @@ Menu **Échéances** : la liste consolidée de tout ce qui arrive à échéance 
 **Compte : `planif`** (la CAMO identifie les besoins, le planificateur les place dans un work package). Quand un aéronef est sélectionné, des cases à cocher apparaissent :
 
 1. Filtre **F-HDMB**.
-2. Cochez `DEMO-AD-2026-0101`, `125-05-100` et la LLP Starflex.
+2. Cochez `DEMO-AD-2026-0101`, `N90-05-100` et la LLP moyeu rotor.
 3. Work package : choisissez **WP … Visite 100 h** (déjà planifié dans 5 jours).
 4. **Créer les task cards**.
 

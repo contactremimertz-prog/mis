@@ -16,7 +16,7 @@ Compte `qualite` → **Personnel & autorisations** → **Claire DUBOIS**. Le pan
 
 Pour une personne qui arrive d'un autre organisme, son expérience passée n'est pas dans AHMIS. Cadre **Expériences déclarées** :
 
-1. Du `01/01/2026` au `30/06/2026`, organisme `Atelier précédent (DEMO)`, travaux `Entretien en ligne H125`, justificatif `Attestation employeur`.
+1. Du `01/01/2026` au `30/06/2026`, organisme `Atelier précédent (DEMO)`, travaux `Entretien en ligne NH90`, justificatif `Attestation employeur`.
 2. **Ajouter** : les mois couverts comptent dans l'expérience récente.
 
 Une expérience dans le futur, ou dont la fin précède le début, est refusée.
@@ -35,8 +35,8 @@ Seules ces catégories bloquent. Les autres formations expirées sont signalées
 ## 4. Vérifier le blocage
 
 1. Compte `qualite` → fiche **Claire DUBOIS** → formation « Formation continue 145.A.35 » : notez sa date d'expiration.
-2. Pour tester, ajoutez une fiche personnel de test avec une autorisation certifiante H125 mais **sans** formation continue.
-3. Rattachez-la à un compte, puis ouvrez une task card H125 avec ce compte : le cadre « Signature impossible » liste « formation obligatoire absente ou expirée : Formation continue (145.A.35) ».
+2. Pour tester, ajoutez une fiche personnel de test avec une autorisation certifiante NH90 mais **sans** formation continue.
+3. Rattachez-la à un compte, puis ouvrez une task card NH90 avec ce compte : le cadre « Signature impossible » liste « formation obligatoire absente ou expirée : Formation continue (145.A.35) ».
 
 ## 5. Paramétrage
 

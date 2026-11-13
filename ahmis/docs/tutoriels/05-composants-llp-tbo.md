@@ -4,7 +4,7 @@
 
 ## Références articles (P/N)
 
-Menu **Références P/N** → cliquez `DEMO-350STR-01` (étoile Starflex H125). Une référence porte :
+Menu **Références P/N** → cliquez `DEMO-350STR-01` (moyeu rotor principal NH90). Une référence porte :
 
 - le suivi au numéro de série (obligatoire pour une LLP ou une pièce à TBO) ;
 - les **limites de vie** (LLP), depuis neuf : heures, cycles et/ou jours ;
@@ -14,7 +14,7 @@ Menu **Références P/N** → cliquez `DEMO-350STR-01` (étoile Starflex H125). 
 
 AHMIS refuse une LLP sans limite, et une LLP ou pièce à TBO non sérialisée.
 
-## Fiche composant : le Starflex de F-HDMB
+## Fiche composant : le moyeu rotor de F-HDMB
 
 1. Recherche globale : `DEMO-S3502`.
 2. La fiche affiche :
@@ -27,7 +27,7 @@ AHMIS refuse une LLP sans limite, et une LLP ou pièce à TBO non sérialisée.
 
 ## Lecture de la configuration d'un aéronef
 
-Ouvrez F-HDMA, section **Configuration installée** : pour chaque position (MOT, BTP, BTA, MRH, PALE 1-3…), le composant, ses compteurs et ce qui lui reste sur chaque limite.
+Ouvrez F-HDMA, section **Configuration installée** : pour chaque position (MOT 1, MOT 2, BTP, BTA, MRH, PALE 1-4…), le composant, ses compteurs et ce qui lui reste sur chaque limite.
 
 ## LLP et TBO dans les échéances
 

@@ -15,7 +15,7 @@ Dans le cadre **Changement de composant** :
 
 - Composant déposé : `DEMO-145FEN-01 S/N DEMO-F1451` (position BTA)
 - Motif : `Vibrations – dépose pour expertise`
-- Composant posé : `DEMO-350TGB-01 S/N DEMO-T3599` (une BTA de **H125**)
+- Composant posé : `DEMO-350TGB-01 S/N DEMO-T3599` (une BTA de **NH90**)
 - Mot de passe → **Enregistrer le changement**
 
 AHMIS refuse : « Pose refusée : P/N non applicable au type H145 ». **Rien n'a été modifié** : la boîte d'origine est toujours en place.

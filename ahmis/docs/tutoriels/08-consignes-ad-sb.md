@@ -31,7 +31,7 @@
 
 ## Exercice 3 : suivre une AD répétitive
 
-`DEMO-AD-2026-0101` (barres de suspension BTP H125) est suivie par une tâche avec un seuil de 50 FH et un intervalle de 110 FH :
+`DEMO-AD-2026-0101` (barres de suspension BTP NH90) est suivie par une tâche avec un seuil de 50 FH et un intervalle de 110 FH :
 
 - sur **F-HDMA**, elle a été réalisée : statut « Répétitive en cours », prochaine échéance 110 FH plus tard ;
 - sur **F-HDMB**, elle n'a jamais été faite : **Dépassé**. Le tutoriel 24 la traite.
