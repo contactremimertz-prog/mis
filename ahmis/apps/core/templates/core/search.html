@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% trans "Recherche" %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% trans "Recherche" %} « {{ q }} »</h1><div class="sub">{% blocktrans count n=results|length %}{{ n }} résultat{% plural %}{{ n }} résultats{% endblocktrans %}</div></div></div>
+{% if too_short %}<div class="alert info">{% trans "Saisissez au moins 2 caractères." %}</div>{% endif %}
+{% for kind, items in groups %}
+<div class="card"><h2>{{ kind }} <span class="muted small">({{ items|length }})</span></h2><table class="data"><tbody>
+{% for obj, url in items %}<tr><td><a href="{{ url }}">{{ obj }}</a></td></tr>{% endfor %}
+</tbody></table></div>
+{% empty %}<div class="card"><p class="empty">{% trans "Aucun résultat." %}</p></div>{% endfor %}
+{% endblock %}

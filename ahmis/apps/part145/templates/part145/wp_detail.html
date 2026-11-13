@@ -1,0 +1,73 @@
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{{ wp.number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ wp.number }} {% badge wp %}</h1>
+    <div class="sub"><a href="{{ wp.aircraft.get_absolute_url }}">{{ wp.aircraft.registration }}</a> {% blocktrans with title=wp.title check_type=wp.get_check_type_display station=wp.station|default:_("station non renseignée") planned_start=wp.planned_start|date:"d/m/Y" %}· {{ title }} · {{ check_type }} · {{ station }} · du {{ planned_start }} au{% endblocktrans %} {{ wp.planned_end|date:"d/m/Y" }}</div></div>
+  <div class="actions">
+    <a class="btn" href="{% url 'part145:wp_print' wp.pk %}" target="_blank">{% trans "Imprimer le dossier" %}</a>
+    {% if not wp.is_locked and perms.part145.change_workpackage %}<a class="btn" href="{% url 'part145:wp_update' wp.pk %}">{% trans "Modifier" %}</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'part145.workpackage' wp.pk %}">{% trans "Historique" %}</a>{% endif %}
+  </div>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:18px">
+  <div class="kpi"><div class="label">{% trans "Avancement" %}</div><div class="value">{{ wp.progress }} %</div><div class="progress"><span style="width:{{ wp.progress }}%"></span></div></div>
+  <div class="kpi"><div class="label">{% trans "Task cards" %}</div><div class="value">{{ cards|length }}</div></div>
+  <div class="kpi"><div class="label">{% trans "Charge prévue / réalisée" %}</div><div class="value" style="font-size:20px">{{ wp.total_estimated_mh|fmt }} / {{ wp.total_actual_mh|fmt }} h.h</div></div>
+  <div class="kpi"><div class="label">{% trans "Compteurs à l'entrée" %}</div><div class="value" style="font-size:20px">{{ wp.fh_at_check|hours }} {% trans "FH /" %} {{ wp.fc_at_check|fmt }}</div></div>
+</div>
+
+<div class="card">
+  <h2>{% trans "Task cards" %}</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>N°</th><th>{% trans "Intitulé" %}</th><th>ATA</th><th>{% trans "Origine" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Étapes" %}</th><th>{% trans "Exécuté par" %}</th><th>{% trans "Contrôlé par" %}</th><th class="num">h.h</th></tr></thead><tbody>
+  {% for c in cards %}<tr>
+    <td><a href="{{ c.get_absolute_url }}"><strong>{{ c.number }}</strong></a></td>
+    <td>{{ c.title|truncatechars:80 }}{% if c.requires_independent_inspection %} <span class="badge warn" title="{% trans 'Contrôle indépendant requis' %}">{% trans "CI" %}</span>{% endif %}</td>
+    <td>{{ c.ata }}</td><td class="small">{{ c.get_origin_display }}</td><td>{% badge c %}</td>
+    <td class="small nowrap">{{ c.steps_progress }}</td>
+    <td class="small">{{ c.performed_by.full_name|default:"—" }}</td><td class="small">{{ c.inspected_by.full_name|default:"—" }}</td>
+    <td class="num">{{ c.estimated_mh|fmt }}{% if c.actual_mh %} / {{ c.actual_mh|fmt }}{% endif %}</td>
+  </tr>{% empty %}<tr><td colspan="9" class="empty">{% trans "Aucune task card : ajoutez des éléments dus ci-dessous." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+
+{% if not wp.is_locked and perms.part145.add_taskcard %}
+<div class="grid grid-2">
+  <div class="card">
+    <h2>{% trans "Ajouter des éléments dus" %} <span class="small muted">{% trans "(échéances jusqu'à 30 j après la fin du WP)" %}</span></h2>
+    <form method="post" action="{% url 'part145:wp_add_items' wp.pk %}">{% csrf_token %}
+      {% include "camo/_due_table.html" with items=due_items selectable=True hide_aircraft=True compact=True %}
+      <div class="actions" style="margin-top:10px"><button class="btn primary" type="submit">{% trans "Créer les task cards sélectionnées" %}</button></div>
+    </form>
+    <h3>{% trans "Ou ajouter une tâche du programme" %}</h3>
+    <form method="post" action="{% url 'part145:wp_add_items' wp.pk %}" class="inline-form">{% csrf_token %}{% for f in add_task_form %}{% field f %}{% endfor %}<button class="btn" type="submit">{% trans "Ajouter" %}</button></form>
+  </div>
+  <div class="card">
+    <h2>{% trans "Travail additionnel (hors programme)" %}</h2>
+    <form method="post" action="{% url 'part145:wp_add_adhoc' wp.pk %}" class="stacked">{% csrf_token %}
+      <div class="form-grid">{% for f in adhoc_form %}{% field f %}{% endfor %}</div>
+      <button class="btn" type="submit">{% trans "Créer la task card" %}</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="card" id="crs">
+  <h2>{% trans "Certificat de remise en service (CRS)" %}</h2>
+  {% if wp.status == "released" %}
+    <div class="alert ok"><strong>{% trans "Aéronef remis en service le" %} {{ wp.crs_date|date:"d/m/Y à H:i" }}</strong> {% blocktrans with full_name=wp.crs_by.full_name %}par {{ full_name }}.{% endblocktrans %}<br>{{ wp.crs_statement }}</div>
+    {% signature crs_signature "Signature CRS" %}
+  {% elif wp.status == "cancelled" %}<p class="muted">{% trans "Work package annulé." %}</p>
+  {% else %}
+    {% if blockers %}<div class="alert warn"><strong>{% trans "CRS impossible pour l'instant :" %}</strong><ul>{% for b in blockers %}<li>{{ b }}</li>{% endfor %}</ul></div>{% endif %}
+    {% if open_defects %}<p class="small">{% trans "Défauts en cours sur l'aéronef (mentionnés dans le CRS s'ils restent reportés) :" %} {% for d in open_defects %}<a href="{{ d.get_absolute_url }}">{{ d.number }}</a> ({{ d.get_status_display|lower }}){% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+    {% if perms.part145.sign_crs %}
+    <form method="post" action="{% url 'part145:wp_crs' wp.pk %}" class="sign-box inline-form">{% csrf_token %}
+      <div class="small" style="flex-basis:100%">{% blocktrans with code=wp.aircraft.aircraft_type.code %}En signant, vous certifiez que les travaux ont été effectués conformément à la Partie 145 et que l'aéronef est apte à être remis en service. Votre autorisation certifiante sur le type {{ code }} sera vérifiée{% endblocktrans %}{% if wp.check_type == "major" %} {% trans "(catégorie C requise pour une grande visite)" %}{% endif %}.</div>
+      {% include "core/_sign_form.html" with id="crs" %}
+      <button class="btn primary" type="submit" {% if blockers %}disabled{% endif %}>{% trans "Signer le CRS" %}</button>
+    </form>{% endif %}
+  {% endif %}
+</div>
+{% if wp.notes %}<div class="card"><h2>{% trans "Notes" %}</h2><p class="small">{{ wp.notes|linebreaksbr }}</p></div>{% endif %}
+{% endblock %}

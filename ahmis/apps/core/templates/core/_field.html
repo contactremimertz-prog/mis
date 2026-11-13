@@ -1,0 +1,7 @@
+{% if f.is_hidden %}{{ f }}{% else %}
+<div class="field{% if wide or f.field.widget.input_type == 'textarea' or f.field.widget.allow_multiple_selected or f.field.widget.attrs.rows %} wide{% endif %}{% if f.field.widget.input_type == 'checkbox' %} checkbox-field{% endif %}">
+  {% if f.field.widget.input_type == 'checkbox' %}{{ f }}<label for="{{ f.id_for_label }}">{{ f.label }}</label>
+  {% else %}<label for="{{ f.id_for_label }}">{{ f.label }}{% if f.field.required %} <span style="color:var(--bad)">*</span>{% endif %}</label>{{ f }}{% endif %}
+  {% if f.help_text %}<div class="help">{{ f.help_text }}</div>{% endif %}
+  {% if f.errors %}<ul class="errors">{% for e in f.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+</div>{% endif %}

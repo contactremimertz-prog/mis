@@ -1,0 +1,46 @@
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{{ s.full_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ s.full_name }}{% if not s.active %} <span class="badge">{% trans "inactif" %}</span>{% endif %}</h1>
+    <div class="sub">{{ s.get_role_display }} {% trans "· matricule" %} {{ s.employee_number }}{% if s.stamp %} {% trans "· visa" %} {{ s.stamp }}{% endif %} {% trans "· compte" %} {{ s.user|default:_("aucun") }}</div></div>
+  <div class="actions">{% if perms.part145.change_staff %}<a class="btn" href="{% url 'part145:staff_update' s.pk %}">{% trans "Modifier" %}</a>{% endif %}</div>
+</div>
+<div class="card"><dl class="dl">
+  <div><dt>{% trans "Licence Part-66" %}</dt><dd>{{ s.licence_number|default:"—" }}</dd></div>
+  <div><dt>{% trans "Catégories" %}</dt><dd>{{ s.licence_categories|default:"—" }}</dd></div>
+  <div><dt>{% trans "Validité" %}</dt><dd>{% if s.licence_number %}{% if s.licence_valid %}<span class="badge ok">{{ s.licence_expiry|date:"d/m/Y"|default:_("valide") }}</span>{% else %}<span class="badge bad">{% trans "Expirée" %} {{ s.licence_expiry|date:"d/m/Y" }}</span>{% endif %}{% else %}—{% endif %}</dd></div>
+</dl></div>
+<div class="card"><h2>{% trans "Aptitude à signer" %}</h2>
+  <dl class="dl">
+    <div><dt>{% trans "Expérience récente" %}</dt><dd>{% if recency.months >= recency.need %}<span class="badge ok">{{ recency.months }} {% trans "mois /" %} {{ recency.window }}</span>{% else %}<span class="badge bad">{{ recency.months }} {% blocktrans with window=recency.window need=recency.need %}mois / {{ window }} ({{ need }} requis){% endblocktrans %}</span>{% endif %}{% if not recency.enforced %} <span class="small muted">{% trans "contrôle désactivé" %}</span>{% endif %}</dd></div>
+    <div><dt>{% trans "Formations (tout personnel)" %}</dt><dd>{% if missing_all %}<span class="badge bad">{% trans "Manque :" %} {{ missing_all|join:", " }}</span>{% else %}<span class="badge ok">{% trans "À jour" %}</span>{% endif %}</dd></div>
+    <div><dt>{% trans "Formations (certifiant)" %}</dt><dd>{% if missing_cert %}<span class="badge bad">{% trans "Manque :" %} {{ missing_cert|join:", " }}</span>{% else %}<span class="badge ok">{% trans "À jour" %}</span>{% endif %}</dd></div>
+  </dl>
+  {% for t, problems in type_status %}<div class="small" style="margin-top:6px"><strong>{{ t.code }}</strong> : {% if problems %}<span style="color:var(--bad)">{{ problems|join:" " }}</span>{% else %}<span style="color:var(--ok)">{% trans "peut signer" %}</span>{% endif %}</div>{% endfor %}
+  <p class="small muted" style="margin-bottom:0">{% trans "Expérience = mois calendaires avec au moins une task card exécutée ou contrôlée dans AHMIS, plus les expériences déclarées ci-dessous (145.A.35 : 6 mois sur 2 ans pour le personnel certifiant)." %}</p>
+</div>
+<div class="card"><h2>{% trans "Autorisations (organisme Part-145)" %}</h2>
+  <table class="data"><thead><tr><th>N°</th><th>{% trans "Type" %}</th><th>{% trans "Catégorie" %}</th><th>{% trans "Certifiante" %}</th><th>{% trans "Portée" %}</th><th>{% trans "Validité" %}</th><th>{% trans "État" %}</th></tr></thead><tbody>
+  {% for a in auths %}<tr><td>{{ a.number }}</td><td>{{ a.aircraft_type.code }}</td><td>{{ a.get_category_display }}</td><td>{% yesno_badge a.certifying %}</td><td class="small">{{ a.scope }}</td><td class="small">{{ a.valid_from|date:"d/m/Y" }} → {{ a.valid_until|date:"d/m/Y" }}</td><td>{% if a.is_valid %}<span class="badge ok">{% trans "Valide" %}</span>{% elif a.suspended %}<span class="badge bad">{% trans "Suspendue" %}</span>{% else %}<span class="badge bad">{% trans "Hors validité" %}</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">{% trans "Aucune autorisation : cette personne ne peut rien signer." %}</td></tr>{% endfor %}</tbody></table>
+  {% if perms.part145.add_authorization %}<h3>{% trans "Ajouter une autorisation" %}</h3>
+  <form method="post" action="{% url 'part145:staff_add_authorization' s.pk %}" class="stacked">{% csrf_token %}<div class="form-grid">{% for f in auth_form %}{% field f %}{% endfor %}</div><button class="btn" type="submit">{% trans "Ajouter" %}</button></form>{% endif %}
+</div>
+<div class="card"><h2>{% trans "Formations à validité limitée" %}</h2>
+  <table class="data"><thead><tr><th>{% trans "Catégorie" %}</th><th>{% trans "Formation" %}</th><th>{% trans "Obtenue" %}</th><th>{% trans "Expire" %}</th><th></th></tr></thead><tbody>
+  {% for q in quals %}<tr><td class="small">{{ q.get_category_display }}</td><td>{{ q.name }}</td><td>{{ q.obtained|date:"d/m/Y" }}</td><td>{{ q.expiry|date:"d/m/Y"|default:"—" }}</td><td>{% if q.is_valid %}<span class="badge ok">{% trans "Valide" %}</span>{% else %}<span class="badge bad">{% trans "Expirée" %}</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="empty">{% trans "Aucune." %}</td></tr>{% endfor %}</tbody></table>
+  {% if perms.part145.add_qualification %}<form method="post" action="{% url 'part145:staff_add_qualification' s.pk %}" class="inline-form" style="margin-top:10px">{% csrf_token %}{% for f in qual_form %}{% field f %}{% endfor %}<button class="btn" type="submit">{% trans "Ajouter" %}</button></form>{% endif %}
+</div>
+<div class="card"><h2>{% trans "Expériences déclarées (hors AHMIS)" %}</h2>
+  <table class="data"><thead><tr><th>{% trans "Période" %}</th><th>{% trans "Organisme" %}</th><th>{% trans "Type" %}</th><th>{% trans "Travaux" %}</th><th>{% trans "Justificatif" %}</th></tr></thead><tbody>
+  {% for e in experiences %}<tr><td class="nowrap">{{ e.start|date:"m/Y" }} → {{ e.end|date:"m/Y" }}</td><td>{{ e.organisation }}</td><td>{{ e.aircraft_type.code|default:"—" }}</td><td class="small">{{ e.description }}</td><td class="small">{{ e.evidence }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="empty">{% trans "Aucune." %}</td></tr>{% endfor %}</tbody></table>
+  {% if perms.part145.add_experiencerecord %}<form method="post" action="{% url 'part145:staff_add_experience' s.pk %}" class="stacked" style="margin-top:10px">{% csrf_token %}<div class="form-grid">{% for f in exp_form %}{% field f %}{% endfor %}</div><button class="btn" type="submit">{% trans "Ajouter" %}</button></form>{% endif %}
+</div>
+<div class="grid grid-2">
+  <div class="card"><h2>{% trans "Derniers travaux signés" %}</h2><table class="data"><tbody>{% for c in recent_cards %}<tr><td><a href="{{ c.get_absolute_url }}">{{ c.number }}</a></td><td class="small">{{ c.title|truncatechars:50 }}</td><td class="small">{{ c.performed_at|date:"d/m/Y" }}</td></tr>{% empty %}<tr><td class="empty">{% trans "Aucun." %}</td></tr>{% endfor %}</tbody></table></div>
+  <div class="card"><h2>{% trans "Derniers contrôles" %}</h2><table class="data"><tbody>{% for c in recent_inspections %}<tr><td><a href="{{ c.get_absolute_url }}">{{ c.number }}</a></td><td class="small">{{ c.title|truncatechars:50 }}</td><td class="small">{{ c.inspected_at|date:"d/m/Y" }}</td></tr>{% empty %}<tr><td class="empty">{% trans "Aucun." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

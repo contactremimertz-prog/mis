@@ -1,0 +1,125 @@
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{{ ac.registration }}{% endblock %}
+{% block scripts %}{% if heli_zones %}{% load static %}<script src="{% static 'ahmis/vendor/three.min.js' %}" defer></script>{% if heli_model %}<script src="{% static 'ahmis/vendor/GLTFLoader.js' %}" defer></script>{% endif %}<script src="{% static 'ahmis/heli3d.js' %}" defer></script>{% endif %}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ ac.registration }} {% badge ac %}</h1>
+    <div class="sub">{{ ac.aircraft_type }} {% blocktrans with msn=ac.msn category=ac.aircraft_type.get_category_display %}· MSN {{ msn }} · {{ category }} ·{% endblocktrans %} {{ ac.operator|default:_("exploitant non renseigné") }}</div>
+  </div>
+  <div class="actions">
+    {% if perms.fleet.add_utilisationrecord %}<a class="btn primary" href="{% url 'fleet:utilisation_create' %}?aircraft={{ ac.pk }}">{% trans "Saisir des heures" %}</a>{% endif %}
+    {% if perms.part145.add_workpackage %}<a class="btn" href="{% url 'part145:wp_create' %}?aircraft={{ ac.pk }}">{% trans "Nouveau work package" %}</a>{% endif %}
+    {% if perms.part145.add_defect %}<a class="btn" href="{% url 'part145:defect_create' %}?aircraft={{ ac.pk }}">{% trans "Signaler un défaut" %}</a>{% endif %}
+    <a class="btn" href="{% url 'camo:forecast' %}?aircraft={{ ac.pk }}">{% trans "Forecast" %}</a>
+    {% if perms.fleet.change_aircraft %}<a class="btn" href="{% url 'fleet:aircraft_update' ac.pk %}">{% trans "Modifier" %}</a>
+    <a class="btn" href="{% url 'fleet:component_attach' ac.pk %}">{% trans "Reprise de configuration" %}</a>{% endif %}
+    {% if perms.camo.add_transferrecord %}<a class="btn" href="{% url 'camo:transfer_create' %}?aircraft={{ ac.pk }}">{% trans "Exporter le dossier" %}</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'fleet.aircraft' ac.pk %}">{% trans "Historique" %}</a>{% endif %}
+  </div>
+</div>
+{% if ac.withdrawn_on %}<div class="alert warn">{% blocktrans with withdrawn_on=ac.withdrawn_on|date:"d/m/Y" %}Aéronef retiré définitivement du service le {{ withdrawn_on }} : ses enregistrements d'état{% endblocktrans %}
+  {% blocktrans with retention_until=ac.retention_until|date:"d/m/Y" %}(temps totaux, AD, LLP, modifications) sont conservés au minimum jusqu'au {{ retention_until }} (M.A.305(h)).{% endblocktrans %}</div>{% endif %}
+
+<div class="grid grid-4" style="margin-bottom:18px">
+  <div class="kpi"><div class="label">{% trans "Heures totales" %}</div><div class="value counter">{{ ac.total_fh|hours }}</div><div class="small muted">{% trans "au" %} {{ ac.counters_date|date:"d/m/Y" }}</div></div>
+  <div class="kpi"><div class="label">{{ ac.aircraft_type.cycle_label }}</div><div class="value counter">{{ ac.total_fc }}</div><div class="small muted">{% blocktrans with planned_daily_fh=ac.planned_daily_fh|fmt planned_daily_fc=ac.planned_daily_fc|fmt %}utilisation prévue : {{ planned_daily_fh }} FH / {{ planned_daily_fc }} cyc par jour{% endblocktrans %}</div></div>
+  <a class="kpi {% if counts.overdue or counts.tolerance %}bad{% elif counts.due_soon %}warn{% else %}ok{% endif %}" href="#echeances"><div class="label">{% trans "Échéances" %}</div><div class="value">{{ counts.overdue|add:counts.tolerance }} / {{ counts.due_soon }}</div><div class="small muted">{% trans "dépassées (dont tolérance) / à planifier" %}</div></a>
+  <div class="kpi {% if not ac.arc_expiry or ac.arc_expiry < today %}bad{% endif %}"><div class="label">{% trans "ARC valable jusqu'au" %}</div><div class="value" style="font-size:20px">{{ ac.arc_expiry|date:"d/m/Y"|default:_("Aucun") }}</div>{% if perms.camo.add_airworthinessreview %}<a class="small" href="{% url 'camo:arc_create' %}?aircraft={{ ac.pk }}">{% trans "Enregistrer une revue" %}</a>{% endif %}</div>
+</div>
+
+<div class="card">
+  <dl class="dl">
+    <div><dt>{% trans "Propriétaire" %}</dt><dd>{{ ac.owner|default:"—" }}</dd></div>
+    <div><dt>{% trans "Base" %}</dt><dd>{{ ac.base|default:"—" }}</dd></div>
+    <div><dt>{% trans "Fabrication" %}</dt><dd>{{ ac.manufacture_date|date:"d/m/Y" }}</dd></div>
+    <div><dt>{% trans "Mise en service" %}</dt><dd>{{ ac.entry_into_service|date:"d/m/Y"|default:"—" }}</dd></div>
+    <div><dt>{% trans "Certificat de navigabilité" %}</dt><dd>{{ ac.cofa_number|default:"—" }}</dd></div>
+    <div><dt>{% trans "Cadre réglementaire" %}</dt><dd>{{ ac.aircraft_type.get_regulatory_frame_display }}</dd></div>
+    <div><dt>{% trans "Motorisation" %}</dt><dd>{{ ac.aircraft_type.engine_count }} × {{ ac.aircraft_type.engine_model|default:"—" }}</dd></div>
+  </dl>
+  {% if ac.notes %}<p class="small muted" style="margin-bottom:0">{{ ac.notes|linebreaksbr }}</p>{% endif %}
+</div>
+
+{% if heli_zones %}{% include "fleet/_heli3d.html" %}{% endif %}
+
+<div class="card" id="echeances">
+  <h2>{% trans "Échéances" %} <span class="actions"><a class="btn small" href="{% url 'camo:due' %}?aircraft={{ ac.pk }}">{% trans "Vue complète / planifier" %}</a><a class="btn small" href="{% url 'camo:due_csv' %}?aircraft={{ ac.pk }}">{% trans "Export CSV" %}</a></span></h2>
+  {% include "camo/_due_table.html" with items=items hide_aircraft=True %}
+</div>
+
+<div class="card">
+  <h2>{% trans "Configuration installée" %} <span class="small muted">{{ components|length }} {% trans "composant(s) suivi(s)" %}</span></h2>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>{% trans "Position" %}</th><th>P/N</th><th>S/N</th><th>{% trans "Désignation" %}</th><th class="num">{% trans "TSN" %}</th><th class="num">{% trans "CSN" %}</th><th class="num">{% trans "TSO" %}</th><th class="num">{% trans "CSO" %}</th><th>{% trans "Limites (restant)" %}</th></tr></thead>
+    <tbody>{% for r in components %}<tr>
+      <td><strong>{{ r.c.position|default:"—" }}</strong></td>
+      <td><a href="{{ r.c.get_absolute_url }}">{{ r.c.part_number.pn }}</a></td><td>{{ r.c.serial_number }}</td>
+      <td>{{ r.c.part_number.description }}{% if r.c.part_number.is_llp %} <span class="badge warn">LLP</span>{% endif %}</td>
+      <td class="num">{{ r.c.tsn_fh|hours }}</td><td class="num">{{ r.c.csn }}</td><td class="num">{{ r.c.tso_fh|hours }}</td><td class="num">{{ r.c.cso }}</td>
+      <td class="small">{% for l in r.limits %}<div>{{ l.label }} : <span class="{% if l.remaining <= 0 %}neg{% endif %}">{{ l.remaining|fmt }} {{ l.unit }}</span> <span class="muted">/ {{ l.limit|fmt }}</span></div>{% empty %}<span class="muted">{% trans "Sans limite (on condition)" %}</span>{% endfor %}</td>
+    </tr>{% empty %}<tr><td colspan="9" class="empty">{% trans "Aucun composant installé. Utilisez « Reprise de configuration » pour un aéronef entrant en flotte." %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+
+<div class="card">
+  <h2>{% trans "Modifications et réparations" %} <span class="actions"><a class="small" href="{% url 'camo:mod_list' %}?aircraft={{ ac.pk }}">{% trans "Tout voir →" %}</a>{% if perms.camo.add_modificationrepair %}<a class="btn small" href="{% url 'camo:mod_create' %}?aircraft={{ ac.pk }}">{% trans "+ Enregistrer" %}</a>{% endif %}</span></h2>
+  <table class="data"><thead><tr><th>N°</th><th>{% trans "Intitulé" %}</th><th>{% trans "Classe" %}</th><th>{% trans "Approbation" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Appliquée" %}</th><th>{% trans "Suivi" %}</th></tr></thead><tbody>
+  {% for m in modifications %}<tr><td><a href="{{ m.get_absolute_url }}">{{ m.number }}</a></td><td>{{ m.title }}{% if m.component %} <span class="small muted">{{ m.component }}</span>{% endif %}</td>
+    <td class="small">{{ m.get_kind_display }} {{ m.get_classification_display|lower }}</td><td class="small">{{ m.approval_reference }}</td><td>{% badge m %}</td>
+    <td class="small">{{ m.embodied_on|date:"d/m/Y"|default:"—" }}</td>
+    <td class="small">{% for i in m.compliance_issues %}<span class="badge warn">{{ i }}</span> {% empty %}<span class="muted">OK</span>{% endfor %}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">{% trans "Aucune modification ni réparation enregistrée." %}</td></tr>{% endfor %}</tbody></table>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>{% trans "Consignes (AD/SB)" %} <a class="small" href="{% url 'camo:directive_status_list' %}?aircraft={{ ac.pk }}">{% trans "Tout voir →" %}</a></h2>
+    <table class="data"><thead><tr><th>{% trans "Consigne" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Conformité" %}</th></tr></thead><tbody>
+    {% for a in directives %}<tr><td><a href="{{ a.directive.get_absolute_url }}">{{ a.directive.number }}</a><div class="small muted">{{ a.directive.title|truncatechars:60 }}</div></td><td>{% badge a %}</td><td class="small">{{ a.compliance_date|date:"d/m/Y"|default:"—" }}</td></tr>
+    {% empty %}<tr><td colspan="3" class="empty">{% trans "Aucune consigne évaluée." %}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="card">
+    <h2>{% trans "Défauts en cours" %}</h2>
+    <table class="data"><thead><tr><th>N°</th><th>{% trans "Description" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Limite" %}</th></tr></thead><tbody>
+    {% for d in defects %}<tr><td><a href="{{ d.get_absolute_url }}">{{ d.number }}</a></td><td class="small">{{ d.description|truncatechars:70 }}</td><td>{% badge d %}</td><td class="small nowrap">{{ d.deferral_limit_date|date:"d/m/Y"|default:"—" }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="empty">{% trans "Aucun défaut ouvert." %}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>{% trans "Work packages" %}</h2>
+    <table class="data"><thead><tr><th>WP</th><th>{% trans "Dates" %}</th><th>{% trans "Statut" %}</th></tr></thead><tbody>
+    {% for wp in wps %}<tr><td><a href="{{ wp.get_absolute_url }}">{{ wp.number }}</a><div class="small muted">{{ wp.title }}</div></td><td class="small nowrap">{{ wp.planned_start|date:"d/m/Y" }} → {{ wp.planned_end|date:"d/m/Y" }}</td><td>{% badge wp %}</td></tr>
+    {% empty %}<tr><td colspan="3" class="empty">{% trans "Aucun work package." %}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="card">
+    <h2>{% trans "Dernières saisies d'utilisation" %} <a class="small" href="{% url 'fleet:utilisation_list' %}?aircraft={{ ac.pk }}">{% trans "Tout voir →" %}</a></h2>
+    <table class="data"><thead><tr><th>{% trans "Date" %}</th><th class="num">FH</th><th class="num">{% trans "Cyc." %}</th><th class="num">{% trans "Totaux après" %}</th><th>{% trans "Réf." %}</th></tr></thead><tbody>
+    {% for u in utilisation %}<tr><td>{{ u.date|date:"d/m/Y" }}</td><td class="num">{{ u.fh|fmt }}</td><td class="num">{{ u.fc }}</td><td class="num small">{{ u.fh_after|hours }} / {{ u.fc_after }}</td><td class="small">{{ u.reference }}</td></tr>
+    {% empty %}<tr><td colspan="5" class="empty">{% trans "Aucune saisie." %}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>{% trans "Historique des réalisations" %}</h2>
+    <table class="data"><thead><tr><th>{% trans "Date" %}</th><th>{% trans "Tâche" %}</th><th class="num">{% trans "FH / cyc" %}</th><th>{% trans "Origine" %}</th></tr></thead><tbody>
+    {% for a in accomplishments %}<tr><td class="nowrap">{{ a.date|date:"d/m/Y" }}</td><td><a href="{{ a.task.get_absolute_url }}">{{ a.task.reference }}</a>{% if a.component %} <span class="small muted">{{ a.component }}</span>{% endif %}</td><td class="num small">{{ a.fh|hours }} / {{ a.fc }}</td><td class="small">{% if a.task_card %}<a href="{{ a.task_card.get_absolute_url }}">{{ a.task_card.number }}</a>{% else %}{{ a.reference|default:a.get_source_display }}{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="4" class="empty">{% trans "Aucune réalisation." %}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="card">
+    <h2>{% trans "Mouvements de composants" %}</h2>
+    <table class="data"><thead><tr><th>{% trans "Composant" %}</th><th>{% trans "Position" %}</th><th>{% trans "Pose" %}</th><th>{% trans "Dépose" %}</th></tr></thead><tbody>
+    {% for r in installs %}<tr><td><a href="{{ r.component.get_absolute_url }}">{{ r.component }}</a></td><td>{{ r.position }}</td><td class="small nowrap">{{ r.installed_on|date:"d/m/Y" }}</td><td class="small">{% if r.removed_on %}{{ r.removed_on|date:"d/m/Y" }} – {{ r.removal_reason }}{% else %}<span class="badge info">{% trans "installé" %}</span>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="4" class="empty">{% trans "Aucun mouvement." %}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}{% load i18n ahmis static %}
+{% block title %}{% trans "Tableau de bord" %}{% endblock %}
+{% block content_class %} content-wide{% endblock %}
+{% block content %}
+<h1 class="sr-only">{% trans "Tableau de bord" %}</h1>
+
+{% if fleet_rows %}
+<section class="hero" aria-roledescription="{% trans 'carrousel' %}" aria-label="{% trans 'Flotte' %}" data-carousel>
+  <ul class="hero-track" data-carousel-track>
+    {% for r in fleet_rows %}{% with n=r.counts.overdue|add:r.counts.tolerance cat=r.ac.aircraft_type.category %}
+    <li class="hero-slide" id="slide-{{ r.ac.pk }}" aria-roledescription="{% trans 'diapositive' %}" aria-label="{{ forloop.counter }} / {{ fleet_rows|length }} · {{ r.ac.registration }}">
+      <div class="hero-text">
+        <div class="kicker">{% trans "Flotte" %} · {{ forloop.counter }} / {{ fleet_rows|length }}</div>
+        <h2 class="hero-title">{{ r.ac.registration }}<span>{{ r.ac.aircraft_type.code }}{% if r.ac.base %} · {{ r.ac.base }}{% endif %}</span></h2>
+        <p class="hero-sub">{{ r.ac.get_status_display }} · {{ r.ac.total_fh|hours }} FH · {% if not r.ac.arc_expiry %}{% trans "aucun ARC" %}{% elif r.ac.arc_expiry < today %}{% blocktrans with d=r.ac.arc_expiry|date:"d/m/Y" %}ARC expiré le {{ d }}{% endblocktrans %}{% else %}{% blocktrans with d=r.ac.arc_expiry|date:"d/m/Y" %}ARC valable jusqu'au {{ d }}{% endblocktrans %}{% endif %}</p>
+        <p class="hero-sub hero-sub-2">MSN {{ r.ac.msn }} · {{ r.ac.total_fc }} {% trans "cycles" %}{% if r.ac.counters_date %} · {% blocktrans with d=r.ac.counters_date|date:"d/m/Y" %}compteurs au {{ d }}{% endblocktrans %}{% endif %}</p>
+        <div class="hero-pills">
+          {% if n %}<span class="pill bad">{% blocktrans count n=n %}{{ n }} échéance dépassée{% plural %}{{ n }} échéances dépassées{% endblocktrans %}</span>{% endif %}
+          {% if r.counts.due_soon %}<span class="pill warn">{% blocktrans count n=r.counts.due_soon %}{{ n }} à planifier{% plural %}{{ n }} à planifier{% endblocktrans %}</span>{% endif %}
+          {% if not n and not r.counts.due_soon %}<span class="pill ok">{% trans "Aucune échéance dépassée ni à planifier" %}</span>{% endif %}
+          {% if not r.ac.arc_expiry %}<span class="pill bad">{% trans "Aucun ARC enregistré" %}</span>{% elif r.ac.arc_expiry < today %}<span class="pill bad">{% trans "ARC expiré" %}</span>{% endif %}
+        </div>
+        <div class="hero-actions">
+          {% if cat == "helicopter" %}<a class="btn hero-btn primary" href="{{ r.ac.get_absolute_url }}#vue-3d">{% trans "Voir la vue 3D" %}</a>{% endif %}
+          <a class="btn hero-btn{% if cat != "helicopter" %} primary{% else %} ghost{% endif %}" href="{{ r.ac.get_absolute_url }}">{% trans "Fiche appareil" %}</a>
+          <a class="btn hero-btn ghost" href="{% url 'camo:due' %}?aircraft={{ r.ac.pk }}">{% trans "Échéances" %}</a>
+        </div>
+      </div>
+      {% if r.photo %}<figure class="hero-photo"><img src="{% static r.photo.file %}" alt="{% blocktrans with m=r.photo.label %}Photo d'un {{ m }} (photo du type, pas de l'appareil){% endblocktrans %}"{% if not forloop.first %} loading="lazy"{% endif %}>{% if r.photo.credit %}<figcaption>{% trans "Photo" %} : {% if r.photo.url %}<a href="{{ r.photo.url }}" target="_blank" rel="noopener noreferrer">{{ r.photo.credit }}</a>{% else %}{{ r.photo.credit }}{% endif %}</figcaption>{% endif %}</figure>
+      {% else %}<div class="hero-art" aria-hidden="true">{% if cat == "helicopter" %}{% include "core/_art_heli.svg" %}{% else %}{% include "core/_art_plane.svg" %}{% endif %}</div>{% endif %}
+      {% if fleet_rows|length > 1 %}{% with nxt=r.next %}<a class="hero-next" href="#slide-{{ nxt.ac.pk }}" data-carousel-next>
+        <small>{% trans "Suivant" %}</small><b>{{ nxt.ac.registration }} · {{ nxt.ac.aircraft_type.code }}</b>
+        <span>{% with m=nxt.counts.overdue|add:nxt.counts.tolerance %}{% blocktrans count m=m %}{{ m }} dépassée{% plural %}{{ m }} dépassées{% endblocktrans %}{% endwith %} · {% blocktrans count k=nxt.counts.due_soon %}{{ k }} à planifier{% plural %}{{ k }} à planifier{% endblocktrans %}</span>
+      </a>{% endwith %}{% endif %}
+    </li>{% endwith %}{% endfor %}
+  </ul>
+  {% if fleet_rows|length > 1 %}<div class="hero-ctrl" data-carousel-ctrl hidden>
+    <button type="button" class="hero-arrow" data-carousel-prev aria-label="{% trans 'Appareil précédent' %}">‹</button>
+    <button type="button" class="hero-arrow" data-carousel-next-btn aria-label="{% trans 'Appareil suivant' %}">›</button>
+    <span class="hero-dots">{% for r in fleet_rows %}<button type="button" data-carousel-dot="{{ forloop.counter0 }}" aria-label="{{ r.ac.registration }}"{% if forloop.first %} aria-current="true"{% endif %}></button>{% endfor %}</span>
+    <span class="hero-count" aria-live="polite" data-carousel-count>01 / {{ fleet_rows|length|stringformat:"02d" }}</span>
+  </div>{% endif %}
+</section>
+{% endif %}
+
+<section class="band band-grey">
+  <div class="band-head"><div><div class="kicker kicker-dark">{{ AHMIS.ORGANISATION }} · {% trans "situation au" %} {{ today|date:"l d F Y" }}</div><h2 class="band-title">{% trans "Ce qui demande votre attention" %}</h2></div>
+    <div class="band-actions"><a class="btn" href="{% url 'camo:due' %}">{% trans "Toutes les échéances" %}</a><a class="btn primary" href="{% url 'fleet:utilisation_create' %}">{% trans "Saisir des heures de vol" %}</a></div></div>
+  <div class="kpi-row">
+    <a class="kpi2 {% if kpi.overdue %}bad{% endif %}" href="{% url 'camo:due' %}?status=overdue"><span class="l">{% trans "Échéances dépassées" %}</span><span class="v">{{ kpi.overdue }}</span><span class="s">{% blocktrans with tolerance=kpi.tolerance %}dont {{ tolerance }} en tolérance{% endblocktrans %}</span></a>
+    <a class="kpi2 {% if kpi.due_soon %}warn{% endif %}" href="{% url 'camo:due' %}?status=due_soon"><span class="l">{% blocktrans with ALERT_DAYS=AHMIS.ALERT_DAYS %}À planifier (≤ {{ ALERT_DAYS }} j){% endblocktrans %}</span><span class="v">{{ kpi.due_soon }}</span><span class="s">{% blocktrans count n=kpi.aircraft %}flotte de {{ n }} appareil{% plural %}flotte de {{ n }} appareils{% endblocktrans %}</span></a>
+    <a class="kpi2 {% if kpi.open_defects or kpi.deferred_overdue %}bad{% endif %}" href="{% url 'part145:defect_list' %}?status=open"><span class="l">{% trans "Défauts ouverts" %}</span><span class="v">{{ kpi.open_defects }}</span><span class="s">{% blocktrans count n=kpi.deferred %}{{ n }} reporté{% plural %}{{ n }} reportés{% endblocktrans %}{% if kpi.deferred_overdue %}, <b class="lvl-crit">{{ kpi.deferred_overdue }} {% trans "hors délai" %}</b>{% endif %}</span></a>
+    <a class="kpi2 {% if kpi.ad_to_assess %}bad{% endif %}" href="{% url 'camo:directive_status_list' %}?status=to_assess"><span class="l">{% trans "AD / SB à évaluer" %}</span><span class="v">{{ kpi.ad_to_assess }}</span><span class="s">{% trans "applicabilité à statuer" %}</span></a>
+  </div>
+</section>
+
+<section class="band">
+  <div class="band-head"><div><div class="kicker kicker-dark">{% trans "Navigabilité · CAMO" %}</div><h2 class="band-title">{% trans "Situation de la flotte" %}</h2></div>
+    <div class="band-actions"><a class="btn" href="{% url 'fleet:aircraft_list' %}">{% trans "Flotte et vue 3D" %}</a></div></div>
+  <div class="card"><div class="table-wrap"><table class="data">
+    <thead><tr><th>{% trans "Aéronef" %}</th><th>{% trans "Type" %}</th><th>{% trans "Statut" %}</th><th class="num">{% trans "FH totales" %}</th><th class="num">{% trans "Cycles" %}</th><th>{% trans "Compteurs au" %}</th><th>{% trans "ARC jusqu'au" %}</th><th>{% trans "Dépassé" %}</th><th>{% trans "À planifier" %}</th></tr></thead>
+    <tbody>{% for r in fleet_rows %}<tr>
+      <td><a href="{{ r.ac.get_absolute_url }}"><strong>{{ r.ac.registration }}</strong></a> <span class="muted small">MSN {{ r.ac.msn }}</span></td>
+      <td>{{ r.ac.aircraft_type.code }}</td><td>{% badge r.ac %}</td>
+      <td class="num">{{ r.ac.total_fh|hours }}</td><td class="num">{{ r.ac.total_fc }}</td><td>{{ r.ac.counters_date|date:"d/m/Y" }}</td>
+      <td>{% if r.ac.arc_expiry %}<span class="{% if r.ac.arc_expiry < today %}badge bad{% endif %}">{{ r.ac.arc_expiry|date:"d/m/Y" }}</span>{% else %}<span class="badge bad">{% trans "Aucun" %}</span>{% endif %}</td>
+      <td>{% with n=r.counts.overdue|add:r.counts.tolerance %}{% if n %}<span class="badge bad">{{ n }}</span>{% else %}<span class="muted">0</span>{% endif %}{% endwith %}</td>
+      <td>{% if r.counts.due_soon %}<span class="badge warn">{{ r.counts.due_soon }}</span>{% else %}<span class="muted">0</span>{% endif %}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div></div>
+</section>
+
+<section class="band">
+  <div class="band-head"><div><div class="kicker kicker-dark">{% trans "Accès rapides" %}</div><h2 class="band-title">{% trans "Votre activité" %}</h2></div></div>
+  <div class="tiles">
+    <a class="tile tile-big" href="{% url 'fleet:aircraft_list' %}"><span class="tile-art" aria-hidden="true">{% include "core/_art_heli.svg" %}</span>
+      <span class="kicker">{% trans "Navigabilité · CAMO" %}</span><b>{% trans "Flotte et vue 3D" %}</b>
+      <span>{% blocktrans count n=kpi.aircraft %}{{ n }} appareil suivi{% plural %}{{ n }} appareils suivis{% endblocktrans %} · {% trans "urgences par zone sur chaque hélicoptère" %}</span></a>
+    <a class="tile tile-navy" href="{% url 'part145:wp_list' %}"><span class="tile-n">{{ kpi.wp_active }}</span><b>{% trans "Work packages actifs" %}</b>
+      <span>{% blocktrans count n=kpi.cards_waiting_inspection %}{{ n }} task card en attente de contrôle{% plural %}{{ n }} task cards en attente de contrôle{% endblocktrans %}</span></a>
+    <a class="tile tile-cyan" href="{% url 'part145:planning' %}"><span class="kicker">{% trans "Entretien · Part-145" %}</span><b>{% trans "Planning" %}</b><span>{% trans "Work packages et échéances par semaine" %}</span></a>
+    <a class="tile tile-night" href="{% url 'logistics:request_list' %}?status=requested"><span class="kicker">{% trans "Logistique" %}</span><b>{% trans "Magasin et outillage" %}</b>
+      <span>{% blocktrans count n=kpi.requests %}{{ n }} demande de pièce{% plural %}{{ n }} demandes de pièces{% endblocktrans %} · {{ kpi.quarantine }} {% trans "en quarantaine" %} · {% blocktrans count n=kpi.tools_expired %}{{ n }} outil hors étalonnage{% plural %}{{ n }} outils hors étalonnage{% endblocktrans %}</span></a>
+    <a class="tile tile-navy" href="{% if qual %}{% url 'quality:finding_list' %}?status=open{% else %}{% url 'safety:list' %}{% endif %}"><span class="kicker">{% trans "Qualité" %}</span><b>{% if qual %}{% trans "Audits et constats" %}{% else %}{% trans "Comptes rendus d'événements" %}{% endif %}</b>
+      <span>{% if qual %}{% blocktrans count n=qual.findings_open %}{{ n }} constat ouvert{% plural %}{{ n }} constats ouverts{% endblocktrans %}{% if qual.findings_overdue %} · {{ qual.findings_overdue }} {% trans "hors délai" %}{% endif %}{% else %}{% trans "Déclarer ou suivre un événement" %}{% endif %}</span></a>
+  </div>
+</section>
+
+<section class="band band-grey">
+  <div class="band-head"><div><div class="kicker kicker-dark">{% trans "Alertes réglementaires" %}</div><h2 class="band-title">{% trans "À traiter" %}</h2></div></div>
+  <div class="todo">
+    {% if occ.open %}<a class="todo-item{% if not occ.overdue %} warn{% endif %}" href="{% url 'safety:list' %}"><span class="l">{% trans "Comptes rendus d'événements" %}</span>
+      <b>{% if occ.overdue %}{% blocktrans count n=occ.overdue %}{{ n }} hors délai (72 h / 30 j){% plural %}{{ n }} hors délai (72 h / 30 j){% endblocktrans %}{% else %}{% blocktrans count n=occ.open %}{{ n }} ouvert{% plural %}{{ n }} ouverts{% endblocktrans %}{% endif %}</b>
+      <span>{% blocktrans count n=occ.open %}{{ n }} ouvert{% plural %}{{ n }} ouverts{% endblocktrans %}, {% blocktrans with to_notify=occ.to_notify %}dont {{ to_notify }} à notifier{% endblocktrans %}</span></a>{% endif %}
+    {% if qual.findings_open or qual.revisions_pending or qual.docs_review_due %}<a class="todo-item{% if not qual.findings_overdue and not qual.level1_open %} warn{% endif %}" href="{% url 'quality:finding_list' %}?status=open"><span class="l">{% trans "Qualité" %}</span>
+      <b>{% if qual.findings_overdue %}{% blocktrans count n=qual.findings_overdue %}{{ n }} constat hors délai{% plural %}{{ n }} constats hors délai{% endblocktrans %}{% elif qual.level1_open %}{{ qual.level1_open }} {% trans "niveau 1" %}{% elif not qual.findings_open and qual.revisions_pending %}{% blocktrans count n=qual.revisions_pending %}{{ n }} révision à approuver{% plural %}{{ n }} révisions à approuver{% endblocktrans %}{% elif not qual.findings_open %}{% blocktrans count n=qual.docs_review_due %}{{ n }} document à revoir{% plural %}{{ n }} documents à revoir{% endblocktrans %}{% else %}{% blocktrans count n=qual.findings_open %}{{ n }} constat ouvert{% plural %}{{ n }} constats ouverts{% endblocktrans %}{% endif %}</b>
+      <span>{% blocktrans count n=qual.findings_open %}{{ n }} constat ouvert{% plural %}{{ n }} constats ouverts{% endblocktrans %} · {% blocktrans count n=qual.revisions_pending %}{{ n }} révision à approuver{% plural %}{{ n }} révisions à approuver{% endblocktrans %} · {% blocktrans count n=qual.docs_review_due %}{{ n }} document à revoir{% plural %}{{ n }} documents à revoir{% endblocktrans %}</span></a>{% endif %}
+    {% if amp_alerts %}<a class="todo-item{% if not amp_bad %} warn{% endif %}" href="{% url 'camo:amp_review_list' %}"><span class="l">{% trans "Revue du programme · M.A.302(g)" %}</span>
+      <b>{% for r in amp_alerts|slice:":1" %}{{ r.type.code }} : {% if r.status == "none" %}{% trans "aucune revue enregistrée" %}{% elif r.status == "overdue" %}{% blocktrans with d=r.due|date:"d/m/Y" %}revue dépassée depuis le {{ d }}{% endblocktrans %}{% else %}{% blocktrans with d=r.due|date:"d/m/Y" %}revue avant le {{ d }}{% endblocktrans %}{% endif %}{% endfor %}</b>
+      <span>{% for r in amp_alerts|slice:"1:" %}{{ r.type.code }} : {% if r.status == "none" %}{% trans "aucune revue" %}{% elif r.status == "overdue" %}{% blocktrans with d=r.due|date:"d/m/Y" %}dépassée depuis le {{ d }}{% endblocktrans %}{% else %}{% blocktrans with d=r.due|date:"d/m/Y" %}avant le {{ d }}{% endblocktrans %}{% endif %}{% if not forloop.last %} · {% endif %}{% endfor %}</span></a>{% endif %}
+    {% if kpi.auth_expiring %}<a class="todo-item warn" href="{% url 'part145:staff_list' %}"><span class="l">{% trans "Personnel certifiant" %}</span>
+      <b>{% blocktrans count n=kpi.auth_expiring %}{{ n }} autorisation expire sous 60 j{% plural %}{{ n }} autorisations expirent sous 60 j{% endblocktrans %}</b><span>{% trans "renouvellement à prévoir" %}</span></a>{% endif %}
+    {% if kpi.deferred_overdue %}<a class="todo-item" href="{% url 'part145:defect_list' %}?status=deferred"><span class="l">{% trans "Défauts reportés" %}</span>
+      <b>{% blocktrans count n=kpi.deferred_overdue %}{{ n }} report échu{% plural %}{{ n }} reports échus{% endblocktrans %}</b><span>{% trans "limite de report dépassée" %}</span></a>{% endif %}
+    {% if kpi.tools_expired or kpi.quarantine %}<a class="todo-item{% if not kpi.tools_expired %} warn{% endif %}" href="{% url 'logistics:tool_list' %}"><span class="l">{% trans "Outillage et magasin" %}</span>
+      <b>{% if kpi.tools_expired %}{% blocktrans count n=kpi.tools_expired %}{{ n }} outil hors étalonnage{% plural %}{{ n }} outils hors étalonnage{% endblocktrans %}{% else %}{{ kpi.quarantine }} {% trans "en quarantaine" %}{% endif %}</b><span>{{ kpi.quarantine }} {% trans "en quarantaine" %}</span></a>{% endif %}
+    {% if not occ.open and not qual.findings_open and not qual.revisions_pending and not qual.docs_review_due and not amp_alerts and not kpi.auth_expiring and not kpi.deferred_overdue and not kpi.tools_expired and not kpi.quarantine %}<div class="todo-item ok"><span class="l">{% trans "Alertes réglementaires" %}</span><b>{% trans "Aucune alerte réglementaire" %}</b><span>{% trans "événements, qualité, programme, personnel, reports et outillage" %}{% if not qual or not occ %} · {% trans "selon vos droits d'accès" %}{% endif %}</span></div>{% endif %}
+  </div>
+</section>
+
+<section class="band">
+  <div class="grid grid-2 band-tables">
+    <div class="card">
+      <h2>{% trans "Échéances prioritaires" %} <a class="small" href="{% url 'camo:due' %}">{% trans "Tout voir →" %}</a></h2>
+      {% include "camo/_due_table.html" with items=top_items compact=True %}
+    </div>
+    <div class="card">
+      <h2>{% trans "Work packages en cours" %} <a class="small" href="{% url 'part145:planning' %}">{% trans "Planning →" %}</a></h2>
+      <div class="table-wrap"><table class="data"><thead><tr><th>{% trans "WP" %}</th><th>{% trans "Aéronef" %}</th><th>{% trans "Dates" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Avancement" %}</th></tr></thead><tbody>
+      {% for wp in active_wps %}<tr><td><a href="{{ wp.get_absolute_url }}">{{ wp.number }}</a><div class="small muted">{{ wp.title }}</div></td><td class="reg">{{ wp.aircraft.registration }}</td>
+        <td class="nowrap">{{ wp.planned_start|date:"d/m" }} → {{ wp.planned_end|date:"d/m" }}</td><td>{% badge wp %}</td>
+        <td><div class="progress"><span style="width:{{ wp.progress }}%"></span></div><span class="small muted">{{ wp.progress }} %</span></td></tr>
+      {% empty %}<tr><td colspan="5" class="empty">{% trans "Aucun work package actif." %}</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'ahmis/carousel.js' %}" defer></script>{% endblock %}

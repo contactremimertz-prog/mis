@@ -1,0 +1,60 @@
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{{ task.reference }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ task.reference }}{% if not task.active %} <span class="badge">{% trans "inactive" %}</span>{% endif %}</h1>
+    <div class="sub">{{ task.title }} {% blocktrans with aircraft_type=task.aircraft_type ata=task.ata|default:"—" %}· {{ aircraft_type }} · ATA {{ ata }} ·{% endblocktrans %} {{ task.get_source_display }}</div></div>
+  <div class="actions">
+    {% if perms.camo.add_taskaccomplishment %}<a class="btn" href="{% url 'camo:task_record' task.pk %}">{% trans "Enregistrer une réalisation (historique)" %}</a>{% endif %}
+    {% if perms.camo.change_maintenancetask %}<a class="btn" href="{% url 'camo:task_update' task.pk %}">{% trans "Modifier" %}</a>{% endif %}
+    {% if perms.core.view_auditlog %}<a class="btn" href="{% url 'fleet:history' 'camo.maintenancetask' task.pk %}">{% trans "Historique des révisions" %}</a>{% endif %}
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="card"><h2>{% trans "Définition" %}</h2>
+    <dl class="dl">
+      <div><dt>{% trans "Intervalle" %}</dt><dd>{{ task.interval_display }}</dd></div>
+      <div><dt>{% trans "Seuil (1re échéance)" %}</dt><dd>{{ task.threshold_display|default:_("= intervalle") }}</dd></div>
+      <div><dt>{% trans "Tolérances" %}</dt><dd>{{ task.tolerance_fh|fmt }} {% blocktrans with tolerance_fc=task.tolerance_fc|fmt tolerance_days=task.tolerance_days|fmt %}FH · {{ tolerance_fc }} cyc · {{ tolerance_days }} j{% endblocktrans %}</dd></div>
+      <div><dt>{% trans "Nature" %}</dt><dd>{{ task.get_task_type_display }}</dd></div>
+      <div><dt>{% trans "Charge estimée" %}</dt><dd>{{ task.estimated_mh|fmt }} h.h</dd></div>
+      <div><dt>{% trans "Qualification" %}</dt><dd>{{ task.get_skill_display }}</dd></div>
+      <div><dt>{% trans "Contrôle indépendant" %}</dt><dd>{% yesno_badge task.requires_independent_inspection _("Requis") _("Non") %}</dd></div>
+      <div><dt>{% trans "Zone / accès" %}</dt><dd>{{ task.zone|default:"—" }} · {{ task.access|default:"—" }}</dd></div>
+      <div><dt>{% trans "Composant" %}</dt><dd>{% if task.part_number %}<a href="{{ task.part_number.get_absolute_url }}">{{ task.part_number.pn }}</a>{% else %}{% trans "Cellule" %}{% endif %}</dd></div>
+      <div><dt>{% trans "Consigne liée" %}</dt><dd>{% if task.directive %}<a href="{{ task.directive.get_absolute_url }}">{{ task.directive.number }}</a>{% else %}—{% endif %}</dd></div>
+      <div><dt>{% trans "Révision AMP" %}</dt><dd>{{ task.amp_revision|default:"—" }}</dd></div>
+      <div><dt>{% trans "Effectivité" %}</dt><dd>{{ task.effectivity.all|join:", "|default:_("Tous les aéronefs du type") }}</dd></div>
+    </dl>
+    {% if task.description %}<h3>{% trans "Description" %}</h3><p class="small">{{ task.description|linebreaksbr }}</p>{% endif %}
+  </div>
+  <div class="card"><h2>{% trans "Étapes" %}</h2>
+    <ol class="small">{% for s in task.steps_list %}<li>{{ s }}</li>{% empty %}<li class="muted">{% trans "Aucune étape détaillée." %}</li>{% endfor %}</ol>
+    <h3>{% trans "Pièces requises" %}</h3>
+    <table class="data"><tbody>{% for rp in required_parts %}<tr><td><a href="{{ rp.part_number.get_absolute_url }}">{{ rp.part_number.pn }}</a> {{ rp.part_number.description }}</td><td class="num">× {{ rp.quantity|fmt }}</td>
+      <td>{% if perms.camo.change_maintenancetask %}<form method="post" action="{% url 'camo:task_remove_part' task.pk rp.pk %}">{% csrf_token %}<button class="btn small" type="submit">{% trans "Retirer" %}</button></form>{% endif %}</td></tr>
+    {% empty %}<tr><td class="empty">{% trans "Aucune pièce prévue." %}</td></tr>{% endfor %}</tbody></table>
+    {% if perms.camo.change_maintenancetask %}<form method="post" action="{% url 'camo:task_add_part' task.pk %}" class="inline-form" style="margin-top:10px">{% csrf_token %}{% for f in part_form %}{% field f %}{% endfor %}<button class="btn small" type="submit">{% trans "Ajouter" %}</button></form>{% endif %}
+  </div>
+</div>
+
+<div class="card"><h2>{% trans "Situation par aéronef" %}</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>{% trans "Aéronef" %}</th><th>{% trans "Composant" %}</th><th>{% trans "Statut" %}</th><th>{% trans "Dernière réalisation" %}</th><th class="num">{% trans "Butée FH" %}</th><th class="num">{% trans "Butée cyc." %}</th><th>{% trans "Butée date" %}</th><th class="num">{% trans "Reste FH" %}</th><th class="num">{% trans "Reste cyc." %}</th><th>{% trans "Date prévue" %}</th><th></th></tr></thead>
+  <tbody>{% for r in rows %}<tr>
+    <td><a href="{{ r.ac.get_absolute_url }}">{{ r.ac.registration }}</a></td><td class="small">{{ r.comp|default:"—" }}</td>
+    {% if r.item %}<td>{% status_badge r.item.status r.item.status_label %}</td>
+      <td class="small">{{ r.item.last_date|date:"d/m/Y"|default:_("jamais") }}</td>
+      <td class="num">{{ r.item.due_fh|hours }}</td><td class="num">{{ r.item.due_fc|fmt }}</td><td>{{ r.item.due_date|date:"d/m/Y"|default:"—" }}</td>
+      <td class="num {{ r.item.remaining_fh|remaining_class }}">{{ r.item.remaining_fh|hours }}</td><td class="num {{ r.item.remaining_fc|remaining_class }}">{{ r.item.remaining_fc|fmt }}</td><td>{{ r.item.projected_date|date:"d/m/Y" }}</td>
+    {% else %}<td colspan="8"><span class="badge ok">{% trans "Réalisée (tâche unique)" %}</span></td>{% endif %}
+    <td>{% if perms.camo.add_taskaccomplishment %}<a class="small" href="{% url 'camo:task_record' task.pk %}?aircraft={{ r.ac.pk }}">{% trans "reprise" %}</a>{% endif %}</td>
+  </tr>{% empty %}<tr><td colspan="11" class="empty">{% trans "Aucun aéronef concerné." %}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+
+<div class="card"><h2>{% trans "Réalisations" %}</h2>
+  <table class="data"><thead><tr><th>{% trans "Date" %}</th><th>{% trans "Aéronef" %}</th><th class="num">{% trans "FH / cyc" %}</th><th>{% trans "Composant" %}</th><th>{% trans "Origine" %}</th><th>{% trans "Certifié par" %}</th></tr></thead><tbody>
+  {% for a in accomplishments %}<tr><td>{{ a.date|date:"d/m/Y" }}</td><td>{{ a.aircraft.registration }}</td><td class="num">{{ a.fh|hours }} / {{ a.fc }}</td><td class="small">{{ a.component|default:"—" }}</td>
+    <td class="small">{% if a.task_card %}<a href="{{ a.task_card.get_absolute_url }}">{{ a.task_card.number }}</a>{% else %}{{ a.get_source_display }} – {{ a.reference }}{% endif %}</td><td class="small">{{ a.certified_by }}{% if a.used_tolerance %} <span class="badge tolerance" title="Butée théorique {{ a.due_fh_at_done|hours }} FH / {{ a.due_fc_at_done|fmt }} cyc / {{ a.due_date_at_done|date:'d/m/Y'|default:'—' }} : l'intervalle suivant repart de cette butée">{% trans "en tolérance" %}</span>{% endif %}{% if a.done_overdue %} <span class="badge bad">{% trans "hors tolérance" %}</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="empty">{% trans "Aucune." %}</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

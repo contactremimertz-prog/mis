@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% load i18n %}{% load ahmis %}
+{% block title %}{% trans "Échéances" %}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{% trans "Échéances" %}{% if aircraft %} – {{ aircraft.registration }}{% endif %}</h1>
+    <div class="sub">{% blocktrans with ALERT_DAYS=AHMIS.ALERT_DAYS %}Calcul « premier critère atteint » (FH, cycles, calendrier). Alerte « À planifier » à {{ ALERT_DAYS }} jours. Les dates prévues utilisent l'utilisation prévue de chaque aéronef.{% endblocktrans %}</div></div>
+  <div class="actions"><a class="btn" href="{% url 'camo:due_csv' %}?{{ request.GET.urlencode }}">{% trans "Export CSV" %}</a><a class="btn" href="{% url 'camo:forecast' %}{% if aircraft %}?aircraft={{ aircraft.pk }}{% endif %}">{% trans "Forecast" %}</a></div>
+</div>
+<div class="card">
+  <form method="get" class="filters">
+    <div class="f"><label for="f-ac">{% trans "Aéronef" %}</label><select id="f-ac" name="aircraft" onchange="this.form.submit()"><option value="">{% trans "Toute la flotte" %}</option>{% for a in fleet %}<option value="{{ a.pk }}" {% if aircraft.pk == a.pk %}selected{% endif %}>{{ a.registration }} ({{ a.aircraft_type.code }})</option>{% endfor %}</select></div>
+    <div class="f"><label for="f-st">{% trans "Statut" %}</label><select id="f-st" name="status" onchange="this.form.submit()"><option value="">{% trans "Tous" %}</option>{% for k, v in statuses %}<option value="{{ k }}" {% if request.GET.status == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    <div class="f"><label for="f-k">{% trans "Nature" %}</label><select id="f-k" name="kind" onchange="this.form.submit()"><option value="">{% trans "Toutes" %}</option>{% for k, v in kinds %}<option value="{{ k }}" {% if request.GET.kind == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    <div class="f"><label for="f-w">{% trans "Échéant sous" %}</label><select id="f-w" name="within" onchange="this.form.submit()"><option value="">{% trans "Sans limite" %}</option><option value="30" {% if request.GET.within == "30" %}selected{% endif %}>{% trans "30 jours" %}</option><option value="60" {% if request.GET.within == "60" %}selected{% endif %}>{% trans "60 jours" %}</option><option value="90" {% if request.GET.within == "90" %}selected{% endif %}>{% trans "90 jours" %}</option><option value="180" {% if request.GET.within == "180" %}selected{% endif %}>{% trans "180 jours" %}</option><option value="365" {% if request.GET.within == "365" %}selected{% endif %}>{% trans "1 an" %}</option></select></div>
+    {% if request.GET %}<a class="btn" href="{{ request.path }}">{% trans "Réinitialiser" %}</a>{% endif %}
+    <div class="f" style="margin-left:auto;align-self:end">
+      <span class="badge overdue">{{ counts.overdue }} {% trans "dépassé(s)" %}</span> <span class="badge tolerance">{{ counts.tolerance }} {% trans "en tolérance" %}</span> <span class="badge due_soon">{{ counts.due_soon }} {% trans "à planifier" %}</span> <span class="badge ok">{{ counts.ok }} OK</span>
+    </div>
+  </form>
+
+  {% if aircraft and can_plan %}
+  <form method="post" action="{% url 'part145:plan_from_due' aircraft.pk %}">{% csrf_token %}
+    <div class="alert ok" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+      <div><strong>{% trans "Planifier :" %}</strong> {% trans "cochez les éléments puis choisissez le work package." %}</div>
+      <div class="field" style="margin:0"><label for="wp">{% trans "Work package" %}</label>
+        <select id="wp" name="wp"><option value="new">{% trans "+ Nouveau work package" %}</option>{% for wp in open_wps %}<option value="{{ wp.pk }}">{{ wp.number }} – {{ wp.title }} ({{ wp.get_status_display }})</option>{% endfor %}</select></div>
+      <button class="btn primary" type="submit">{% trans "Créer les task cards" %}</button>
+    </div>
+    {% include "camo/_due_table.html" with items=items selectable=True hide_aircraft=True %}
+  </form>
+  {% else %}
+    {% if not aircraft and can_plan %}<p class="small muted">{% trans "Sélectionnez un aéronef pour planifier des éléments dans un work package." %}</p>{% endif %}
+    {% include "camo/_due_table.html" with items=items %}
+  {% endif %}
+</div>
+{% endblock %}

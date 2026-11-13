@@ -1,0 +1,25 @@
+{% load i18n %}{% load ahmis %}<div class="table-wrap"><table class="data">
+  <thead><tr>
+    {% if selectable %}<th><input type="checkbox" aria-label="{% trans 'Tout sélectionner' %}" onclick="document.querySelectorAll('input[name=keys]').forEach(c=>c.checked=this.checked)"></th>{% endif %}
+    <th>{% trans "Statut" %}</th>{% if not hide_aircraft %}<th>{% trans "Aéronef" %}</th>{% endif %}<th>{% trans "Nature" %}</th><th>{% trans "Élément" %}</th>
+    {% if not compact %}<th>{% trans "Dernière réalisation" %}</th><th class="num">{% trans "Butée FH" %}</th><th class="num">{% trans "Butée cyc." %}</th><th>{% trans "Butée date" %}</th>{% endif %}
+    <th class="num">{% trans "Reste FH" %}</th><th class="num">{% trans "Reste cyc." %}</th><th>{% trans "Date prévue" %}</th>{% if not compact %}<th>{% trans "Critère" %}</th><th class="num">h.h</th>{% endif %}
+  </tr></thead>
+  <tbody>
+  {% for i in items %}<tr>
+    {% if selectable %}<td>{% if i.kind == "task" or i.kind == "component_task" or i.kind == "llp" or i.kind == "tbo" or i.kind == "defect" %}<input type="checkbox" name="keys" value="{{ i.key }}" aria-label="Sélectionner {{ i.reference }}">{% endif %}</td>{% endif %}
+    <td>{% status_badge i.status i.status_label %}</td>
+    {% if not hide_aircraft %}<td class="reg"><a href="{{ i.aircraft.get_absolute_url }}">{{ i.aircraft.registration }}</a></td>{% endif %}
+    <td class="small">{{ i.kind_label }}</td>
+    <td class="el"><a href="{{ i.url }}"><strong>{{ i.reference }}</strong></a><div class="small muted">{{ i.label|truncatechars:90 }}</div>{% if i.notes %}<div class="small" style="color:var(--tol)">{{ i.notes }}</div>{% endif %}</td>
+    {% if not compact %}
+    <td class="small nowrap">{% if i.last_date %}{{ i.last_date|date:"d/m/Y" }}<br><span class="muted">{{ i.last_fh|hours }} {% blocktrans with last_fc=i.last_fc|fmt %}FH / {{ last_fc }} cyc{% endblocktrans %}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+    <td class="num">{{ i.due_fh|hours }}</td><td class="num">{{ i.due_fc|fmt }}</td><td class="nowrap">{{ i.due_date|date:"d/m/Y"|default:"—" }}</td>
+    {% endif %}
+    <td class="num {{ i.remaining_fh|remaining_class }}">{{ i.remaining_fh|hours }}</td>
+    <td class="num {{ i.remaining_fc|remaining_class }}">{{ i.remaining_fc|fmt }}</td>
+    <td class="nowrap">{{ i.projected_date|date:"d/m/Y"|default:"—" }}{% if i.remaining_days is not None %}<div class="small {% if i.remaining_days < 0 %}neg{% else %}muted{% endif %}">{% if i.remaining_days < 0 %}{% blocktrans with remaining_days=i.remaining_days|absval %}il y a {{ remaining_days }} j{% endblocktrans %}{% else %}{% blocktrans with remaining_days=i.remaining_days %}dans {{ remaining_days }} j{% endblocktrans %}{% endif %}</div>{% endif %}</td>
+    {% if not compact %}<td class="small">{{ i.driver|default:"—" }}</td><td class="num">{{ i.estimated_mh|fmt }}</td>{% endif %}
+  </tr>{% empty %}<tr><td colspan="14" class="empty">{% trans "Aucune échéance." %}</td></tr>{% endfor %}
+  </tbody>
+</table></div>
