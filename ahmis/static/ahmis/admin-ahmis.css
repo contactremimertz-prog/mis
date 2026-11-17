@@ -1,0 +1,49 @@
+/* Administration Django habillée au design AHMIS fusionné (aucune dépendance externe). */
+body { background: var(--bg, #f2f5f9); color: var(--ink, #0b1630); }
+
+/* En-tête : même bandeau que le site */
+#header { background: var(--night, #071a3d); color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+#header a:link, #header a:visited { color: #c9d6ea; }
+#site-name, #branding { display: flex; align-items: center; gap: 10px; }
+#branding .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .06em; color: #fff; }
+.admin-title { color: #fff; font-weight: 600; font-size: 14px; border-bottom: 2px solid #00aec7; padding: 4px 0; }
+#user-tools { margin-left: auto; font-size: 13px; color: #c9d6ea; }
+#user-tools a { color: #fff; }
+#user-tools strong { color: #fff; }
+
+.breadcrumbs { background: transparent; padding: 14px 24px 0; font-size: 12.5px; color: #5f6e86; }
+.breadcrumbs a { color: #0a3278; font-weight: 600; }
+
+#content { padding: 8px 24px 40px; max-width: 1280px; margin: 0 auto; }
+.admin-h1 { color: #00205b; font-size: 26px; margin: 8px 0 18px; font-weight: 700; }
+
+/* Index : groupes en cartes */
+.admin-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+@media (max-width: 960px) { .admin-layout { grid-template-columns: 1fr; } }
+.admin-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+.admin-app { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(0, 0, 0, .05); border-top: 4px solid #00205b; margin: 0; }
+.admin-app-camo { border-color: #00aec7; }
+.admin-app-fleet { border-color: #1c7a4b; }
+.admin-app-logistics { border-color: #e67e22; }
+.admin-app h2 { margin: 0; padding: 12px 18px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #00205b; background: #e3ecf8; }
+.admin-row { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 10px 18px; border-top: 1px solid #dce3ee; font-size: 13.5px; }
+.admin-row:first-of-type { border-top: 0; }
+.admin-model { color: #00205b; font-weight: 600; }
+.admin-act { color: #0a3278; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.admin-act.add::before { content: "+ "; color: #1c7a4b; }
+.admin-act.chg::before { content: "✎ "; color: #9a5b00; }
+.admin-empty { padding: 18px; color: #5f6e86; }
+
+.admin-recent { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 1px 2px rgba(0, 0, 0, .05); border-top: 4px solid #00aec7; }
+.admin-recent h2 { margin: 0 0 12px; font-size: 16px; color: #00205b; }
+.admin-recent h3 { margin: 12px 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #5f6e86; }
+.admin-item { font-size: 13px; padding: 8px 0; border-top: 1px solid #dce3ee; }
+.admin-item small { display: block; color: #5f6e86; }
+
+/* Pages liste et formulaire : modules en cartes */
+#content-main .module, .module { background: #fff; border-radius: 14px; box-shadow: 0 1px 2px rgba(0, 0, 0, .05); border: 0; overflow: hidden; }
+.module h2, .module caption { background: #e3ecf8; color: #00205b; font-size: 13px; }
+.module table { font-size: 13px; }
+#changelist .button, .submit-row input, .button, input[type=submit], a.button { background: #00205b; border: 1px solid #00205b; color: #fff; border-radius: 9px; font-weight: 600; }
+.submit-row a.deletelink { color: #c4291f; }
+.object-tools a:link, .object-tools a:visited { background: #00205b; color: #fff; border-radius: 9px; }

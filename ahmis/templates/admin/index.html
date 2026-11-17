@@ -1,0 +1,62 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block bodyclass %}{{ block.super }} admin-ahmis-index{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">{% trans "Accueil" %}</a> › {% trans "Administration" %}</div>
+{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div id="content-main" class="admin-ahmis">
+  <h1 class="admin-h1">{% trans "Site d'administration" %}</h1>
+
+  <div class="admin-layout">
+    <div class="admin-groups">
+      {% for app in app_list %}
+        <section class="admin-app admin-app-{{ app.app_label }}" aria-labelledby="app-{{ app.app_label }}">
+          <h2 id="app-{{ app.app_label }}">{{ app.name }}</h2>
+          {% for model in app.models %}
+            <div class="admin-row">
+              {% if model.admin_url %}
+                <a class="admin-model" href="{{ model.admin_url }}">{{ model.name }}</a>
+              {% else %}
+                <span class="admin-model">{{ model.name }}</span>
+              {% endif %}
+              {% if model.add_url %}<a class="admin-act add" href="{{ model.add_url }}">{% trans "Ajouter" %}</a>{% else %}<span></span>{% endif %}
+              {% if model.admin_url %}<a class="admin-act chg" href="{{ model.admin_url }}">{% trans "Modifier" %}</a>{% else %}<span></span>{% endif %}
+            </div>
+          {% endfor %}
+        </section>
+      {% empty %}
+        <p class="admin-empty">{% trans "Vous n'avez l'autorisation de gérer aucune section." %}</p>
+      {% endfor %}
+    </div>
+
+    <aside class="admin-recent" aria-label="{% trans 'Actions récentes' %}">
+      <h2>{% trans "Actions récentes" %}</h2>
+      <h3>{% trans "Mes actions" %}</h3>
+      {% load log %}
+      {% get_admin_log 10 as admin_log for_user user %}
+      {% if not admin_log %}
+        <div class="admin-item">{% trans "Aucune action disponible" %}</div>
+      {% else %}
+        {% for entry in admin_log %}
+          <div class="admin-item">
+            {% if entry.is_deletion or not entry.get_admin_url %}
+              {{ entry.object_repr }}
+            {% else %}
+              <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+            {% endif %}
+            <small>{% if entry.content_type %}{{ entry.content_type }}{% endif %}</small>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}
