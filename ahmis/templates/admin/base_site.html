@@ -56,8 +56,12 @@
   function scan() {
     document.querySelectorAll('.calendarbox').forEach(ajouterSelecteurs);
   }
+  /* Les calendriers sont créés à la demande (clic sur l'icône) : on observe le DOM. */
+  if (window.MutationObserver) {
+    new MutationObserver(function () { scan(); setTimeout(scan, 0); }).observe(document.body, { childList: true, subtree: true });
+  }
   document.addEventListener('DOMContentLoaded', scan);
-  document.addEventListener('click', function () { setTimeout(scan, 0); });
+  scan();
 })();
 </script>
 {% endblock %}
