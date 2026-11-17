@@ -47,3 +47,19 @@ body { background: var(--bg, #f2f5f9); color: var(--ink, #0b1630); }
 #changelist .button, .submit-row input, .button, input[type=submit], a.button { background: #00205b; border: 1px solid #00205b; color: #fff; border-radius: 9px; font-weight: 600; }
 .submit-row a.deletelink { color: #c4291f; }
 .object-tools a:link, .object-tools a:visited { background: #00205b; color: #fff; border-radius: 9px; }
+
+/* Widgets date et heure : lisibles sur fond blanc (en-tête du calendrier compris) */
+.calendarbox, .clockbox { background: #fff; color: #0b1630; border: 1px solid #b9c6da; border-radius: 12px; box-shadow: 0 8px 24px rgba(7, 26, 61, .18); }
+.calendarbox caption, .calendar caption, .calendarbox .calendarnav-previous, .calendarbox .calendarnav-next { background: #00205b; color: #fff; }
+.calendarbox caption { padding: 6px 0; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.calendarnav-previous a, .calendarnav-next a, .calendarbox .calendarnav-previous a, .calendarbox .calendarnav-next a { color: #fff !important; font-size: 16px; font-weight: 700; text-decoration: none; }
+.calendar th { color: #00205b; background: #e3ecf8; }
+.calendar td { color: #0b1630; }
+.calendar td a { color: #0a3278; }
+.calendar td a:hover, .calendar td a.selected { background: #00aec7; color: #fff; }
+.calendarbox .calendar-sel { display: flex; gap: 6px; padding: 8px; background: #e3ecf8; }
+.calendarbox .calendar-sel select, .calendarbox .calendar-sel input { flex: 1; padding: 4px 6px; border: 1px solid #b9c6da; border-radius: 8px; color: #0b1630; background: #fff; font-size: 13px; }
+.clockbox h2 { background: #00205b; color: #fff; }
+.clockbox a { color: #0a3278; }
+.clockbox a:hover { background: #00aec7; color: #fff; }
+.timelist a, .timelist li a { color: #0a3278; }

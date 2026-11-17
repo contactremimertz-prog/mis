@@ -15,3 +15,49 @@
 {% endblock %}
 
 {% block nav-global %}{% endblock %}
+
+{% block footer %}{{ block.super }}
+<script>
+/* Sélecteurs mois / année dans le calendrier Django (sans logique métier). */
+(function () {
+  var MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  function ajouterSelecteurs(box) {
+    if (typeof DateTimeShortcuts === 'undefined') return;
+    if (box.getAttribute('data-ahmis')) { if (box._ahmisMaj) box._ahmisMaj(); return; }
+    var n = box.id.replace('calendarbox', '');
+    var cal = DateTimeShortcuts.calendars[n];
+    if (!cal) return;
+    box.setAttribute('data-ahmis', '1');
+    var bar = document.createElement('div');
+    bar.className = 'calendar-sel';
+    var selM = document.createElement('select');
+    MOIS.forEach(function (nom, i) {
+      var o = document.createElement('option');
+      o.value = i + 1; o.textContent = nom; selM.appendChild(o);
+    });
+    var inpA = document.createElement('input');
+    inpA.type = 'number'; inpA.min = 1; inpA.max = 9999;
+    var maj = function () {
+      selM.value = cal.currentMonth;
+      inpA.value = cal.currentYear;
+    };
+    var appliquer = function () {
+      var y = parseInt(inpA.value, 10);
+      if (!y || y < 1 || y > 9999) return;
+      cal.drawDate(parseInt(selM.value, 10), y, cal.selected);
+    };
+    selM.addEventListener('change', appliquer);
+    inpA.addEventListener('change', appliquer);
+    bar.appendChild(selM); bar.appendChild(inpA);
+    box.insertBefore(bar, box.firstChild);
+    maj();
+    box._ahmisMaj = maj;
+  }
+  function scan() {
+    document.querySelectorAll('.calendarbox').forEach(ajouterSelecteurs);
+  }
+  document.addEventListener('DOMContentLoaded', scan);
+  document.addEventListener('click', function () { setTimeout(scan, 0); });
+})();
+</script>
+{% endblock %}
